@@ -1,0 +1,100 @@
+name: Build Windows Installer
+
+on:
+  workflow_dispatch:  # Manuel tetikleme butonu
+  push:
+    tags:
+      - 'v*'  # v1.0.0 gibi tag push edilince otomatik
+
+jobs:
+  build-windows:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install Nativefier
+        run: npm install -g nativefier
+
+      - name: Build Windows App
+        run: |
+          nativefier `
+            --name "Nature.co" `
+            --platform windows `
+            --arch x64 `
+            --app-version "1.0.0" `
+            --width 1280 `
+            --height 800 `
+            --title-bar-style hidden `
+            --background-color "#0B0E11" `
+            --disable-dev-tools `
+            --single-instance `
+            "https://natureco.me/" `
+            ./app-build
+
+      - name: Install Inno Setup
+        run: choco install innosetup -y
+
+      - name: Create Inno Setup Script
+        run: |
+          $issContent = @"
+          #define MyAppName "Nature.co"
+          #define MyAppVersion "1.0.0"
+          #define MyAppPublisher "Nature.co"
+          #define MyAppURL "https://natureco.me"
+          #define MyAppExeName "Nature.co.exe"
+
+          [Setup]
+          AppId={{A1B2C3D4-E5F6-7890-ABCD-EF1234567890}
+          AppName={#MyAppName}
+          AppVersion={#MyAppVersion}
+          AppPublisher={#MyAppPublisher}
+          AppPublisherURL={#MyAppURL}
+          DefaultDirName={autopf}\Nature.co
+          DefaultGroupName={#MyAppName}
+          AllowNoIcons=yes
+          OutputDir=.\installer-output
+          OutputBaseFilename=NatureCo-Setup
+          Compression=lzma2/ultra64
+          SolidCompression=yes
+          WizardStyle=modern
+          PrivilegesRequired=admin
+          UninstallDisplayIcon={app}\{#MyAppExeName}
+          UninstallDisplayName={#MyAppName}
+
+          [Languages]
+          Name: "english"; MessagesFile: "compiler:Default.isl"
+
+          [Tasks]
+          Name: "desktopicon"; Description: "Create desktop shortcut"; GroupDescription: "Additional tasks:"; Flags: unchecked
+
+          [Files]
+          Source: ".\app-build\Nature.co-win32-x64\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
+
+          [Icons]
+          Name: "{group}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"
+          Name: "{group}\Uninstall {#MyAppName}"; Filename: "{uninstallexe}"
+          Name: "{autodesktop}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"; Tasks: desktopicon
+
+          [Run]
+          Filename: "{app}\{#MyAppExeName}"; Description: "Launch Nature.co"; Flags: nowait postinstall skipifsilent
+          "@
+          New-Item -ItemType Directory -Force -Path .\installer-output
+          $issContent | Out-File -FilePath .\NatureCo.iss -Encoding UTF8
+
+      - name: Build Installer
+        run: |
+          & "C:\Program Files (x86)\Inno Setup 6\ISCC.exe" .\NatureCo.iss
+
+      - name: Upload Installer
+        uses: actions/upload-artifact@v4
+        with:
+          name: NatureCo-Windows-Installer
+          path: installer-output/NatureCo-Setup.exe
+          retention-days: 30
