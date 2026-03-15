@@ -237,5 +237,5 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: NatureCo-AndroidTV
-          path: natureco-tv/app/build/outputs/apk/release/app-release-unsigned.apk
+          path: natureco-tv/app/build/outputs/apk/**/*.apk
           retention-days: 30
