@@ -209,13 +209,23 @@ jobs:
 
       - name: Create launcher icon
         run: |
-          cat > natureco-tv/app/src/main/res/mipmap-hdpi/ic_launcher.xml << 'EOF'
-          <?xml version="1.0" encoding="utf-8"?>
-          <adaptive-icon xmlns:android="http://schemas.android.com/apk/res/android">
-              <background android:drawable="@android:color/black"/>
-              <foreground android:drawable="@android:color/white"/>
-          </adaptive-icon>
-          EOF
+          mkdir -p natureco-tv/app/src/main/res/mipmap-hdpi
+          python3 -c "
+          import struct, zlib
+          def png(w,h,color):
+              def chunk(t,d):
+                  c=struct.pack('>I',len(d))+t+d
+                  return c+struct.pack('>I',zlib.crc32(c[4:])&0xffffffff)
+              raw=b''
+              for y in range(h):
+                  raw+=b'\x00'
+                  for x in range(w):
+                      raw+=bytes(color)
+              return b'\x89PNG\r\n\x1a\n'+chunk(b'IHDR',struct.pack('>IIBBBBB',w,h,8,2,0,0,0))+chunk(b'IDAT',zlib.compress(raw))+chunk(b'IEND',b'')
+              
+          with open('natureco-tv/app/src/main/res/mipmap-hdpi/ic_launcher.png','wb') as f:
+              f.write(png(72,72,[11,14,17]))
+          "
 
       - name: Build APK
         run: |
