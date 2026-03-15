@@ -1,0 +1,222 @@
+name: Build Android TV APK
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build-android-tv:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Create Android TV Project
+        run: |
+          mkdir -p natureco-tv/app/src/main/java/me/natureco/tv
+          mkdir -p natureco-tv/app/src/main/res/layout
+          mkdir -p natureco-tv/app/src/main/res/values
+          mkdir -p natureco-tv/app/src/main/res/drawable
+          mkdir -p natureco-tv/app/src/main/res/mipmap-hdpi
+          mkdir -p natureco-tv/app/src/main/res/xml
+
+      - name: Create settings.gradle
+        run: |
+          cat > natureco-tv/settings.gradle << 'EOF'
+          rootProject.name = "NatureCo"
+          include ':app'
+          EOF
+
+      - name: Create root build.gradle
+        run: |
+          cat > natureco-tv/build.gradle << 'EOF'
+          buildscript {
+              repositories {
+                  google()
+                  mavenCentral()
+              }
+              dependencies {
+                  classpath 'com.android.tools.build:gradle:8.2.0'
+              }
+          }
+          allprojects {
+              repositories {
+                  google()
+                  mavenCentral()
+              }
+          }
+          EOF
+
+      - name: Create gradle wrapper properties
+        run: |
+          mkdir -p natureco-tv/gradle/wrapper
+          cat > natureco-tv/gradle/wrapper/gradle-wrapper.properties << 'EOF'
+          distributionBase=GRADLE_USER_HOME
+          distributionPath=wrapper/dists
+          distributionUrl=https\://services.gradle.org/distributions/gradle-8.4-bin.zip
+          zipStoreBase=GRADLE_USER_HOME
+          zipStorePath=wrapper/dists
+          EOF
+
+      - name: Download Gradle Wrapper
+        run: |
+          cd natureco-tv
+          wget -q https://services.gradle.org/distributions/gradle-8.4-bin.zip -O gradle.zip
+          unzip -q gradle.zip
+          gradle-8.4/bin/gradle wrapper
+          rm -rf gradle-8.4 gradle.zip
+
+      - name: Create app build.gradle
+        run: |
+          cat > natureco-tv/app/build.gradle << 'EOF'
+          plugins {
+              id 'com.android.application'
+          }
+          android {
+              namespace 'me.natureco.tv'
+              compileSdk 34
+              defaultConfig {
+                  applicationId "me.natureco.tv"
+                  minSdk 21
+                  targetSdk 34
+                  versionCode 1
+                  versionName "1.0.0"
+              }
+              buildTypes {
+                  release {
+                      minifyEnabled false
+                      signingConfig signingConfigs.debug
+                  }
+              }
+              compileOptions {
+                  sourceCompatibility JavaVersion.VERSION_17
+                  targetCompatibility JavaVersion.VERSION_17
+              }
+          }
+          dependencies {
+              implementation 'androidx.appcompat:appcompat:1.6.1'
+          }
+          EOF
+
+      - name: Create AndroidManifest.xml
+        run: |
+          cat > natureco-tv/app/src/main/AndroidManifest.xml << 'EOF'
+          <?xml version="1.0" encoding="utf-8"?>
+          <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+              <uses-permission android:name="android.permission.INTERNET" />
+              <uses-feature android:name="android.software.leanback" android:required="false" />
+              <uses-feature android:name="android.hardware.touchscreen" android:required="false" />
+              <application
+                  android:allowBackup="true"
+                  android:icon="@mipmap/ic_launcher"
+                  android:label="Nature.co"
+                  android:theme="@style/AppTheme"
+                  android:usesCleartextTraffic="false">
+                  <activity
+                      android:name=".MainActivity"
+                      android:exported="true"
+                      android:configChanges="orientation|screenSize|keyboardHidden"
+                      android:screenOrientation="landscape">
+                      <intent-filter>
+                          <action android:name="android.intent.action.MAIN" />
+                          <category android:name="android.intent.category.LAUNCHER" />
+                          <category android:name="android.intent.category.LEANBACK_LAUNCHER" />
+                      </intent-filter>
+                  </activity>
+              </application>
+          </manifest>
+          EOF
+
+      - name: Create MainActivity.java
+        run: |
+          cat > natureco-tv/app/src/main/java/me/natureco/tv/MainActivity.java << 'EOF'
+          package me.natureco.tv;
+          import android.app.Activity;
+          import android.os.Bundle;
+          import android.webkit.WebSettings;
+          import android.webkit.WebView;
+          import android.webkit.WebViewClient;
+          import android.view.KeyEvent;
+          import android.view.Window;
+          import android.view.WindowManager;
+          public class MainActivity extends Activity {
+              private WebView webView;
+              @Override
+              protected void onCreate(Bundle savedInstanceState) {
+                  super.onCreate(savedInstanceState);
+                  requestWindowFeature(Window.FEATURE_NO_TITLE);
+                  getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
+                      WindowManager.LayoutParams.FLAG_FULLSCREEN);
+                  webView = new WebView(this);
+                  setContentView(webView);
+                  WebSettings settings = webView.getSettings();
+                  settings.setJavaScriptEnabled(true);
+                  settings.setDomStorageEnabled(true);
+                  settings.setMediaPlaybackRequiresUserGesture(false);
+                  settings.setUserAgentString("Mozilla/5.0 (Linux; Android 9; TV) AppleWebKit/537.36 Chrome/120.0.0.0 Safari/537.36");
+                  webView.setWebViewClient(new WebViewClient());
+                  webView.loadUrl("https://natureco.me/");
+              }
+              @Override
+              public boolean onKeyDown(int keyCode, KeyEvent event) {
+                  if (keyCode == KeyEvent.KEYCODE_BACK && webView.canGoBack()) {
+                      webView.goBack();
+                      return true;
+                  }
+                  return super.onKeyDown(keyCode, event);
+              }
+          }
+          EOF
+
+      - name: Create layout
+        run: |
+          cat > natureco-tv/app/src/main/res/layout/activity_main.xml << 'EOF'
+          <?xml version="1.0" encoding="utf-8"?>
+          <WebView xmlns:android="http://schemas.android.com/apk/res/android"
+              android:id="@+id/webview"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent" />
+          EOF
+
+      - name: Create styles
+        run: |
+          cat > natureco-tv/app/src/main/res/values/styles.xml << 'EOF'
+          <?xml version="1.0" encoding="utf-8"?>
+          <resources>
+              <style name="AppTheme" parent="android:Theme.NoTitleBar.Fullscreen">
+                  <item name="android:windowBackground">#0B0E11</item>
+              </style>
+          </resources>
+          EOF
+
+      - name: Create launcher icon
+        run: |
+          cat > natureco-tv/app/src/main/res/mipmap-hdpi/ic_launcher.xml << 'EOF'
+          <?xml version="1.0" encoding="utf-8"?>
+          <adaptive-icon xmlns:android="http://schemas.android.com/apk/res/android">
+              <background android:drawable="@android:color/black"/>
+              <foreground android:drawable="@android:color/white"/>
+          </adaptive-icon>
+          EOF
+
+      - name: Build APK
+        run: |
+          cd natureco-tv
+          chmod +x gradlew
+          ./gradlew assembleRelease
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: NatureCo-AndroidTV
+          path: natureco-tv/app/build/outputs/apk/release/app-release-unsigned.apk
+          retention-days: 30
