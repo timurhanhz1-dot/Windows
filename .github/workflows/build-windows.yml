@@ -31,7 +31,6 @@ jobs:
             --app-version "1.0.0" `
             --width 1280 `
             --height 800 `
-            --title-bar-style hidden `
             --background-color "#0B0E11" `
             --disable-dev-tools `
             --single-instance `
