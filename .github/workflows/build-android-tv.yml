@@ -77,6 +77,13 @@ jobs:
           cd natureco-tv
           gradle wrapper --gradle-version 8.4
 
+      - name: Create gradle.properties
+        run: |
+          cat > natureco-tv/gradle.properties << 'EOF'
+          android.useAndroidX=true
+          android.enableJetifier=true
+          EOF
+
       - name: Create app build.gradle
         run: |
           cat > natureco-tv/app/build.gradle << 'EOF'
