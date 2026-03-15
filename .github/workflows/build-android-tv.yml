@@ -67,13 +67,15 @@ jobs:
           zipStorePath=wrapper/dists
           EOF
 
-      - name: Download Gradle Wrapper
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v3
+        with:
+          gradle-version: '8.4'
+
+      - name: Generate Gradle Wrapper
         run: |
           cd natureco-tv
-          wget -q https://services.gradle.org/distributions/gradle-8.4-bin.zip -O gradle.zip
-          unzip -q gradle.zip
-          gradle-8.4/bin/gradle wrapper
-          rm -rf gradle-8.4 gradle.zip
+          gradle wrapper --gradle-version 8.4
 
       - name: Create app build.gradle
         run: |
