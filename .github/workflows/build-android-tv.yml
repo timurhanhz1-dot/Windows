@@ -222,11 +222,10 @@ jobs:
                           // Online presence bildir
                           view.evaluateJavascript(
                               "if(window.AndroidTV) { " +
-                              "  document.addEventListener('touchstart', function(e) {" +
+                              "  document.addEventListener('focusin', function(e) {" +
                               "    var t = e.target;" +
                               "    if(t.tagName === 'INPUT' || t.tagName === 'TEXTAREA' || t.isContentEditable) {" +
-                              "      t.setAttribute('readonly','readonly');" +
-                              "      setTimeout(function(){ t.removeAttribute('readonly'); t.focus(); }, 50);" +
+                              "      window.AndroidTV.hideKeyboard();" +
                               "    }" +
                               "  }, true);" +
                               "  window.dispatchEvent(new Event('androidtv-ready'));" +
@@ -242,7 +241,9 @@ jobs:
               private void hideKeyboard() {
                   InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
                   if (imm != null && webView != null) {
+                      imm.hideSoftInputFromWindow(webView.getWindowToken(), InputMethodManager.HIDE_IMPLICIT_ONLY);
                       imm.hideSoftInputFromWindow(webView.getWindowToken(), 0);
+                      getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
                   }
               }
 
