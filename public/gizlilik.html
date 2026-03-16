@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+<title>Gizlilik Politikası — Nature.co</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{--primary:#10B981;--primary-dark:#059669;--primary-light:#34D399;--secondary:#6366F1;--accent:#F59E0B;--bg-dark:#0B0E11;--bg-darker:#06080A;--bg-light:#111418;--text-primary:#FFFFFF;--text-secondary:#9CA3AF;--text-muted:#6B7280;--border:rgba(255,255,255,0.1);--gradient-1:linear-gradient(135deg,#10B981 0%,#059669 100%);}
+body{font-family:'Nunito',ui-sans-serif,system-ui,-apple-system,sans-serif;background:var(--bg-dark);color:var(--text-primary);overflow-x:hidden;line-height:1.6;min-height:100vh;}
+.bg-gradient{position:fixed;top:0;left:0;width:100%;height:100%;background:radial-gradient(circle at 20% 80%,rgba(16,185,129,0.3) 0%,transparent 50%),radial-gradient(circle at 80% 20%,rgba(99,102,241,0.2) 0%,transparent 50%),radial-gradient(circle at 40% 40%,rgba(245,158,11,0.1) 0%,transparent 50%),linear-gradient(180deg,var(--bg-darker) 0%,var(--bg-dark) 100%);z-index:-1;}
+.particles{position:fixed;top:0;left:0;width:100%;height:100%;z-index:-1;}
+.particle{position:absolute;width:2px;height:2px;background:var(--primary);border-radius:50%;opacity:0.5;animation:float 20s infinite linear;}
+@keyframes float{0%{transform:translateY(100vh) translateX(0);opacity:0}10%{opacity:0.5}90%{opacity:0.5}100%{transform:translateY(-100vh) translateX(100px);opacity:0}}
+
+/* NAV */
+nav{position:relative;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:20px 40px;background:rgba(11,14,17,0.85);backdrop-filter:blur(20px);border-bottom:1px solid rgba(16,185,129,.08);}
+.nav-logo{display:flex;align-items:center;gap:10px;text-decoration:none;}
+.nav-logo svg{filter:drop-shadow(0 0 8px rgba(16,185,129,.4));}
+.nav-logo-text{font-family:"Nunito",sans-serif;font-size:20px;font-weight:800;color:#fff;letter-spacing:-.3px;}
+.nav-back{display:inline-flex;align-items:center;gap:8px;padding:10px 22px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);border-radius:24px;color:#fff;font-size:14px;font-weight:600;text-decoration:none;transition:all .3s ease;backdrop-filter:blur(8px);}
+.nav-back:hover{background:rgba(255,255,255,.16);transform:translateY(-1px);}
+
+/* HERO */
+.hero{position:relative;z-index:10;padding:80px 40px 40px;max-width:1200px;margin:0 auto;}
+.hero-badge{display:inline-flex;align-items:center;gap:8px;padding:8px 16px;background:rgba(16,185,129,.1);border:1px solid rgba(16,185,129,.2);border-radius:24px;font-size:13px;font-weight:600;color:var(--primary-light);margin-bottom:24px;letter-spacing:.5px;}
+.hero-title{font-family:"Nunito",sans-serif;font-size:clamp(36px,5vw,64px);font-weight:900;line-height:1.0;letter-spacing:-1px;margin-bottom:20px;text-transform:uppercase;}
+.hero-title .hl{background:var(--gradient-1);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.hero-description{font-size:18px;color:rgba(255,255,255,.72);line-height:1.65;max-width:600px;margin-bottom:32px;}
+.hero-meta{display:flex;align-items:center;gap:24px;color:rgba(255,255,255,.4);font-size:14px;padding-top:20px;border-top:1px solid rgba(255,255,255,.07);margin-top:24px;}
+.hero-meta span{display:flex;align-items:center;gap:6px;}
+
+/* CONTENT */
+.content{position:relative;z-index:10;max-width:860px;margin:0 auto;padding:0 48px 80px;}
+.toc{background:rgba(61,220,132,.05);border:1px solid rgba(61,220,132,.12);border-radius:14px;padding:24px 28px;margin-bottom:44px;}
+.toc-title{font-family:"Nunito",sans-serif;font-size:14px;font-weight:800;color:#3ddc84;margin-bottom:14px;letter-spacing:.5px;text-transform:uppercase;}
+.toc-list{list-style:none;display:flex;flex-direction:column;gap:8px;}
+.toc-list a{color:rgba(255,255,255,.6);text-decoration:none;font-size:14px;display:flex;align-items:center;gap:8px;transition:color .2s;}
+.toc-list a::before{content:"";width:6px;height:6px;border-radius:50%;background:rgba(61,220,132,.4);flex-shrink:0;}
+.toc-list a:hover{color:#3ddc84;}
+.section{margin-bottom:48px;}
+.section-num{display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:8px;background:linear-gradient(135deg,rgba(61,220,132,.2),rgba(0,201,167,.1));border:1px solid rgba(61,220,132,.2);font-size:12px;font-weight:800;color:#3ddc84;margin-bottom:12px;}
+.section h2{font-family:"Nunito",sans-serif;font-size:22px;font-weight:800;color:#fff;margin-bottom:14px;letter-spacing:-.2px;}
+.section p{font-size:15px;color:rgba(255,255,255,.65);line-height:1.8;margin-bottom:12px;}
+.section ul{padding-left:0;list-style:none;display:flex;flex-direction:column;gap:8px;margin-bottom:12px;}
+.section ul li{font-size:15px;color:rgba(255,255,255,.65);line-height:1.7;display:flex;align-items:flex-start;gap:10px;}
+.section ul li::before{content:"🌿";flex-shrink:0;margin-top:2px;font-size:13px;}
+.info-box{background:rgba(61,220,132,.06);border:1px solid rgba(61,220,132,.15);border-radius:12px;padding:16px 20px;margin:16px 0;display:flex;gap:12px;align-items:flex-start;}
+.info-box-icon{font-size:18px;flex-shrink:0;margin-top:1px;}
+.info-box p{font-size:14px;color:rgba(255,255,255,.7);line-height:1.7;margin:0;}
+.warn-box{background:rgba(251,191,36,.05);border:1px solid rgba(251,191,36,.15);border-radius:12px;padding:16px 20px;margin:16px 0;display:flex;gap:12px;align-items:flex-start;}
+.warn-box p{font-size:14px;color:rgba(255,220,150,.8);line-height:1.7;margin:0;}
+.divider{height:1px;background:linear-gradient(90deg,transparent,rgba(61,220,132,.15),transparent);margin:12px 0 24px;}
+.contact-card{background:rgba(255,255,255,.03);border:1px solid rgba(61,220,132,.15);border-radius:16px;padding:28px;display:flex;align-items:center;justify-content:space-between;gap:20px;flex-wrap:wrap;}
+.contact-card h3{font-family:"Nunito",sans-serif;font-size:18px;font-weight:800;margin-bottom:6px;}
+.contact-card p{font-size:14px;color:rgba(255,255,255,.5);}
+.contact-card a{display:inline-flex;align-items:center;gap:7px;padding:11px 22px;background:linear-gradient(135deg,#3ddc84,#1db954);border-radius:22px;color:#fff;font-size:14px;font-weight:700;text-decoration:none;transition:box-shadow .2s,transform .15s;box-shadow:0 4px 16px rgba(61,220,132,.25);}
+.contact-card a:hover{transform:translateY(-1px);box-shadow:0 6px 20px rgba(61,220,132,.4);}
+
+/* FOOTER */
+footer{position:relative;z-index:10;padding:28px 48px;border-top:1px solid rgba(255,255,255,.06);display:flex;align-items:center;justify-content:space-between;font-size:13px;color:rgba(255,255,255,.3);flex-wrap:wrap;gap:12px;}
+footer a{color:rgba(61,220,132,.6);text-decoration:none;}
+footer a:hover{color:#3ddc84;}
+
+@media(max-width:700px){
+  nav{padding:16px 20px;}
+  .hero,.content{padding-left:20px;padding-right:20px;}
+  .hero{padding-top:40px;}
+  footer{padding:20px;}
+  .contact-card{flex-direction:column;}
+}
+</style>
+</head>
+<body>
+<div class="bg"></div>
+
+<nav>
+  <a class="nav-logo" href="/landing">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="32" height="32" style="flex-shrink:0">
+  <defs>
+    <linearGradient id="lg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#2ecc71"/>
+      <stop offset="100%" stop-color="#1aaa55"/>
+    </linearGradient>
+  </defs>
+  <path d="M50 8 C50 8,18 38,18 60 C18 79.5 32.5 92 50 92 C67.5 92 82 79.5 82 60 C82 38 50 8 50 8Z" fill="url(#lg)"/>
+  <text x="50" y="73" font-family="Arial Black,Arial,sans-serif" font-size="44" font-weight="900" fill="white" text-anchor="middle">N</text>
+</svg>
+    <span class="nav-logo-text">NatureCo</span>
+  </a>
+  <a class="nav-back" href="/landing">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+    Ana Sayfaya Dön
+  </a>
+</nav>
+
+<div class="hero">
+  <div class="hero-badge">🔒 Kişisel Verilerin Korunması</div>
+  <h1 class="hero-title">Gizlilik<br><span class="hl">Politikası</span></h1>
+  <div class="hero-meta">
+    <span><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg> Son güncelleme: Mart 2026</span>
+    <span><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg> Yaklaşık 5 dakika okuma</span>
+    <span>🇹🇷 KVKK Uyumlu</span>
+  </div>
+</div>
+
+<div class="content">
+
+  <div class="toc">
+    <div class="toc-title">İçindekiler</div>
+    <ul class="toc-list">
+      <li><a href="#s1">1. Topladığımız Veriler</a></li>
+      <li><a href="#s2">2. Verileri Nasıl Kullanıyoruz?</a></li>
+      <li><a href="#s3">3. Verilerin Güvenliği</a></li>
+      <li><a href="#s4">4. Üçüncü Taraflarla Paylaşım</a></li>
+      <li><a href="#s5">5. Çerezler (Cookies)</a></li>
+      <li><a href="#s6">6. Çocukların Gizliliği</a></li>
+      <li><a href="#s7">7. Haklarınız (KVKK / GDPR)</a></li>
+      <li><a href="#s8">8. Politika Değişiklikleri</a></li>
+      <li><a href="#s9">9. İletişim</a></li>
+    </ul>
+  </div>
+
+  <div class="info-box">
+    <span class="info-box-icon">🌿</span>
+    <p>NatureCo olarak kişisel verilerinizi korumayı önemli bir sorumluluk olarak görüyoruz. Bu politika, hangi verileri topladığımızı, nasıl kullandığımızı ve haklarınızı açıkça ortaya koymaktadır. Sorularınız için her zaman <a href="mailto:info@natureco.me" style="color:#3ddc84">info@natureco.me</a> adresinden bize ulaşabilirsiniz.</p>
+  </div>
+
+  <div class="divider"></div>
+
+  <div class="section" id="s1">
+    <div class="section-num">1</div>
+    <h2>Topladığımız Veriler</h2>
+    <p>NatureCo platformuna kayıt olduğunuzda ve platformu kullandığınızda aşağıdaki bilgileri toplarız:</p>
+    <ul>
+      <li><strong style="color:#fff">Hesap Bilgileri:</strong> Ad soyad, kullanıcı adı ve e-posta adresi. Bu bilgiler kayıt sırasında sizin tarafınızdan sağlanır.</li>
+      <li><strong style="color:#fff">Profil Bilgileri:</strong> İsteğe bağlı olarak eklediğiniz profil fotoğrafı, biyografi ve konum bilgisi.</li>
+      <li><strong style="color:#fff">İçerik Verileri:</strong> Platform üzerinde paylaştığınız forum yazıları, yorumlar, fotoğraflar ve mesajlar.</li>
+      <li><strong style="color:#fff">Kullanım Verileri:</strong> Hangi sayfaları ziyaret ettiğiniz, ne kadar süre kaldığınız ve hangi özellikleri kullandığınıza dair anonim istatistikler.</li>
+      <li><strong style="color:#fff">Teknik Veriler:</strong> IP adresi, tarayıcı türü, cihaz bilgisi ve oturum verileri.</li>
+    </ul>
+    <div class="info-box">
+      <span class="info-box-icon">ℹ️</span>
+      <p>Ödeme bilgisi, T.C. kimlik numarası veya özel nitelikli kişisel veri <strong>toplamıyoruz</strong>. NatureCo tamamen ücretsiz bir platformdur.</p>
+    </div>
+  </div>
+
+  <div class="section" id="s2">
+    <div class="section-num">2</div>
+    <h2>Verileri Nasıl Kullanıyoruz?</h2>
+    <p>Topladığımız veriler yalnızca şu amaçlarla kullanılır:</p>
+    <ul>
+      <li>Hesabınızı oluşturmak, yönetmek ve güvenliğini sağlamak</li>
+      <li>Platform özelliklerini (mesajlaşma, forum, görevler) çalıştırmak</li>
+      <li>Size ilgili bildirimleri ve güncellemeleri iletmek</li>
+      <li>Platformu geliştirmek için anonim kullanım istatistiklerini analiz etmek</li>
+      <li>Spam, kötüye kullanım ve güvenlik ihlallerini tespit edip önlemek</li>
+      <li>Yasal yükümlülüklerimizi yerine getirmek</li>
+    </ul>
+    <div class="warn-box">
+      <span class="info-box-icon">⚠️</span>
+      <p>Verilerinizi pazarlama amacıyla <strong>kullanmıyoruz</strong> ve üçüncü taraf reklam ağlarıyla <strong>paylaşmıyoruz</strong>. NatureCo reklamsız bir platformdur.</p>
+    </div>
+  </div>
+
+  <div class="section" id="s3">
+    <div class="section-num">3</div>
+    <h2>Verilerin Güvenliği</h2>
+    <p>Verilerinizin güvenliği için endüstri standardı önlemler alınmaktadır:</p>
+    <ul>
+      <li><strong style="color:#fff">Firebase Authentication:</strong> Şifreleriniz hiçbir zaman düz metin olarak saklanmaz; Google'ın güvenli altyapısında şifrelenerek tutulur.</li>
+      <li><strong style="color:#fff">HTTPS / TLS:</strong> Tüm veri transferleri şifreli bağlantı üzerinden gerçekleşir.</li>
+      <li><strong style="color:#fff">Firebase Güvenlik Kuralları:</strong> Veritabanı erişimi, yalnızca yetkili kullanıcılara izin verecek şekilde kısıtlanmıştır.</li>
+      <li><strong style="color:#fff">Düzenli Denetim:</strong> Güvenlik kurallarımızı ve erişim izinlerimizi düzenli olarak gözden geçiriyoruz.</li>
+    </ul>
+    <div class="info-box">
+      <span class="info-box-icon">🔐</span>
+      <p>Bir güvenlik açığı fark ederseniz lütfen bize <a href="mailto:info@natureco.me" style="color:#3ddc84">info@natureco.me</a> adresinden bildirin. Tüm güvenlik raporlarını ciddiyetle değerlendiriyoruz.</p>
+    </div>
+  </div>
+
+  <div class="section" id="s4">
+    <div class="section-num">4</div>
+    <h2>Üçüncü Taraflarla Paylaşım</h2>
+    <p>Verileriniz aşağıdaki durumlar <strong style="color:#fff">dışında</strong> hiçbir üçüncü tarafla paylaşılmaz:</p>
+    <ul>
+      <li><strong style="color:#fff">Altyapı Sağlayıcıları:</strong> Firebase (Google) — platformun teknik altyapısını sağlar. Google'ın gizlilik politikası geçerlidir.</li>
+      <li><strong style="color:#fff">Yasal Zorunluluk:</strong> Mahkeme kararı veya yasal bir yükümlülük durumunda resmi makamlarla paylaşılabilir.</li>
+      <li><strong style="color:#fff">Sizin İzninizle:</strong> Açık onayınız olmadan verileriniz başka hiçbir tarafla paylaşılmaz.</li>
+    </ul>
+    <p>Verilerinizi satmıyoruz, kiralamıyoruz veya ticari amaçlarla devretmiyoruz.</p>
+  </div>
+
+  <div class="section" id="s5">
+    <div class="section-num">5</div>
+    <h2>Çerezler (Cookies)</h2>
+    <p>NatureCo, yalnızca zorunlu teknik çerezleri kullanır:</p>
+    <ul>
+      <li><strong style="color:#fff">Oturum Çerezleri:</strong> Giriş yaptıktan sonra oturumunuzu açık tutmak için Firebase Authentication tarafından kullanılır.</li>
+      <li><strong style="color:#fff">Tercih Çerezleri:</strong> Dil ve tema gibi kullanıcı tercihlerinizi hatırlamak için kullanılır.</li>
+    </ul>
+    <p>Analitik veya reklam amaçlı üçüncü taraf çerezleri kullanılmamaktadır. Tarayıcı ayarlarınızdan çerezleri devre dışı bırakabilirsiniz, ancak bu bazı platform özelliklerinin çalışmamasına neden olabilir.</p>
+  </div>
+
+  <div class="section" id="s6">
+    <div class="section-num">6</div>
+    <h2>Çocukların Gizliliği</h2>
+    <p>NatureCo 13 yaşın altındaki çocuklara yönelik değildir. 13 yaşın altındaki kişilerden bilerek kişisel veri toplamıyoruz.</p>
+    <p>Bir çocuğun kayıt olduğunu fark edersek ilgili hesabı ve verileri derhal sileriz. Bu konuda bilginiz varsa lütfen <a href="mailto:info@natureco.me" style="color:#3ddc84">info@natureco.me</a> adresine bildirin.</p>
+  </div>
+
+  <div class="section" id="s7">
+    <div class="section-num">7</div>
+    <h2>Haklarınız (KVKK / GDPR)</h2>
+    <p>6698 sayılı KVKK ve GDPR kapsamında aşağıdaki haklara sahipsiniz:</p>
+    <ul>
+      <li><strong style="color:#fff">Bilgi Hakkı:</strong> Hakkınızda hangi verilerin tutulduğunu öğrenebilirsiniz.</li>
+      <li><strong style="color:#fff">Düzeltme Hakkı:</strong> Yanlış veya eksik verilerinizin düzeltilmesini talep edebilirsiniz.</li>
+      <li><strong style="color:#fff">Silme Hakkı:</strong> Hesabınızı ve tüm verilerinizi kalıcı olarak silmemizi talep edebilirsiniz.</li>
+      <li><strong style="color:#fff">Taşınabilirlik Hakkı:</strong> Verilerinizin makine okunabilir formatta tarafınıza verilmesini talep edebilirsiniz.</li>
+      <li><strong style="color:#fff">İtiraz Hakkı:</strong> Verilerinizin belirli amaçlarla işlenmesine itiraz edebilirsiniz.</li>
+    </ul>
+    <div class="info-box">
+      <span class="info-box-icon">✉️</span>
+      <p>Bu haklarınızı kullanmak için <a href="mailto:info@natureco.me" style="color:#3ddc84">info@natureco.me</a> adresine e-posta gönderebilirsiniz. Taleplerinize en geç <strong style="color:#fff">30 gün</strong> içinde yanıt veririz.</p>
+    </div>
+  </div>
+
+  <div class="section" id="s8">
+    <div class="section-num">8</div>
+    <h2>Politika Değişiklikleri</h2>
+    <p>Bu gizlilik politikasını zaman zaman güncelleyebiliriz. Önemli değişiklikler olduğunda:</p>
+    <ul>
+      <li>E-posta adresinize bildirim göndeririz</li>
+      <li>Platform içinde duyuru yayınlarız</li>
+      <li>Bu sayfanın üst kısmındaki güncelleme tarihini değiştiririz</li>
+    </ul>
+    <p>Güncellenmiş politikayı kabul etmemek için hesabınızı silme hakkınız her zaman saklıdır.</p>
+  </div>
+
+  <div class="section" id="s9">
+    <div class="section-num">9</div>
+    <h2>İletişim</h2>
+    <div class="contact-card">
+      <div>
+        <h3>Sorularınız için bize yazın</h3>
+        <p>Gizlilik politikamız veya verileriniz hakkında her türlü soruyu yanıtlamaktan memnuniyet duyarız.</p>
+        <p style="margin-top:8px;font-size:13px;color:rgba(255,255,255,.4)">📧 <a href="mailto:info@natureco.me">info@natureco.me</a></p>

@@ -1,0 +1,1699 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nature.co — Doğayla Bağlan, Topluluğa Katıl</title>
+    <meta name="version" content="20260312-2034">
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@800;900&display=swap" rel="stylesheet">
+    
+    <!-- Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #10B981;
+            --primary-dark: #059669;
+            --primary-light: #34D399;
+            --secondary: #6366F1;
+            --accent: #F59E0B;
+            --bg-dark: #0B0E11;
+            --bg-darker: #06080A;
+            --bg-light: #111418;
+            --text-primary: #FFFFFF;
+            --text-secondary: #9CA3AF;
+            --text-muted: #6B7280;
+            --border: rgba(255, 255, 255, 0.1);
+            --gradient-1: linear-gradient(135deg, #10B981 0%, #059669 100%);
+            --gradient-2: linear-gradient(135deg, #6366F1 0%, #8B5CF6 100%);
+            --gradient-3: linear-gradient(135deg, #F59E0B 0%, #EF4444 100%);
+        }
+
+        body {
+            font-family: 'Nunito', ui-sans-serif, system-ui, -apple-system, sans-serif;
+            background: var(--bg-dark);
+            color: var(--text-primary);
+            overflow-x: hidden;
+            line-height: 1.6;
+        }
+
+        /* Background Effects */
+        .bg-gradient {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(circle at 20% 80%, rgba(16, 185, 129, 0.3) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(99, 102, 241, 0.2) 0%, transparent 50%),
+                radial-gradient(circle at 40% 40%, rgba(245, 158, 11, 0.1) 0%, transparent 50%),
+                linear-gradient(180deg, var(--bg-darker) 0%, var(--bg-dark) 100%);
+            z-index: -1;
+        }
+
+        .particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+        }
+
+        .particle {
+            position: absolute;
+            width: 2px;
+            height: 2px;
+            background: var(--primary);
+            border-radius: 50%;
+            opacity: 0.5;
+            animation: float 20s infinite linear;
+        }
+
+        @keyframes float {
+            0% {
+                transform: translateY(100vh) translateX(0);
+                opacity: 0;
+            }
+            10% {
+                opacity: 0.5;
+            }
+            90% {
+                opacity: 0.5;
+            }
+            100% {
+                transform: translateY(-100vh) translateX(100px);
+                opacity: 0;
+            }
+        }
+
+        /* Navigation */
+        nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            background: rgba(11, 14, 17, 0.8);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border);
+            padding: 1rem 0;
+        }
+
+        .nav-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .nav-logo {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: var(--text-primary);
+            text-decoration: none;
+            transition: transform 0.3s ease;
+        }
+
+        .nav-logo:hover {
+            transform: translateY(-2px);
+        }
+
+        .nav-logo i {
+            font-size: 2rem;
+            background: var(--gradient-1);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .nav-links {
+            display: flex;
+            align-items: center;
+            gap: 2rem;
+            list-style: none;
+        }
+
+        .nav-link {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s ease;
+            position: relative;
+        }
+
+        .nav-link:hover {
+            color: var(--text-primary);
+        }
+
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: var(--gradient-1);
+            transition: width 0.3s ease;
+        }
+
+        .nav-link:hover::after {
+            width: 100%;
+        }
+
+        .nav-actions {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-outline {
+            background: transparent;
+            color: var(--text-primary);
+            border: 2px solid var(--border);
+        }
+
+        .btn-outline:hover {
+            border-color: var(--primary);
+            color: var(--primary);
+            transform: translateY(-2px);
+        }
+
+        .btn-primary {
+            background: var(--gradient-1);
+            color: white;
+            box-shadow: 0 4px 20px rgba(16, 185, 129, 0.3);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 30px rgba(16, 185, 129, 0.4);
+        }
+
+        /* Hero Section */
+        .hero {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 8rem 2rem 4rem;
+            position: relative;
+        }
+
+        .hero-container {
+            max-width: 1200px;
+            width: 100%;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 4rem;
+            align-items: center;
+        }
+
+        .hero-content {
+            animation: slideInLeft 1s ease-out;
+        }
+
+        @keyframes slideInLeft {
+            from {
+                opacity: 0;
+                transform: translateX(-50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .hero-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: rgba(16, 185, 129, 0.1);
+            border: 1px solid rgba(16, 185, 129, 0.2);
+            padding: 0.5rem 1rem;
+            border-radius: 2rem;
+            font-size: 0.875rem;
+            color: var(--primary-light);
+            margin-bottom: 2rem;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                opacity: 1;
+            }
+            50% {
+                opacity: 0.8;
+            }
+        }
+
+        .hero-title {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: clamp(2.5rem, 5vw, 4rem);
+            font-weight: 900;
+            line-height: 1.1;
+            margin-bottom: 1.5rem;
+        }
+
+        .hero-title .gradient-text {
+            background: var(--gradient-1);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .hero-description {
+            font-size: 1.25rem;
+            color: var(--text-secondary);
+            margin-bottom: 2.5rem;
+            line-height: 1.7;
+        }
+
+        .hero-actions {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 3rem;
+        }
+
+        .hero-stats {
+            display: flex;
+            gap: 3rem;
+        }
+
+        .stat {
+            text-align: center;
+        }
+
+        .stat-number {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 2.5rem;
+            font-weight: 900;
+            background: var(--gradient-1);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .stat-label {
+            font-size: 0.875rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+        }
+
+        /* Hero Visual */
+        .hero-visual {
+            position: relative;
+            animation: slideInRight 1s ease-out;
+        }
+
+        @keyframes slideInRight {
+            from {
+                opacity: 0;
+                transform: translateX(50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .hero-card {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border);
+            border-radius: 1rem;
+            padding: 2rem;
+            backdrop-filter: blur(20px);
+            position: relative;
+            overflow: hidden;
+            transform: perspective(1000px) rotateY(-5deg);
+            transition: transform 0.3s ease;
+        }
+
+        .hero-card:hover {
+            transform: perspective(1000px) rotateY(0deg);
+        }
+
+        .hero-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: var(--gradient-1);
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .card-avatar {
+            width: 3rem;
+            height: 3rem;
+            border-radius: 50%;
+            background: var(--gradient-1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+        }
+
+        .card-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            margin-bottom: 0.25rem;
+        }
+
+        .card-subtitle {
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+        }
+
+        .card-content {
+            display: grid;
+            gap: 1rem;
+        }
+
+        .card-item {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem;
+            background: rgba(255, 255, 255, 0.02);
+            border-radius: 0.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .card-item:hover {
+            background: rgba(255, 255, 255, 0.05);
+            transform: translateX(5px);
+        }
+
+        .card-icon {
+            width: 2.5rem;
+            height: 2.5rem;
+            border-radius: 0.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+        }
+
+        .card-icon.green {
+            background: rgba(16, 185, 129, 0.1);
+            color: var(--primary);
+        }
+
+        .card-icon.blue {
+            background: rgba(99, 102, 241, 0.1);
+            color: var(--secondary);
+        }
+
+        .card-icon.orange {
+            background: rgba(245, 158, 11, 0.1);
+            color: var(--accent);
+        }
+
+        .card-text {
+            flex: 1;
+        }
+
+        .card-text h4 {
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+        }
+
+        .card-text p {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+        }
+
+        /* Features Section */
+        .features {
+            padding: 6rem 2rem;
+            position: relative;
+        }
+
+        .features-container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .section-header {
+            text-align: center;
+            margin-bottom: 4rem;
+        }
+
+        .section-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: rgba(99, 102, 241, 0.1);
+            border: 1px solid rgba(99, 102, 241, 0.2);
+            padding: 0.5rem 1rem;
+            border-radius: 2rem;
+            font-size: 0.875rem;
+            color: var(--secondary);
+            margin-bottom: 1rem;
+        }
+
+        .section-title {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: clamp(2rem, 4vw, 3rem);
+            font-weight: 900;
+            margin-bottom: 1rem;
+        }
+
+        .section-description {
+            font-size: 1.125rem;
+            color: var(--text-secondary);
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+
+        .feature-card {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border);
+            border-radius: 1rem;
+            padding: 2rem;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .feature-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: var(--gradient-2);
+            transform: scaleX(0);
+            transition: transform 0.3s ease;
+        }
+
+        .feature-card:hover::before {
+            transform: scaleX(1);
+        }
+
+        .feature-card:hover {
+            transform: translateY(-5px);
+            border-color: rgba(99, 102, 241, 0.3);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        .feature-icon {
+            width: 3rem;
+            height: 3rem;
+            border-radius: 0.75rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            margin-bottom: 1.5rem;
+            background: rgba(99, 102, 241, 0.1);
+            color: var(--secondary);
+        }
+
+        .feature-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+        }
+
+        .feature-description {
+            color: var(--text-secondary);
+            line-height: 1.7;
+        }
+
+        /* CTA Section */
+        .cta {
+            padding: 6rem 2rem;
+            text-align: center;
+            position: relative;
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, rgba(99, 102, 241, 0.1) 100%);
+            border-top: 1px solid var(--border);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .cta-container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .cta-title {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: clamp(2rem, 4vw, 3rem);
+            font-weight: 900;
+            margin-bottom: 1.5rem;
+        }
+
+        .cta-description {
+            font-size: 1.25rem;
+            color: var(--text-secondary);
+            margin-bottom: 2.5rem;
+        }
+
+        .cta-actions {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        /* Footer */
+        footer {
+            padding: 3rem 2rem;
+            border-top: 1px solid var(--border);
+            text-align: center;
+        }
+
+        .footer-container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .footer-content {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 2rem;
+        }
+
+        .footer-logo {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 1.25rem;
+            font-weight: 800;
+            color: var(--text-primary);
+        }
+
+        .footer-links {
+            display: flex;
+            gap: 2rem;
+        }
+
+        .footer-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 0.5rem;
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(8px);
+        }
+
+        .footer-link:hover {
+            background: rgba(16, 185, 129, 0.1);
+            border-color: rgba(16, 185, 129, 0.3);
+            color: var(--primary);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.2);
+        }
+
+        .footer-link i {
+            font-size: 0.875rem;
+            opacity: 0.8;
+        }
+
+        .footer-link:hover i {
+            opacity: 1;
+        }
+
+        /* Hide link URLs on hover */
+        .footer-link:hover::after {
+            content: none;
+        }
+
+        .footer-contact {
+            margin-top: 2rem;
+        }
+
+        .footer-contact h4 {
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 1rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .contact-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-bottom: 0.75rem;
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+        }
+
+        .contact-item i {
+            font-size: 1rem;
+            opacity: 0.7;
+            width: 16px;
+        }
+
+        .contact-item a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        .contact-item a:hover {
+            color: var(--primary);
+        }
+
+        .footer-bottom {
+            padding-top: 2rem;
+            border-top: 1px solid var(--border);
+            color: var(--text-muted);
+        }
+
+        /* Mobile Responsive */
+        @media (max-width: 768px) {
+            .nav-links {
+                display: none;
+            }
+
+            .hero-container {
+                grid-template-columns: 1fr;
+                text-align: center;
+                gap: 2rem;
+            }
+
+            .hero-actions {
+                justify-content: center;
+            }
+
+            .hero-stats {
+                justify-content: center;
+            }
+
+            .hero-visual {
+                order: -1;
+            }
+
+            .features-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .footer-content {
+                flex-direction: column;
+                gap: 2rem;
+                text-align: center;
+            }
+
+            .footer-links {
+                flex-direction: column;
+                gap: 0.75rem;
+                align-items: center;
+            }
+
+            .footer-link {
+                width: 100%;
+                justify-content: center;
+                max-width: 200px;
+            }
+        }
+
+        /* Loading Animation */
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Float Badges */
+        .float-badge {
+            position: absolute;
+            padding: 8px 14px;
+            background: rgba(10, 25, 15, 0.9);
+            border: 1px solid rgba(16, 185, 129, 0.25);
+            border-radius: 40px;
+            font-size: 12px;
+            font-weight: 600;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+            backdrop-filter: blur(10px);
+            animation: floatAnim var(--fd, 4s) ease-in-out infinite;
+            white-space: nowrap;
+        }
+
+        .float-badge .dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #10B981;
+            box-shadow: 0 0 6px #10B981;
+        }
+
+        @keyframes floatAnim {
+            0%, 100% {
+                transform: translateY(0)
+            }
+            50% {
+                transform: translateY(-10px)
+            }
+        }
+
+        /* NatureBot Mascot */
+        .bot-wrap {
+            position: absolute;
+            right: -60px;
+            top: 50%;
+            transform: translateY(-60%);
+            z-index: 2;
+            pointer-events: none;
+        }
+
+        @keyframes botFloat {
+            0%, 100% {
+                transform: translateY(-60%) rotate(0deg)
+            }
+            25% {
+                transform: translateY(-65%) rotate(2deg)
+            }
+            75% {
+                transform: translateY(-55%) rotate(-2deg)
+            }
+        }
+
+        .bot-wrap {
+            animation: botFloat 4s ease-in-out infinite;
+        }
+
+        .bot-arm-l {
+            transform-origin: 15px 75px;
+            animation: armSwingL 3s ease-in-out infinite;
+        }
+
+        .bot-arm-r {
+            transform-origin: 85px 75px;
+            animation: armSwingR 3s ease-in-out infinite;
+        }
+
+        @keyframes armSwingL {
+            0%, 100% {
+                transform: rotate(-10deg)
+            }
+            50% {
+                transform: rotate(10deg)
+            }
+        }
+
+        @keyframes armSwingR {
+            0%, 100% {
+                transform: rotate(10deg)
+            }
+            50% {
+                transform: rotate(-10deg)
+            }
+        }
+
+        .bot-eye {
+            transform-box: fill-box;
+            transform-origin: center;
+            animation: eyeBlink 4s ease-in-out infinite;
+        }
+
+        @keyframes eyeBlink {
+            0%, 44%, 56%, 100% {
+                transform: scaleY(1)
+            }
+            48%, 52% {
+                transform: scaleY(0.15)
+            }
+        }
+
+        .bot-antenna {
+            animation: antennaPulse 2s ease-in-out infinite;
+        }
+
+        @keyframes antennaPulse {
+            0%, 100% {
+                opacity: .4;
+                r: 4
+            }
+            50% {
+                opacity: 1;
+                r: 5
+            }
+        }
+
+        .bot-glow {
+            animation: glowPulse 3s ease-in-out infinite;
+        }
+
+        @keyframes glowPulse {
+            0%, 100% {
+                opacity: .15
+            }
+            50% {
+                opacity: .35
+            }
+        }
+
+        /* Mobilde bot'u küçült */
+        @media(max-width: 900px) {
+            .bot-wrap {
+                right: -20px;
+                transform: translateY(-55%) scale(.7);
+            }
+        }
+
+        @media(max-width: 640px) {
+            .bot-wrap {
+                display: none;
+            }
+        }
+
+        /* Glow Effects */
+        .glow {
+            box-shadow: 0 0 20px rgba(16, 185, 129, 0.5);
+        }
+
+        .glow-text {
+            text-shadow: 0 0 20px rgba(16, 185, 129, 0.5);
+        }
+
+        /* Download Buttons */
+        .download-section {
+            margin-top: 2rem;
+        }
+
+        .download-label {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            margin-bottom: 0.75rem;
+        }
+
+        .download-buttons {
+            display: flex;
+            gap: 0.75rem;
+            flex-wrap: wrap;
+        }
+
+        .btn-download {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.6rem;
+            padding: 0.65rem 1.25rem;
+            border-radius: 0.6rem;
+            font-size: 0.875rem;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.25s ease;
+            border: 1.5px solid;
+        }
+
+        .btn-download-mac {
+            background: rgba(255,255,255,0.05);
+            border-color: rgba(255,255,255,0.15);
+            color: var(--text-primary);
+        }
+
+        .btn-download-mac:hover {
+            background: rgba(255,255,255,0.1);
+            border-color: rgba(255,255,255,0.3);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+        }
+
+        .btn-download-win {
+            background: rgba(99,102,241,0.08);
+            border-color: rgba(99,102,241,0.2);
+            color: rgba(165,167,255,0.8);
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
+
+        .btn-download .os-icon {
+            font-size: 1rem;
+        }
+
+        .btn-download .btn-text {
+            display: flex;
+            flex-direction: column;
+            line-height: 1.2;
+        }
+
+        .btn-download .btn-text small {
+            font-size: 0.65rem;
+            font-weight: 400;
+            opacity: 0.6;
+        }
+    </style>
+</head>
+<body>
+    <!-- Background -->
+    <div class="bg-gradient"></div>
+    <div class="particles" id="particles"></div>
+
+    <!-- Navigation -->
+    <nav>
+        <div class="nav-container">
+            <a href="#" class="nav-logo">
+                <svg width="32" height="32" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M50 5C35 20 15 40 15 60C15 78 30 95 50 95C70 95 85 78 85 60C85 40 65 20 50 5Z" fill="#4ADE80"/>
+                    <text x="50" y="70" font-size="55" font-weight="900" fill="white" text-anchor="middle" font-family="Arial, sans-serif">N</text>
+                </svg>
+                Nature.co
+            </a>
+            
+            <ul class="nav-links">
+                <li><a href="#features" class="nav-link">Özellikler</a></li>
+                <li><a href="#community" class="nav-link">Topluluk</a></li>
+                <li><a href="#streaming" class="nav-link">Yayın</a></li>
+                <li><a href="#games" class="nav-link">Oyunlar</a></li>
+                <li><a href="/ai-studio" class="nav-link">AI Stüdyo</a></li>
+            </ul>
+            
+            <div class="nav-actions">
+                <a href="/login" class="btn btn-outline">Giriş Yap</a>
+                <a href="/" class="btn btn-primary">
+                    <i class="fas fa-rocket"></i>
+                    Ücretsiz Başla
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="hero-container">
+            <div class="hero-content">
+                <div class="hero-badge">
+                    <i class="fas fa-rocket"></i>
+                    Yeni Nesil Topluluk Platformu
+                </div>
+                
+                <h1 class="hero-title">
+                    OYNA,<br>YAYINLA,<br><span class="gradient-text">KEŞFET,</span><br>BİRLİKTE<br>BÜYÜ
+                </h1>
+                
+                <p class="hero-description">
+                    Gönderi paylaş, canlı yayın yap, oyun oyna, sesli odalarda buluş.<br>
+                    NatureBot AI her adımda yanında — içerik üret, topluluğunu yönet, trendi yakala.<br>
+                    Hepsi tek platformda, tamamen ücretsiz.
+                </p>
+                
+                <div class="hero-actions">
+                    <a href="/register" class="btn btn-primary">
+                        <i class="fas fa-gamepad"></i>
+                        Hemen Başla
+                    </a>
+                    <a href="#features" class="btn btn-outline">
+                        <i class="fas fa-compass"></i>
+                        Keşfet
+                    </a>
+                </div>
+                
+                <div class="hero-stats">
+                    <div class="stat">
+                        <div class="stat-number">12K+</div>
+                        <div class="stat-label">ÜYE</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-number">340+</div>
+                        <div class="stat-label">SUNUCU</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-number">50+</div>
+                        <div class="stat-label">YAYINCI</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="hero-visual">
+                <div class="float-badge" style="top:-20px;right:30px;--fd:3.5s"><div class="dot"></div> 847 kişi çevrimiçi</div>
+
+                
+                <!-- NatureBot Mascot -->
+                <div class="bot-wrap">
+                    <svg width="140" height="168" viewBox="0 0 100 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <!-- Glow -->
+                        <ellipse cx="50" cy="105" rx="30" ry="8" fill="#10B981" class="bot-glow"/>
+                        <!-- Antenna -->
+                        <line x1="50" y1="30" x2="50" y2="10" stroke="#4CAF50" stroke-width="2"/>
+                        <circle class="bot-antenna" cx="50" cy="8" r="4" fill="#81C784"/>
+                        <!-- Body -->
+                        <path d="M50 20C50 20 15 50 15 80C15 100 30 110 50 110C70 110 85 100 85 80C85 50 50 20 50 20Z" fill="#0A1A0A" stroke="#1B3A1B" stroke-width="3"/>
+                        <!-- Veins -->
+                        <path d="M50 110V50M50 70L70 60M50 70L30 60M50 90L75 80M50 90L25 80" stroke="#1B3A1B" stroke-width="1.5"/>
+                        <!-- Face Screen -->
+                        <rect x="30" y="55" width="40" height="30" rx="8" fill="#0d2010" stroke="#2D5A27" stroke-width="1"/>
+                        <!-- Eyes -->
+                        <circle cx="40" cy="65" r="4" fill="#00D1FF" class="bot-eye" style="filter:drop-shadow(0 0 4px #00D1FF)"/>
+                        <circle cx="60" cy="65" r="4" fill="#00D1FF" class="bot-eye" style="filter:drop-shadow(0 0 4px #00D1FF)"/>
+                        <!-- Mouth lines -->
+                        <path d="M40 78H60M40 75H60M40 81H60" stroke="#2D5A27" stroke-width="1" stroke-linecap="round"/>
+                        <!-- Arms -->
+                        <path class="bot-arm-l" d="M15 75C10 70 5 75 8 80" stroke="#1B3A1B" stroke-width="4" stroke-linecap="round"/>
+                        <path class="bot-arm-r" d="M85 75C90 70 95 75 92 80" stroke="#1B3A1B" stroke-width="4" stroke-linecap="round"/>
+                        <!-- Legs -->
+                        <rect x="38" y="110" width="6" height="10" rx="3" fill="#1B3A1B"/>
+                        <rect x="56" y="110" width="6" height="10" rx="3" fill="#1B3A1B"/>
+                    </svg>
+                    <!-- Chat bubble -->
+                    <div style="position:absolute;top:-10px;left:-120px;background:rgba(16,185,129,.12);border:1px solid rgba(16,185,129,.3);border-radius:12px 12px 4px 12px;padding:8px 12px;font-size:12px;color:#6ee7b7;white-space:nowrap;backdrop-filter:blur(8px);animation:botFloat 4s ease-in-out infinite;animation-delay:-.5s">
+                        AI-Native Super App <svg style="display:inline;vertical-align:middle;margin-left:2px" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#34D399" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3L13.5 8.5L19 10L13.5 11.5L12 17L10.5 11.5L5 10L10.5 8.5Z"/><path d="M19 3L19.75 5.25L22 6L19.75 6.75L19 9L18.25 6.75L16 6L18.25 5.25Z"/></svg>
+                    </div>
+                </div>
+                
+                <div class="hero-card">
+                    <div class="card-header">
+                        <div class="card-avatar">
+                            <i class="fas fa-tree"></i>
+                        </div>
+                        <div class="card-title">Nature.co</div>
+                        <div class="card-subtitle">Doğa Topluluğu</div>
+                    </div>
+                    
+                    <div class="card-content">
+                        <div class="card-item">
+                            <div class="card-icon green">
+                                <i class="fas fa-broadcast-tower"></i>
+                            </div>
+                            <div class="card-text">
+                                <h4>Canlı Yayın</h4>
+                                <p>10.000+ izleyici kapasitesi</p>
+                            </div>
+                        </div>
+                        
+                        <div class="card-item">
+                            <div class="card-icon blue">
+                                <i class="fas fa-server"></i>
+                            </div>
+                            <div class="card-text">
+                                <h4>Oyun Sunucuları</h4>
+                                <p>Turnuvalar ve etkinlikler</p>
+                            </div>
+                        </div>
+                        
+                        <div class="card-item">
+                            <div class="card-icon orange">
+                                <i class="fas fa-comment-dots"></i>
+                            </div>
+                            <div class="card-text">
+                                <h4>Anlık Sohbet</h4>
+                                <p>Kanallar ve DM'ler</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </section>
+
+    <!-- Download Buttons -->
+    <div style="display:flex;flex-direction:column;align-items:center;gap:0.75rem;padding:2rem 2rem 3rem;border-bottom:1px solid rgba(255,255,255,0.06);">
+        <p style="font-size:0.75rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:0.25rem;">Masaüstü Uygulaması</p>
+        <div style="display:flex;gap:0.75rem;flex-wrap:wrap;justify-content:center;">
+            <a href="/NatureCo.dmg" download style="display:inline-flex;align-items:center;gap:1rem;padding:1.4rem 2.5rem;background:rgba(255,255,255,0.06);border:1.5px solid rgba(255,255,255,0.14);border-radius:1rem;color:#fff;text-decoration:none;font-size:1.125rem;font-weight:700;backdrop-filter:blur(10px);transition:all 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.12)';this.style.transform='translateY(-3px)';this.style.boxShadow='0 8px 24px rgba(0,0,0,0.3)'" onmouseout="this.style.background='rgba(255,255,255,0.06)';this.style.transform='translateY(0)';this.style.boxShadow='none'">
+                <i class="fab fa-apple" style="font-size:1.75rem;"></i>
+                <span style="display:flex;flex-direction:column;line-height:1.3;">
+                    <span>Mac için İndir</span>
+                    <span style="font-size:0.8rem;font-weight:400;opacity:0.5;">macOS 11+ · .dmg</span>
+                </span>
+            </a>
+            <a href="/NatureCo_Windows.zip" download style="display:inline-flex;align-items:center;gap:1rem;padding:1.4rem 2.5rem;background:rgba(99,102,241,0.08);border:1.5px solid rgba(99,102,241,0.25);border-radius:1rem;color:rgba(165,167,255,0.9);text-decoration:none;font-size:1.125rem;font-weight:700;backdrop-filter:blur(10px);transition:all 0.2s;" onmouseover="this.style.background='rgba(99,102,241,0.18)';this.style.transform='translateY(-3px)';this.style.boxShadow='0 8px 24px rgba(99,102,241,0.3)'" onmouseout="this.style.background='rgba(99,102,241,0.08)';this.style.transform='translateY(0)';this.style.boxShadow='none'">
+                <i class="fab fa-windows" style="font-size:1.75rem;"></i>
+                <span style="display:flex;flex-direction:column;line-height:1.3;">
+                    <span>Windows için İndir</span>
+                    <span style="font-size:0.8rem;font-weight:400;opacity:0.6;">Windows 10+ · .zip</span>
+                </span>
+            </a>
+        </div>
+    </div>
+
+    <!-- Features Section -->
+    <section class="features" id="features">
+        <div class="features-container">
+            <div class="section-header">
+                <div class="section-badge">
+                    <i class="fas fa-gem"></i>
+                    Özellikler
+                </div>
+                <h2 class="section-title">
+                    Neden <span style="color: var(--secondary);">Nature.co</span>?
+                </h2>
+                <p class="section-description">
+                    Modern teknoloji ve doğa dostu yaklaşım bir arada.
+                </p>
+            </div>
+            
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-broadcast-tower"></i>
+                    </div>
+                    <h3 class="feature-title">Canlı Yayın</h3>
+                    <p class="feature-description">
+                        10.000+ izleyici kapasitesi ile canlı yayın yap. 
+                        HLS ve WebRTC desteği ile tüm cihazlardan erişim.
+                    </p>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-server"></i>
+                    </div>
+                    <h3 class="feature-title">Oyun Sunucuları</h3>
+                    <p class="feature-description">
+                        Minecraft, Valheim ve daha fazlası. 
+                        Turnuvalar, etkinlikler ve özel oyun modları.
+                    </p>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-comments"></i>
+                    </div>
+                    <h3 class="feature-title">Anlık Sohbet</h3>
+                    <p class="feature-description">
+                        Kanallar, DM'ler ve sesli sohbet. 
+                        NatureBot AI asistan ile destek.
+                    </p>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-trophy"></i>
+                    </div>
+                    <h3 class="feature-title">Görevler & Rozetler</h3>
+                    <p class="feature-description">
+                        Günlük görevler, XP sistemi ve rozet koleksiyonu. 
+                        Liderlik tablosunda zirveye çık.
+                    </p>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <h3 class="feature-title">Topluluk</h3>
+                    <p class="feature-description">
+                        Forum, blog ve etkinlikler. 
+                        Doğa projelerinde yer al.
+                    </p>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-robot"></i>
+                    </div>
+                    <h3 class="feature-title">NatureBot AI</h3>
+                    <p class="feature-description">
+                        Yapay zeka destekli asistan. 
+                        İçerik üret, sorularını yanıtla.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Community Section -->
+    <section class="features" id="community" style="background: linear-gradient(180deg, transparent, rgba(99,102,241,0.04), transparent);">
+        <div class="features-container">
+            <div class="section-header">
+                <div class="section-badge" style="background:rgba(99,102,241,0.1);border-color:rgba(99,102,241,0.2);color:var(--secondary);">
+                    <i class="fas fa-users"></i>
+                    Topluluk
+                </div>
+                <h2 class="section-title">Birlikte <span style="color:var(--secondary);">Daha Güçlü</span></h2>
+                <p class="section-description">Binlerce üyeyle tanış, sunucular kur, etkinliklere katıl.</p>
+            </div>
+            <div class="features-grid">
+                <div class="feature-card" style="--hover-color: rgba(99,102,241,0.3);">
+                    <div class="feature-icon" style="background:rgba(99,102,241,0.1);color:var(--secondary);">
+                        <i class="fas fa-server"></i>
+                    </div>
+                    <h3 class="feature-title">Sunucular</h3>
+                    <p class="feature-description">Kendi topluluğunu kur. Özel kanallar, roller ve izin sistemiyle tam kontrol sende.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon" style="background:rgba(99,102,241,0.1);color:var(--secondary);">
+                        <i class="fas fa-comments"></i>
+                    </div>
+                    <h3 class="feature-title">Anlık Sohbet</h3>
+                    <p class="feature-description">Metin kanalları, sesli odalar ve DM'ler. Arkadaşlarınla her an bağlantıda kal.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon" style="background:rgba(99,102,241,0.1);color:var(--secondary);">
+                        <i class="fas fa-trophy"></i>
+                    </div>
+                    <h3 class="feature-title">Görevler & Rozetler</h3>
+                    <p class="feature-description">Günlük görevler, XP sistemi ve rozet koleksiyonu. Liderlik tablosunda zirveye çık.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon" style="background:rgba(99,102,241,0.1);color:var(--secondary);">
+                        <i class="fas fa-newspaper"></i>
+                    </div>
+                    <h3 class="feature-title">Forum & Blog</h3>
+                    <p class="feature-description">Fikirlerini paylaş, tartışmalara katıl. Doğa ve oyun dünyasından güncel içerikler.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon" style="background:rgba(99,102,241,0.1);color:var(--secondary);">
+                        <i class="fas fa-calendar-alt"></i>
+                    </div>
+                    <h3 class="feature-title">Etkinlikler</h3>
+                    <p class="feature-description">Turnuvalar, doğa yürüyüşleri ve online buluşmalar. Topluluğunla anılar biriktir.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon" style="background:rgba(99,102,241,0.1);color:var(--secondary);">
+                        <i class="fas fa-robot"></i>
+                    </div>
+                    <h3 class="feature-title">NatureBot AI</h3>
+                    <p class="feature-description">Yapay zeka destekli asistan. İçerik üret, sorularını yanıtla, topluluğunu yönet.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Streaming Section -->
+    <section class="features" id="streaming" style="background: linear-gradient(180deg, transparent, rgba(239,68,68,0.04), transparent);">
+        <div class="features-container">
+            <div class="section-header">
+                <div class="section-badge" style="background:rgba(239,68,68,0.1);border-color:rgba(239,68,68,0.2);color:#F87171;">
+                    <i class="fas fa-broadcast-tower"></i>
+                    Yayın
+                </div>
+                <h2 class="section-title">Canlı Yayın <span style="color:#F87171;">Platformu</span></h2>
+                <p class="section-description">Profesyonel yayın altyapısıyla izleyicilerinle buluş.</p>
+            </div>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon" style="background:rgba(239,68,68,0.1);color:#F87171;">
+                        <i class="fas fa-video"></i>
+                    </div>
+                    <h3 class="feature-title">HLS & WebRTC</h3>
+                    <p class="feature-description">Düşük gecikme süreli canlı yayın. 10.000+ izleyici kapasitesi ile kesintisiz yayın deneyimi.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon" style="background:rgba(239,68,68,0.1);color:#F87171;">
+                        <i class="fas fa-microphone"></i>
+                    </div>
+                    <h3 class="feature-title">Sesli Odalar</h3>
+                    <p class="feature-description">Arkadaşlarınla sesli sohbet et. Çok katılımcılı sesli odalar ve sahne modu.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon" style="background:rgba(239,68,68,0.1);color:#F87171;">
+                        <i class="fas fa-desktop"></i>
+                    </div>
+                    <h3 class="feature-title">Ekran Paylaşımı</h3>
+                    <p class="feature-description">Oyununu, çalışmanı veya sunumunu anında paylaş. Video konferans desteği dahil.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon" style="background:rgba(239,68,68,0.1);color:#F87171;">
+                        <i class="fas fa-tv"></i>
+                    </div>
+                    <h3 class="feature-title">Nature TV</h3>
+                    <p class="feature-description">Canlı TV kanalları ve içerik arşivi. Doğa belgeselleri ve oyun yayınları tek platformda.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon" style="background:rgba(239,68,68,0.1);color:#F87171;">
+                        <i class="fas fa-comment-dots"></i>
+                    </div>
+                    <h3 class="feature-title">Canlı Sohbet</h3>
+                    <p class="feature-description">Yayın sırasında izleyicilerinle etkileşime gir. Emoji reaksiyonları ve moderasyon araçları.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon" style="background:rgba(239,68,68,0.1);color:#F87171;">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                    <h3 class="feature-title">Yayıncı Analitiği</h3>
+                    <p class="feature-description">İzleyici istatistikleri, etkileşim oranları ve büyüme grafikleri. Kanalını geliştir.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Games Section -->
+    <section class="features" id="games" style="background: linear-gradient(180deg, transparent, rgba(245,158,11,0.04), transparent);">
+        <div class="features-container">
+            <div class="section-header">
+                <div class="section-badge" style="background:rgba(245,158,11,0.1);border-color:rgba(245,158,11,0.2);color:var(--accent);">
+                    <i class="fas fa-gamepad"></i>
+                    Oyunlar
+                </div>
+                <h2 class="section-title">Oyna, <span style="color:var(--accent);">Kazan, Büyü</span></h2>
+                <p class="section-description">Oyun sunucuları, turnuvalar ve rekabetçi etkinlikler seni bekliyor.</p>
+            </div>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon" style="background:rgba(245,158,11,0.1);color:var(--accent);">
+                        <i class="fas fa-cubes"></i>
+                    </div>
+                    <h3 class="feature-title">Oyun Sunucuları</h3>
+                    <p class="feature-description">Minecraft, Valheim ve daha fazlası. Özel sunucularda arkadaşlarınla oyna.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon" style="background:rgba(245,158,11,0.1);color:var(--accent);">
+                        <i class="fas fa-trophy"></i>
+                    </div>
+                    <h3 class="feature-title">Turnuvalar</h3>
+                    <p class="feature-description">Haftalık ve aylık turnuvalar. Ödüller kazan, sıralamada yüksel, şampiyonluğa ulaş.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon" style="background:rgba(245,158,11,0.1);color:var(--accent);">
+                        <i class="fas fa-dice"></i>
+                    </div>
+                    <h3 class="feature-title">Mini Oyunlar</h3>
+                    <p class="feature-description">Platform içi mini oyunlar. Bekleme sürelerini eğlenceye dönüştür.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon" style="background:rgba(245,158,11,0.1);color:var(--accent);">
+                        <i class="fas fa-users-cog"></i>
+                    </div>
+                    <h3 class="feature-title">Takım Oluştur</h3>
+                    <p class="feature-description">Takım ara veya kendi takımını kur. Birlikte oyna, birlikte kazan.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon" style="background:rgba(245,158,11,0.1);color:var(--accent);">
+                        <i class="fas fa-star"></i>
+                    </div>
+                    <h3 class="feature-title">XP & Seviye</h3>
+                    <p class="feature-description">Her oyunda XP kazan, seviye atla. Özel rozetler ve unvanlarla kendini göster.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon" style="background:rgba(245,158,11,0.1);color:var(--accent);">
+                        <i class="fas fa-calendar-check"></i>
+                    </div>
+                    <h3 class="feature-title">Etkinlik Takvimi</h3>
+                    <p class="feature-description">Yaklaşan turnuva ve etkinlikleri takip et. Hatırlatıcı kur, hiçbir şeyi kaçırma.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="cta">        <div class="cta-container">
+            <h2 class="cta-title">
+                Topluluğuna <span style="color: var(--primary);">Şimdi Katıl</span>
+            </h2>
+            <p class="cta-description">
+                Binlerce oyuncu, yayıncı ve içerik üreticisi seni bekliyor. 
+                Ücretsiz kayıt ol, hemen başla!
+            </p>
+            <div class="cta-actions">
+                <a href="/" class="btn btn-primary" style="font-size: 1.125rem; padding: 1rem 2rem;">
+                    <i class="fas fa-user-plus"></i>
+                    Ücretsiz Kayıt Ol
+                </a>
+                <a href="/NatureCo.dmg" download class="btn btn-outline" style="font-size: 1rem; padding: 1rem 1.75rem;">
+                    <i class="fab fa-apple"></i>
+                    Mac Uygulamasını İndir
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer id="contact">
+        <div class="footer-container">
+            <div class="footer-content">
+                <div class="footer-logo">
+                    <svg width="28" height="28" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M50 5C35 20 15 40 15 60C15 78 30 95 50 95C70 95 85 78 85 60C85 40 65 20 50 5Z" fill="#4ADE80"/>
+                        <text x="50" y="70" font-size="55" font-weight="900" fill="white" text-anchor="middle" font-family="Arial, sans-serif">N</text>
+                    </svg>
+                    Nature.co
+                </div>
+                <div style="display:flex;flex-direction:column;align-items:center;gap:0.6rem;">
+                    <!-- Satır 1: Gizlilik — Şartlar | AI Stüdyo — Yardım -->
+                    <div style="display:flex;gap:0.6rem;flex-wrap:wrap;justify-content:center;">
+                        <a href="/gizlilik" class="footer-link" target="_blank">
+                            <i class="fas fa-shield-alt"></i>Gizlilik
+                        </a>
+                        <a href="/sartlar" class="footer-link" target="_blank">
+                            <i class="fas fa-file-contract"></i>Şartlar
+                        </a>
+                        <a href="/ai-studio" class="footer-link">
+                            <i class="fas fa-brain"></i>AI Stüdyo
+                        </a>
+                        <a href="/help" class="footer-link">
+                            <i class="fas fa-question-circle"></i>Yardım
+                        </a>
+                    </div>
+                    <!-- Satır 2: Lisanslar — Çerez Politikası (ortada) -->
+                    <div style="display:flex;gap:0.6rem;flex-wrap:wrap;justify-content:center;">
+                        <a href="/licenses" class="footer-link">
+                            <i class="fas fa-balance-scale"></i>Lisanslar
+                        </a>
+                        <a href="/cerez-politikasi" class="footer-link">
+                            <i class="fas fa-cookie-bite"></i>Çerez Politikası
+                        </a>
+                    </div>
+                </div>
+            <div class="footer-contact">
+                <h4>İletişim</h4>
+                <div class="contact-item">
+                    <i class="fas fa-envelope"></i>
+                    <a href="mailto:info@natureco.me">info@natureco.me</a>
+                </div>
+
+                <div class="contact-item">
+                    <i class="fab fa-twitter"></i>
+                    <a href="https://twitter.com/natureco" target="_blank">@natureco</a>
+                </div>
+            </div>
+            </div>
+            <div class="footer-bottom">
+                <p> 2026 Nature.co — Doğayı korumak için buradayız 🌿</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Çerez Banner -->
+    <div id="cookie-banner" style="display:none; position:fixed; bottom:0; left:0; right:0; z-index:9999; background:rgba(11,14,17,0.97); border-top:1px solid rgba(16,185,129,0.2); backdrop-filter:blur(20px); padding:1.25rem 2rem; align-items:center; justify-content:space-between; gap:1.5rem; flex-wrap:wrap; animation:cookieSlideIn 0.4s ease;">
+        <style>
+            @keyframes cookieSlideIn { from { transform: translateY(100%); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+            @keyframes cookieSlideOut { from { transform: translateY(0); opacity: 1; } to { transform: translateY(100%); opacity: 0; } }
+            #cookie-banner a { color: #10B981; text-decoration: underline; }
+            #cookie-accept, #cookie-reject { border: none; border-radius: 0.5rem; padding: 0.6rem 1.4rem; font-size: 0.875rem; font-weight: 700; cursor: pointer; transition: all 0.2s ease; white-space: nowrap; }
+            #cookie-accept { background: linear-gradient(135deg, #10B981, #059669); color: #fff; }
+            #cookie-accept:hover { transform: translateY(-1px); box-shadow: 0 4px 14px rgba(16,185,129,0.4); }
+            #cookie-reject { background: rgba(255,255,255,0.06); color: rgba(255,255,255,0.6); border: 1px solid rgba(255,255,255,0.1) !important; }
+            #cookie-reject:hover { background: rgba(255,255,255,0.1); color: #fff; }
+            @media(max-width:640px) { #cookie-banner { flex-direction: column; align-items: flex-start; } #cookie-btns { width:100%; display:flex; gap:0.75rem; } #cookie-accept, #cookie-reject { flex:1; } }
+        </style>
+        <div style="flex:1; min-width:200px;">
+            <div style="font-size:0.9rem; font-weight:700; color:#fff; margin-bottom:0.3rem;">🍪 Çerez Politikası</div>
+            <div style="font-size:0.8rem; color:rgba(255,255,255,0.5); line-height:1.6;">
+                Nature.co olarak sitemizin düzgün çalışması, güvenliğin sağlanması ve kullanıcı deneyimini kişiselleştirmek amacıyla zorunlu ve analitik çerezler kullanıyoruz.
+                Çerezler; oturum bilgilerini, dil tercihlerini ve tema ayarlarını hatırlamak için kullanılır.
+                Üçüncü taraf çerezleri yalnızca açık onayınızla etkinleştirilir.
+                Daha fazla bilgi için <a href="/cerez-politikasi" class="no-loading">Çerez Politikamızı</a> ve <a href="/privacy" class="no-loading">Gizlilik Politikamızı</a> inceleyebilirsiniz.
+            </div>
+        </div>
+        <div id="cookie-btns" style="display:flex; gap:0.75rem; align-items:center; flex-shrink:0;">
+            <button id="cookie-reject">Reddet</button>
+            <button id="cookie-accept">Kabul Et</button>
+        </div>
+    </div>
+
+    <script>
+        // Hide link URLs
+        document.addEventListener('DOMContentLoaded', function() {
+            const footerLinks = document.querySelectorAll('.footer-link');
+            footerLinks.forEach(link => {
+                link.addEventListener('mouseenter', function() {
+                    this.title = '';
+                });
+                link.addEventListener('focus', function() {
+                    this.title = '';
+                });
+            });
+
+            // Force AI studio link behavior
+            const aiLinks = document.querySelectorAll('a[href="/ai-studio"]');
+            aiLinks.forEach(link => {
+                link.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    window.location.href = 'https://natureco.me/ai';
+                });
+            });
+        });
+
+        // Particle Effect
+        function createParticles() {
+            const particlesContainer = document.getElementById('particles');
+            const particleCount = 50;
+            
+            for (let i = 0; i < particleCount; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                particle.style.left = Math.random() * 100 + '%';
+                particle.style.animationDelay = Math.random() * 20 + 's';
+                particle.style.animationDuration = (15 + Math.random() * 10) + 's';
+                particlesContainer.appendChild(particle);
+            }
+        }
+
+        // Smooth Scrolling
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+
+        // Navbar scroll effect
+        let lastScroll = 0;
+        window.addEventListener('scroll', () => {
+            const nav = document.querySelector('nav');
+            const currentScroll = window.pageYOffset;
+            
+            if (currentScroll > 100) {
+                nav.style.background = 'rgba(11, 14, 17, 0.95)';
+                nav.style.backdropFilter = 'blur(20px)';
+            } else {
+                nav.style.background = 'rgba(11, 14, 17, 0.8)';
+                nav.style.backdropFilter = 'blur(20px)';
+            }
+            
+            lastScroll = currentScroll;
+        });
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            createParticles();
+            
+            // Add loading animation to buttons
+            document.querySelectorAll('.btn').forEach(btn => {
+                btn.addEventListener('click', function(e) {
+                    if (!this.classList.contains('no-loading')) {
+                        const originalContent = this.innerHTML;
+                        this.innerHTML = '<span class="loading"></span> Yükleniyor...';
+                        this.disabled = true;
+                        
+                        setTimeout(() => {
+                            this.innerHTML = originalContent;
+                            this.disabled = false;
+                        }, 2000);
+                    }
+                });
+            });
+            
+            // Intersection Observer for animations
+            const observerOptions = {
+                threshold: 0.1,
+                rootMargin: '0px 0px -100px 0px'
+            };
+            
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.style.opacity = '1';
+                        entry.target.style.transform = 'translateY(0)';
+                    }
+                });
+            }, observerOptions);
+            
+            // Observe feature cards
+            document.querySelectorAll('.feature-card').forEach(card => {
+                card.style.opacity = '0';
+                card.style.transform = 'translateY(30px)';
+                card.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+                observer.observe(card);
+            });
+        });
+
+        // Console Easter Egg
+        console.log('%c🌿 Welcome to Nature.co! 🌿', 'font-size: 20px; color: #10B981; font-weight: bold;');
+        console.log('%cJoin our community and connect with nature!', 'font-size: 14px; color: #6366F1;');
+
+        // ── Çerez Banner ──────────────────────────────────────────────
+        (function() {
+            if (!localStorage.getItem('cookie_consent')) {
+                const banner = document.getElementById('cookie-banner');
+                if (banner) banner.style.display = 'flex';
+            }
+
+            document.getElementById('cookie-accept')?.addEventListener('click', function() {
+                localStorage.setItem('cookie_consent', 'accepted');
+                const banner = document.getElementById('cookie-banner');
+                if (banner) banner.style.animation = 'cookieSlideOut 0.3s ease forwards';
+                setTimeout(() => { if (banner) banner.style.display = 'none'; }, 300);
+            });
+
+            document.getElementById('cookie-reject')?.addEventListener('click', function() {
+                localStorage.setItem('cookie_consent', 'rejected');
+                const banner = document.getElementById('cookie-banner');
+                if (banner) banner.style.animation = 'cookieSlideOut 0.3s ease forwards';
+                setTimeout(() => { window.location.href = '/landing'; }, 300);
+            });
+        })();
+    </script>
+
+</body>
+</html>

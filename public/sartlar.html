@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+<title>Kullanım Şartları — Nature.co</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{--primary:#10B981;--primary-dark:#059669;--primary-light:#34D399;--secondary:#6366F1;--accent:#F59E0B;--bg-dark:#0B0E11;--bg-darker:#06080A;--bg-light:#111418;--text-primary:#FFFFFF;--text-secondary:#9CA3AF;--text-muted:#6B7280;--border:rgba(255,255,255,0.1);--gradient-1:linear-gradient(135deg,#10B981 0%,#059669 100%);}
+body{font-family:'Nunito',ui-sans-serif,system-ui,-apple-system,sans-serif;background:var(--bg-dark);color:var(--text-primary);overflow-x:hidden;line-height:1.6;min-height:100vh;}
+.bg-gradient{position:fixed;top:0;left:0;width:100%;height:100%;background:radial-gradient(circle at 20% 80%,rgba(16,185,129,0.3) 0%,transparent 50%),radial-gradient(circle at 80% 20%,rgba(99,102,241,0.2) 0%,transparent 50%),radial-gradient(circle at 40% 40%,rgba(245,158,11,0.1) 0%,transparent 50%),linear-gradient(180deg,var(--bg-darker) 0%,var(--bg-dark) 100%);z-index:-1;}
+.particles{position:fixed;top:0;left:0;width:100%;height:100%;z-index:-1;}
+.particle{position:absolute;width:2px;height:2px;background:var(--primary);border-radius:50%;opacity:0.5;animation:float 20s infinite linear;}
+@keyframes float{0%{transform:translateY(100vh) translateX(0);opacity:0}10%{opacity:0.5}90%{opacity:0.5}100%{transform:translateY(-100vh) translateX(100px);opacity:0}}
+nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:18px 48px;background:rgba(0,0,0,.3);backdrop-filter:blur(16px);border-bottom:1px solid rgba(61,220,132,.08);}
+.nav-logo{display:flex;align-items:center;gap:10px;text-decoration:none;}
+.nav-logo-text{font-family:"Nunito",sans-serif;font-size:18px;font-weight:800;color:#fff;}
+.nav-back{display:inline-flex;align-items:center;gap:6px;padding:8px 18px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);border-radius:20px;color:rgba(255,255,255,.7);font-size:13px;font-weight:500;text-decoration:none;transition:background .2s,color .2s;}
+.nav-back:hover{background:rgba(255,255,255,.14);color:#fff;}
+.hero{position:relative;z-index:10;padding:64px 48px 40px;max-width:860px;margin:0 auto;}
+.hero-badge{display:inline-flex;align-items:center;gap:7px;padding:6px 14px;background:rgba(61,220,132,.1);border:1px solid rgba(61,220,132,.2);border-radius:20px;font-size:12px;font-weight:600;color:#3ddc84;margin-bottom:20px;letter-spacing:.3px;}
+.hero-title{font-family:"Nunito",sans-serif;font-size:clamp(32px,5vw,52px);font-weight:900;line-height:1.1;letter-spacing:-.5px;margin-bottom:16px;}
+.hero-title .hl{background:linear-gradient(135deg,#3ddc84,#00c9a7);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.hero-meta{display:flex;align-items:center;gap:20px;color:rgba(255,255,255,.4);font-size:13px;padding-top:16px;border-top:1px solid rgba(255,255,255,.07);margin-top:16px;flex-wrap:wrap;}
+.hero-meta span{display:flex;align-items:center;gap:5px;}
+.content{position:relative;z-index:10;max-width:860px;margin:0 auto;padding:0 48px 80px;}
+.toc{background:rgba(61,220,132,.05);border:1px solid rgba(61,220,132,.12);border-radius:14px;padding:24px 28px;margin-bottom:44px;}
+.toc-title{font-family:"Nunito",sans-serif;font-size:14px;font-weight:800;color:#3ddc84;margin-bottom:14px;letter-spacing:.5px;text-transform:uppercase;}
+.toc-list{list-style:none;display:flex;flex-direction:column;gap:8px;}
+.toc-list a{color:rgba(255,255,255,.6);text-decoration:none;font-size:14px;display:flex;align-items:center;gap:8px;transition:color .2s;}
+.toc-list a::before{content:"";width:6px;height:6px;border-radius:50%;background:rgba(61,220,132,.4);flex-shrink:0;}
+.toc-list a:hover{color:#3ddc84;}
+.section{margin-bottom:48px;}
+.section-num{display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:8px;background:linear-gradient(135deg,rgba(61,220,132,.2),rgba(0,201,167,.1));border:1px solid rgba(61,220,132,.2);font-size:12px;font-weight:800;color:#3ddc84;margin-bottom:12px;}
+.section h2{font-family:"Nunito",sans-serif;font-size:22px;font-weight:800;color:#fff;margin-bottom:14px;letter-spacing:-.2px;}
+.section p{font-size:15px;color:rgba(255,255,255,.65);line-height:1.8;margin-bottom:12px;}
+.section ul{padding-left:0;list-style:none;display:flex;flex-direction:column;gap:8px;margin-bottom:12px;}
+.section ul li{font-size:15px;color:rgba(255,255,255,.65);line-height:1.7;display:flex;align-items:flex-start;gap:10px;}
+.section ul li::before{content:"🌿";flex-shrink:0;margin-top:2px;font-size:13px;}
+.info-box{background:rgba(61,220,132,.06);border:1px solid rgba(61,220,132,.15);border-radius:12px;padding:16px 20px;margin:16px 0;display:flex;gap:12px;align-items:flex-start;}
+.info-box-icon{font-size:18px;flex-shrink:0;margin-top:1px;}
+.info-box p{font-size:14px;color:rgba(255,255,255,.7);line-height:1.7;margin:0;}
+.warn-box{background:rgba(239,68,68,.05);border:1px solid rgba(239,68,68,.15);border-radius:12px;padding:16px 20px;margin:16px 0;display:flex;gap:12px;align-items:flex-start;}
+.warn-box p{font-size:14px;color:rgba(255,180,180,.8);line-height:1.7;margin:0;}
+.ban-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:16px 0;}
+.ban-item{background:rgba(239,68,68,.05);border:1px solid rgba(239,68,68,.12);border-radius:10px;padding:12px 16px;display:flex;align-items:flex-start;gap:9px;font-size:14px;color:rgba(255,200,200,.7);}
+.ban-item::before{content:"🚫";flex-shrink:0;}
+.divider{height:1px;background:linear-gradient(90deg,transparent,rgba(61,220,132,.15),transparent);margin:12px 0 24px;}
+.contact-card{background:rgba(255,255,255,.03);border:1px solid rgba(61,220,132,.15);border-radius:16px;padding:28px;display:flex;align-items:center;justify-content:space-between;gap:20px;flex-wrap:wrap;}
+.contact-card h3{font-family:"Nunito",sans-serif;font-size:18px;font-weight:800;margin-bottom:6px;}
+.contact-card p{font-size:14px;color:rgba(255,255,255,.5);}
+.contact-card a{display:inline-flex;align-items:center;gap:7px;padding:11px 22px;background:linear-gradient(135deg,#3ddc84,#1db954);border-radius:22px;color:#fff;font-size:14px;font-weight:700;text-decoration:none;transition:box-shadow .2s,transform .15s;box-shadow:0 4px 16px rgba(61,220,132,.25);}
+.contact-card a:hover{transform:translateY(-1px);box-shadow:0 6px 20px rgba(61,220,132,.4);}
+footer{position:relative;z-index:10;padding:28px 48px;border-top:1px solid rgba(255,255,255,.06);display:flex;align-items:center;justify-content:space-between;font-size:13px;color:rgba(255,255,255,.3);flex-wrap:wrap;gap:12px;}
+footer a{color:rgba(61,220,132,.6);text-decoration:none;}
+footer a:hover{color:#3ddc84;}
+@media(max-width:700px){
+  nav{padding:16px 20px;}
+  .hero,.content{padding-left:20px;padding-right:20px;}
+  .hero{padding-top:40px;}
+  footer{padding:20px;}
+  .ban-grid{grid-template-columns:1fr;}
+  .contact-card{flex-direction:column;}
+}
+</style>
+</head>
+<body>
+<div class="bg"></div>
+
+<nav>
+  <a class="nav-logo" href="/landing">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="32" height="32" style="flex-shrink:0">
+  <defs>
+    <linearGradient id="lg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#2ecc71"/>
+      <stop offset="100%" stop-color="#1aaa55"/>
+    </linearGradient>
+  </defs>
+  <path d="M50 8 C50 8,18 38,18 60 C18 79.5 32.5 92 50 92 C67.5 92 82 79.5 82 60 C82 38 50 8 50 8Z" fill="url(#lg)"/>
+  <text x="50" y="73" font-family="Arial Black,Arial,sans-serif" font-size="44" font-weight="900" fill="white" text-anchor="middle">N</text>
+</svg>
+    <span class="nav-logo-text">NatureCo</span>
+  </a>
+  <a class="nav-back" href="/landing">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+    Ana Sayfaya Dön
+  </a>
+</nav>
+
+<div class="hero">
+  <div class="hero-badge">📋 Kullanım Koşulları</div>
+  <h1 class="hero-title">Kullanım<br><span class="hl">Şartları</span></h1>
+  <div class="hero-meta">
+    <span><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg> Son güncelleme: Mart 2026</span>
+    <span><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg> Yaklaşık 6 dakika okuma</span>
+    <span>🇹🇷 Türk Hukuku Uyumlu</span>
+  </div>
+</div>
+
+<div class="content">
+
+  <div class="toc">
+    <div class="toc-title">İçindekiler</div>
+    <ul class="toc-list">
+      <li><a href="#s1">1. Kabul ve Genel Koşullar</a></li>
+      <li><a href="#s2">2. Hesap Oluşturma ve Sorumluluk</a></li>
+      <li><a href="#s3">3. Kabul Edilebilir Kullanım</a></li>
+      <li><a href="#s4">4. Yasak İçerikler ve Davranışlar</a></li>
+      <li><a href="#s5">5. Fikri Mülkiyet</a></li>
+      <li><a href="#s6">6. İçerik Moderasyonu</a></li>
+      <li><a href="#s7">7. Hesap Askıya Alma ve Sonlandırma</a></li>
+      <li><a href="#s8">8. Sorumluluk Reddi</a></li>
+      <li><a href="#s9">9. Uygulanacak Hukuk</a></li>
+      <li><a href="#s10">10. İletişim</a></li>
+    </ul>
+  </div>
+
+  <div class="info-box">
+    <span class="info-box-icon">🌿</span>
+    <p>NatureCo'yu kullanmaya başlayarak bu şartları okuduğunuzu, anladığınızı ve kabul ettiğinizi beyan etmiş olursunuz. Şartları kabul etmiyorsanız platformu kullanmamanızı rica ederiz.</p>
+  </div>
+
+  <div class="divider"></div>
+
+  <div class="section" id="s1">
+    <div class="section-num">1</div>
+    <h2>Kabul ve Genel Koşullar</h2>
+    <p>Bu Kullanım Şartları, NatureCo platformu (natureco.me) ile platform üzerinden sunulan tüm hizmetlere ilişkin kullanım koşullarını düzenlemektedir.</p>
+    <p>NatureCo'ya erişim ve platform hizmetlerinden yararlanma, bu şartların tamamına koşulsuz olarak kabul edilmesine bağlıdır. Platform 13 yaş ve üzeri kullanıcılara açıktır. 18 yaşından küçük kullanıcıların platformu bir ebeveyn veya yasal vasinin gözetiminde kullanması önerilir.</p>
+    <div class="info-box">
+      <span class="info-box-icon">📌</span>
+      <p>Bu şartlar geçerlilik tarihinden itibaren yürürlükte olup NatureCo ekibi tarafından önceden bildirim yapılmaksızın güncellenebilir. Güncel şartlar her zaman bu sayfada yayınlanacaktır.</p>
+    </div>
+  </div>
+
+  <div class="section" id="s2">
+    <div class="section-num">2</div>
+    <h2>Hesap Oluşturma ve Sorumluluk</h2>
+    <p>NatureCo'ya kayıt olurken doğru, güncel ve eksiksiz bilgi vermeyi kabul edersiniz.</p>
+    <ul>
+      <li>Her kullanıcı yalnızca bir hesap oluşturabilir. Birden fazla hesap açılması yasaktır.</li>
+      <li>Hesap güvenliğinizden (şifre, e-posta erişimi) yalnızca siz sorumlusunuz.</li>
+      <li>Hesabınızın yetkisiz kullanıldığını fark ederseniz derhal bize bildirmeniz gerekmektedir.</li>
+      <li>Başkasının kimliğine büründüğünüz veya gerçek kimliğinizi gizlediğiniz hesaplar askıya alınır.</li>
+      <li>Bot, otomatik araç veya komut dosyası kullanarak hesap oluşturmak yasaktır.</li>
+    </ul>
+  </div>
+
+  <div class="section" id="s3">
+    <div class="section-num">3</div>
+    <h2>Kabul Edilebilir Kullanım</h2>
+    <p>NatureCo, doğa ve çevre konularında samimi ilgisi olan insanların buluşup paylaşım yaptığı bir topluluk platformudur. Platformu kullanırken:</p>
+    <ul>
+      <li>Diğer kullanıcılara saygılı ve yapıcı bir iletişim dilini benimsemenizi bekleriz.</li>
+      <li>Paylaştığınız içeriklerin gerçek, özgün ve doğa/çevre temasıyla uyumlu olmasını teşvik ediyoruz.</li>
+      <li>Forum tartışmalarına katkıda bulunurken konuyu dağıtmamayı ve spam göndermemeyi kabul edersiniz.</li>
+      <li>Başkalarının kişisel bilgilerini izinsiz paylaşmamanızı (doxxing) kesinlikle bekliyoruz.</li>
+    </ul>
+  </div>
+
+  <div class="section" id="s4">
+    <div class="section-num">4</div>
+    <h2>Yasak İçerikler ve Davranışlar</h2>
+    <p>Aşağıdaki içerik ve davranışlar kesinlikle yasaktır ve hesap askıya alma ile kalıcı banlama dahil olmak üzere yaptırımla sonuçlanır:</p>
+    <div class="ban-grid">
+      <div class="ban-item">Nefret söylemi, ırkçılık, ayrımcılık</div>
+      <div class="ban-item">Taciz, zorbalık, tehdit</div>
+      <div class="ban-item">Müstehcen veya 18+ içerik</div>
+      <div class="ban-item">Çocukları istismar eden her türlü içerik</div>
+      <div class="ban-item">Dezenformasyon ve kasıtlı yanlış bilgi</div>
+      <div class="ban-item">Spam ve istenmeyen ticari mesajlar</div>
+      <div class="ban-item">Kişisel bilgileri rıza olmadan paylaşmak</div>
+      <div class="ban-item">Platform güvenliğini tehdit eden eylemler</div>
+      <div class="ban-item">Telif hakkı ihlali içerik paylaşımı</div>
+      <div class="ban-item">Sahte kimlikle profil oluşturma</div>
+    </div>
+    <div class="warn-box">
+      <span class="info-box-icon">⛔</span>
+      <p>Yasa dışı faaliyetleri kolaylaştıran, teşvik eden veya yönlendiren içerikler anında kaldırılır ve ilgili mercilere bildirilir. NatureCo'nun çevre ve doğa koruma misyonuyla çelişen her türlü içerik de kapsam dışı tutulur.</p>
+    </div>
+  </div>
+
+  <div class="section" id="s5">
+    <div class="section-num">5</div>
+    <h2>Fikri Mülkiyet</h2>
+    <p><strong style="color:#fff">Sizin İçeriğiniz:</strong> NatureCo'da paylaştığınız fotoğraflar, yazılar ve yorumların fikri mülkiyet hakları size aittir. Bize yalnızca platformun işleyişi için gerekli olan, sınırlı, devredilemez bir lisans vermiş olursunuz.</p>
+    <p><strong style="color:#fff">NatureCo İçeriği:</strong> Platform tasarımı, NatureBot karakteri, logo, marka adı ve özgün içerikler NatureCo'ya aittir ve izinsiz kopyalanamaz.</p>
+    <ul>
+      <li>Başkasına ait telif hakkıyla korunan içerikleri izinsiz paylaşmayınız.</li>
+      <li>Platformun kaynak kodunu, arayüzünü veya tasarımını izinsiz kopyalamak, dağıtmak ya da satmak yasaktır.</li>
+      <li>NatureBot ismi ve görselleri marka olarak tescil edilme sürecindedir.</li>
+    </ul>
+  </div>
+
+  <div class="section" id="s6">
+    <div class="section-num">6</div>
+    <h2>İçerik Moderasyonu</h2>
+    <p>NatureCo, platform içeriğini denetleme hakkını saklı tutar. Moderasyon süreci şu şekilde işler:</p>
+    <ul>
+      <li><strong style="color:#fff">Kullanıcı Bildirimleri:</strong> Her içerik diğer kullanıcılar tarafından şikayet edilebilir. Şikayetler moderatörler tarafından incelenir.</li>
+      <li><strong style="color:#fff">Otomatik Filtreleme:</strong> Açıkça zararlı veya yasak içerikler otomatik sistemler tarafından tespit edilebilir.</li>
+      <li><strong style="color:#fff">Moderatör Kararı:</strong> Şartları ihlal eden içerikler önceden bildirim yapılmaksızın kaldırılabilir.</li>
+      <li><strong style="color:#fff">İtiraz Hakkı:</strong> Haksız bulduğunuz moderasyon kararlarına <a href="mailto:info@natureco.me" style="color:#3ddc84">info@natureco.me</a> adresinden itiraz edebilirsiniz.</li>
+    </ul>
+  </div>
+
+  <div class="section" id="s7">
+    <div class="section-num">7</div>
+    <h2>Hesap Askıya Alma ve Sonlandırma</h2>
+    <p>Aşağıdaki durumlarda hesabınız geçici veya kalıcı olarak askıya alınabilir:</p>
+    <ul>
+      <li>Bu şartların ihlali</li>
+      <li>Diğer kullanıcılara zarar verici davranışlar</li>
+      <li>Uzun süreli hesap inaktivitesi (2 yıl üzeri)</li>
+      <li>Yasal bir merciin talebi</li>
+    </ul>
+    <p>Hesabınızı kendiniz kapatmak isterseniz <a href="/cdn-cgi/l/email-protection#492d2c3a3d2c220927283d3c3b2c2a2667242c" style="color:#3ddc84"><span class="__cf_email__" data-cfemail="a3c7c6d0d7c6c8e3cdc2d7d6d1c6c0cc8dcec6">[email&#160;protected]</span></a> adresine yazabilirsiniz. Hesap silindiğinde verileriniz 30 gün içinde kalıcı olarak kaldırılır.</p>
+    <div class="info-box">
+      <span class="info-box-icon">💚</span>
+      <p>İlk ihlallerde genellikle uyarı veya geçici askıya alma yolunu tercih ediyoruz. Kalıcı banlama yalnızca ciddi veya tekrarlanan ihlallerde uygulanır.</p>
+    </div>
+  </div>
+
+  <div class="section" id="s8">
+    <div class="section-num">8</div>
+    <h2>Sorumluluk Reddi</h2>
+    <p>NatureCo platformu "olduğu gibi" sunulmakta olup aşağıdaki hususlarda sorumluluk kabul edilmemektedir:</p>
+    <ul>
+      <li>Kullanıcılar tarafından paylaşılan içeriklerin doğruluğu veya güvenilirliği</li>
+      <li>Platform kesintileri, veri kayıpları veya teknik arızalar</li>
+      <li>Üçüncü taraf web sitelerine yönlendiren linklerin içeriği</li>
+      <li>Kullanıcılar arasındaki anlaşmazlıklar</li>
+    </ul>
+    <p>Platformu kullanarak bu sınırlamaları kabul etmiş olursunuz. Herhangi bir sorun yaşamanız durumunda destek ekibimizle iletişime geçebilirsiniz.</p>
+  </div>
+
+  <div class="section" id="s9">
+    <div class="section-num">9</div>
+    <h2>Uygulanacak Hukuk</h2>
+    <p>Bu Kullanım Şartları, <strong style="color:#fff">Türkiye Cumhuriyeti hukuku</strong> çerçevesinde yorumlanır ve uygulanır. Bu şartlardan doğabilecek uyuşmazlıklarda <strong style="color:#fff">İstanbul Mahkemeleri ve İcra Daireleri</strong> yetkilidir.</p>
+    <p>Avrupa Birliği'nden erişen kullanıcılar için GDPR kapsamındaki haklar da geçerlidir ve Gizlilik Politikamızda açıklanmaktadır.</p>
+  </div>
+
+  <div class="section" id="s10">
+    <div class="section-num">10</div>
+    <h2>İletişim</h2>
+    <div class="contact-card">
+      <div>
+        <h3>Şartlar hakkında sorularınız mı var?</h3>
+        <p>Kullanım şartlarımız veya platformla ilgili her türlü konuda bize ulaşabilirsiniz.</p>
+        <p style="margin-top:8px;font-size:13px;color:rgba(255,255,255,.4)">📧 <a href="mailto:info@natureco.me">info@natureco.me</a></p>
+      </div>

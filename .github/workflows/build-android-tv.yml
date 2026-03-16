@@ -122,6 +122,7 @@ jobs:
           <?xml version="1.0" encoding="utf-8"?>
           <manifest xmlns:android="http://schemas.android.com/apk/res/android">
               <uses-permission android:name="android.permission.INTERNET" />
+              <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
               <uses-feature android:name="android.software.leanback" android:required="false" />
               <uses-feature android:name="android.hardware.touchscreen" android:required="false" />
               <application
@@ -129,12 +130,15 @@ jobs:
                   android:icon="@mipmap/ic_launcher"
                   android:label="Nature.co"
                   android:theme="@style/AppTheme"
-                  android:usesCleartextTraffic="false">
+                  android:usesCleartextTraffic="false"
+                  android:hardwareAccelerated="true"
+                  android:largeHeap="true">
                   <activity
                       android:name=".MainActivity"
                       android:exported="true"
-                      android:configChanges="orientation|screenSize|keyboardHidden"
-                      android:screenOrientation="landscape">
+                      android:configChanges="orientation|screenSize|keyboardHidden|keyboard"
+                      android:screenOrientation="landscape"
+                      android:windowSoftInputMode="stateAlwaysHidden|adjustNothing">
                       <intent-filter>
                           <action android:name="android.intent.action.MAIN" />
                           <category android:name="android.intent.category.LAUNCHER" />
@@ -151,30 +155,121 @@ jobs:
           package me.natureco.tv;
           import android.app.Activity;
           import android.os.Bundle;
+          import android.os.Handler;
           import android.webkit.WebSettings;
           import android.webkit.WebView;
           import android.webkit.WebViewClient;
+          import android.webkit.WebChromeClient;
+          import android.webkit.JavascriptInterface;
           import android.view.KeyEvent;
           import android.view.Window;
           import android.view.WindowManager;
+          import android.view.inputmethod.InputMethodManager;
+          import android.content.Context;
+          import android.net.ConnectivityManager;
+          import android.net.NetworkInfo;
+
           public class MainActivity extends Activity {
               private WebView webView;
+              private Handler handler = new Handler();
+
               @Override
               protected void onCreate(Bundle savedInstanceState) {
                   super.onCreate(savedInstanceState);
                   requestWindowFeature(Window.FEATURE_NO_TITLE);
                   getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
                       WindowManager.LayoutParams.FLAG_FULLSCREEN);
+                  getWindow().setFlags(WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED,
+                      WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED);
+
                   webView = new WebView(this);
+                  webView.setLayerType(WebView.LAYER_TYPE_HARDWARE, null);
                   setContentView(webView);
+
                   WebSettings settings = webView.getSettings();
+                  // Temel ayarlar
                   settings.setJavaScriptEnabled(true);
                   settings.setDomStorageEnabled(true);
+                  settings.setDatabaseEnabled(true);
                   settings.setMediaPlaybackRequiresUserGesture(false);
-                  settings.setUserAgentString("Mozilla/5.0 (Linux; Android 9; TV) AppleWebKit/537.36 Chrome/120.0.0.0 Safari/537.36");
-                  webView.setWebViewClient(new WebViewClient());
+
+                  // Klavye açılmasın — TV'de harici klavye kullanılsın
+                  settings.setNeedInitialFocus(false);
+
+                  // Hız optimizasyonu
+                  settings.setCacheMode(WebSettings.LOAD_CACHE_ELSE_NETWORK);
+                  settings.setRenderPriority(WebSettings.RenderPriority.HIGH);
+                  settings.setEnableSmoothTransition(true);
+                  settings.setAllowContentAccess(true);
+                  settings.setAllowFileAccess(true);
+                  settings.setLoadWithOverviewMode(true);
+                  settings.setUseWideViewPort(true);
+                  settings.setLayoutAlgorithm(WebSettings.LayoutAlgorithm.NORMAL);
+
+                  // User agent — TV olarak tanıt
+                  settings.setUserAgentString("Mozilla/5.0 (Linux; Android 9; TV) AppleWebKit/537.36 Chrome/120.0.0.0 Safari/537.36 NatureCoTV/1.0");
+
+                  // JavaScript bridge — online presence için
+                  webView.addJavascriptInterface(new NatureCoInterface(), "AndroidTV");
+
+                  webView.setWebChromeClient(new WebChromeClient());
+                  webView.setWebViewClient(new WebViewClient() {
+                      @Override
+                      public void onPageFinished(WebView view, String url) {
+                          super.onPageFinished(view, url);
+                          // Klavyeyi kapat
+                          hideKeyboard();
+                          // Online presence bildir
+                          view.evaluateJavascript(
+                              "if(window.AndroidTV) { " +
+                              "  document.addEventListener('focusin', function(e) {" +
+                              "    if(e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.isContentEditable) {" +
+                              "      e.target.blur();" +  // Odak gelince hemen blur — klavye açılmasın
+                              "    }" +
+                              "  }, true);" +
+                              "  window.dispatchEvent(new Event('androidtv-ready'));" +
+                              "}", null);
+                          // Periyodik online presence ping
+                          startOnlinePing(view);
+                      }
+                  });
+
                   webView.loadUrl("https://natureco.me/");
               }
+
+              private void hideKeyboard() {
+                  InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                  if (imm != null && webView != null) {
+                      imm.hideSoftInputFromWindow(webView.getWindowToken(), 0);
+                  }
+              }
+
+              // Her 30 saniyede bir online presence güncelle
+              private void startOnlinePing(final WebView view) {
+                  handler.removeCallbacksAndMessages(null);
+                  Runnable ping = new Runnable() {
+                      @Override
+                      public void run() {
+                          view.evaluateJavascript(
+                              "try { " +
+                              "  var db = window._firebaseDB || (window.firebase && window.firebase.database && window.firebase.database());" +
+                              "  var uid = window._currentUserId;" +
+                              "  if(uid && db) { db.ref('online/' + uid).set(true); db.ref('users/' + uid + '/status').set('online'); }" +
+                              "} catch(e) {}", null);
+                          handler.postDelayed(this, 30000);
+                      }
+                  };
+                  handler.postDelayed(ping, 2000);
+              }
+
+              public class NatureCoInterface {
+                  @JavascriptInterface
+                  public boolean isAndroidTV() { return true; }
+
+                  @JavascriptInterface
+                  public void hideKeyboard() { MainActivity.this.hideKeyboard(); }
+              }
+
               @Override
               public boolean onKeyDown(int keyCode, KeyEvent event) {
                   if (keyCode == KeyEvent.KEYCODE_BACK && webView.canGoBack()) {
@@ -182,6 +277,28 @@ jobs:
                       return true;
                   }
                   return super.onKeyDown(keyCode, event);
+              }
+
+              @Override
+              protected void onResume() {
+                  super.onResume();
+                  webView.onResume();
+                  webView.resumeTimers();
+              }
+
+              @Override
+              protected void onPause() {
+                  super.onPause();
+                  webView.onPause();
+                  webView.pauseTimers();
+                  handler.removeCallbacksAndMessages(null);
+              }
+
+              @Override
+              protected void onDestroy() {
+                  super.onDestroy();
+                  handler.removeCallbacksAndMessages(null);
+                  webView.destroy();
               }
           }
           EOF

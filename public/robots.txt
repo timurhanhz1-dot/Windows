@@ -1,0 +1,14 @@
+# Nature.co - Robots.txt
+
+User-agent: *
+Allow: /
+
+# Sitemap
+Sitemap: https://natureco.me/sitemap.xml
+
+# Disallow private areas
+Disallow: /admin
+Disallow: /api/
+
+# Crawl-delay
+Crawl-delay: 1

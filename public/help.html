@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Yardım & Destek — Nature.co</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" />
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --primary: #10B981;
+            --primary-dark: #059669;
+            --bg-dark: #0B0E11;
+            --bg-card: #161B22;
+            --border: rgba(255,255,255,0.08);
+            --text: #FFFFFF;
+            --text-secondary: #9CA3AF;
+            --text-muted: #6B7280;
+        }
+        body {
+            font-family: 'Nunito', ui-sans-serif, system-ui, sans-serif;
+            background: var(--bg-dark);
+            color: var(--text);
+            min-height: 100vh;
+            line-height: 1.7;
+        }
+        .bg-gradient {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background:
+                radial-gradient(circle at 20% 20%, rgba(16,185,129,0.08) 0%, transparent 50%),
+                radial-gradient(circle at 80% 80%, rgba(99,102,241,0.05) 0%, transparent 50%);
+            z-index: -1;
+        }
+        nav {
+            position: sticky; top: 0; z-index: 100;
+            background: rgba(11,14,17,0.9);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border);
+            padding: 1rem 2rem;
+            display: flex; align-items: center; gap: 1rem;
+        }
+        nav a { color: var(--text-secondary); text-decoration: none; font-size: 0.875rem; transition: color 0.2s; }
+        nav a:hover { color: var(--primary); }
+        nav .sep { color: var(--text-muted); }
+        nav .logo { font-weight: 800; color: var(--text); font-size: 1rem; }
+        .container { max-width: 680px; margin: 0 auto; padding: 3rem 2rem 6rem; }
+        .page-badge {
+            display: inline-flex; align-items: center; gap: 0.5rem;
+            background: rgba(16,185,129,0.1); border: 1px solid rgba(16,185,129,0.2);
+            padding: 0.4rem 1rem; border-radius: 2rem;
+            font-size: 0.8rem; font-weight: 700; color: var(--primary);
+            text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 1rem;
+        }
+        .page-title { font-size: 2rem; font-weight: 900; margin-bottom: 0.5rem; }
+        .page-desc { color: var(--text-secondary); font-size: 0.95rem; margin-bottom: 2.5rem; }
+        .form-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 1rem;
+            padding: 2rem;
+        }
+        .form-section {
+            font-size: 0.7rem; font-weight: 800; text-transform: uppercase;
+            letter-spacing: 0.12em; color: var(--text-muted);
+            margin: 1.75rem 0 1rem; padding-bottom: 0.5rem;
+            border-bottom: 1px solid var(--border);
+        }
+        .form-section:first-child { margin-top: 0; }
+        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+        .form-group { margin-bottom: 1rem; }
+        label {
+            display: block; font-size: 0.85rem; font-weight: 700;
+            color: var(--text-secondary); margin-bottom: 0.4rem;
+        }
+        label span.req { color: var(--primary); margin-left: 2px; }
+        input, select, textarea {
+            width: 100%; background: rgba(255,255,255,0.04);
+            border: 1px solid var(--border); border-radius: 0.5rem;
+            padding: 0.75rem 1rem; color: var(--text);
+            font-family: inherit; font-size: 0.9rem;
+            transition: border-color 0.2s, box-shadow 0.2s;
+            outline: none;
+        }
+        input:focus, select:focus, textarea:focus {
+            border-color: rgba(16,185,129,0.4);
+            box-shadow: 0 0 0 3px rgba(16,185,129,0.08);
+        }
+        input::placeholder, textarea::placeholder { color: var(--text-muted); }
+        select option { background: #1a1f26; }
+        textarea { resize: vertical; min-height: 130px; }
+        .char-count { font-size: 0.75rem; color: var(--text-muted); text-align: right; margin-top: 0.25rem; }
+        .submit-btn {
+            width: 100%; padding: 0.9rem;
+            background: linear-gradient(135deg, #10B981, #059669);
+            border: none; border-radius: 0.6rem;
+            color: white; font-family: inherit; font-size: 1rem; font-weight: 800;
+            cursor: pointer; transition: all 0.2s;
+            display: flex; align-items: center; justify-content: center; gap: 0.6rem;
+            margin-top: 1.5rem;
+        }
+        .submit-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(16,185,129,0.3); }
+        .submit-btn:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+        .alert {
+            padding: 1rem 1.25rem; border-radius: 0.6rem;
+            font-size: 0.9rem; font-weight: 600; margin-top: 1rem;
+            display: none; align-items: center; gap: 0.6rem;
+        }
+        .alert.success { background: rgba(16,185,129,0.1); border: 1px solid rgba(16,185,129,0.25); color: #6ee7b7; display: flex; }
+        .alert.error { background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.25); color: #fca5a5; display: flex; }
+        .info-box {
+            background: rgba(99,102,241,0.07); border: 1px solid rgba(99,102,241,0.18);
+            border-radius: 0.6rem; padding: 0.9rem 1.1rem;
+            font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 1.5rem;
+        }
+        .info-box i { color: #818CF8; margin-right: 6px; }
+        footer {
+            border-top: 1px solid var(--border); padding: 2rem;
+            text-align: center; color: var(--text-muted); font-size: 0.85rem;
+        }
+        footer a { color: var(--primary); text-decoration: none; }
+        @media (max-width: 600px) {
+            .form-row { grid-template-columns: 1fr; }
+            .page-title { font-size: 1.6rem; }
+        }
+    </style>
+</head>
+<body>
+<div class="bg-gradient"></div>
+
+<nav>
+    <a href="/landing" class="logo"><svg width="22" height="22" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" style="display:inline-block;vertical-align:middle;margin-right:6px"><path d="M50 5C35 20 15 40 15 60C15 78 30 95 50 95C70 95 85 78 85 60C85 40 65 20 50 5Z" fill="#4ADE80"/><text x="50" y="70" font-size="55" font-weight="900" fill="white" text-anchor="middle" font-family="Arial, sans-serif">N</text></svg>Nature.co</a>
+    <span class="sep">/</span>
+    <a href="#">Yardım & Destek</a>
+</nav>
+
+<div class="container">
+    <div class="page-badge"><i class="fas fa-headset"></i> Destek</div>
+    <h1 class="page-title">Yardım & Destek</h1>
+    <p class="page-desc">Bir sorunuz mu var? Aşağıdaki formu doldurun, ekibimiz en kısa sürede size ulaşsın.</p>
+
+    <div class="info-box">
+        <i class="fas fa-clock"></i>
+        Destek taleplerine genellikle <strong style="color:#fff">24–48 saat</strong> içinde yanıt verilmektedir.
+        Acil durumlar için <a href="mailto:info@natureco.me" style="color:#10B981">info@natureco.me</a> adresine yazabilirsiniz.
+    </div>
+
+    <div class="form-card">
+        <form id="supportForm">
+            <!-- Kişisel Bilgiler -->
+            <div class="form-section"><i class="fas fa-user" style="margin-right:5px"></i>Kişisel Bilgiler</div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Ad Soyad <span class="req">*</span></label>
+                    <input type="text" id="fullName" placeholder="Adınız Soyadınız" required maxlength="80">
+                </div>
+                <div class="form-group">
+                    <label>Kullanıcı Adı</label>
+                    <input type="text" id="username" placeholder="@kullaniciadi" maxlength="40">
+                </div>
+            </div>
+
+            <!-- İletişim Bilgileri -->
+            <div class="form-section"><i class="fas fa-address-card" style="margin-right:5px"></i>İletişim Bilgileri</div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label>E-posta <span class="req">*</span></label>
+                    <input type="email" id="email" placeholder="ornek@mail.com" required maxlength="120">
+                </div>
+                <div class="form-group">
+                    <label>Telefon <span style="font-size:0.75rem;color:var(--text-muted)">(isteğe bağlı)</span></label>
+                    <input type="tel" id="phone" placeholder="+90 5xx xxx xx xx" maxlength="20">
+                </div>
+            </div>
+
+            <!-- Talep Detayları -->
+            <div class="form-section"><i class="fas fa-ticket-alt" style="margin-right:5px"></i>Talep Detayları</div>
+
+            <div class="form-group">
+                <label>Konu Kategorisi <span class="req">*</span></label>
+                <select id="category" required>
+                    <option value="" disabled selected>Kategori seçin...</option>
+                    <option value="hesap">Hesap Sorunu</option>
+                    <option value="teknik">Teknik Problem</option>
+                    <option value="icerik">İçerik / Moderasyon</option>
+                    <option value="odeme">Ödeme / Abonelik</option>
+                    <option value="guvenlik">Güvenlik / Gizlilik</option>
+                    <option value="oneri">Öneri / Geri Bildirim</option>
+                    <option value="diger">Diğer</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>Konu Başlığı <span class="req">*</span></label>
+                <input type="text" id="subject" placeholder="Talebinizi kısaca özetleyin" required maxlength="120">
+            </div>
+
+            <div class="form-group">
+                <label>Mesajınız <span class="req">*</span></label>
+                <textarea id="message" placeholder="Sorununuzu veya talebinizi detaylı olarak açıklayın..." required maxlength="2000" oninput="updateCharCount(this)"></textarea>
+                <div class="char-count"><span id="charCount">0</span> / 2000</div>
+            </div>
+
+            <button type="submit" class="submit-btn" id="submitBtn">
+                <i class="fas fa-paper-plane"></i>
+                Talebi Gönder
+            </button>
+
+            <div class="alert" id="alertBox"></div>
+        </form>
+    </div>
+</div>
+
+<footer>
+    <p>© 2026 Nature.co — <a href="/landing">Ana Sayfa</a> · <a href="/gizlilik">Gizlilik</a> · <a href="/sartlar">Şartlar</a></p>
+</footer>
+
+<!-- Firebase SDK -->
+<script type="module">
+    import { initializeApp } from 'https://www.gstatic.com/firebasejs/11.0.0/firebase-app.js';
+    import { getDatabase, ref, push, serverTimestamp } from 'https://www.gstatic.com/firebasejs/11.0.0/firebase-database.js';
+
+    // Firebase config — src/firebase.ts ile aynı proje
+    const firebaseConfig = {
+        apiKey: "AIzaSyBMA7zmhpq66DBjacenKzZIub_-YCZWegk",
+        authDomain: "lisa-518f0.firebaseapp.com",
+        databaseURL: "https://lisa-518f0-default-rtdb.europe-west1.firebasedatabase.app",
+        projectId: "lisa-518f0",
+        storageBucket: "lisa-518f0.firebasestorage.app",
+        messagingSenderId: "873280730927",
+        appId: "1:873280730927:web:68548536ebbcc91da593da"
+    };
+
+    const app = initializeApp(firebaseConfig, 'help-page');
+    const db = getDatabase(app);
+
+    document.getElementById('supportForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const btn = document.getElementById('submitBtn');
+        const alertBox = document.getElementById('alertBox');
+        alertBox.className = 'alert';
+        alertBox.style.display = 'none';
+
+        const fullName = document.getElementById('fullName').value.trim();
+        const username = document.getElementById('username').value.trim();
+        const email = document.getElementById('email').value.trim();
+        const phone = document.getElementById('phone').value.trim();
+        const category = document.getElementById('category').value;
+        const subject = document.getElementById('subject').value.trim();
+        const message = document.getElementById('message').value.trim();
+
+        if (!fullName || !email || !category || !subject || !message) {
+            alertBox.className = 'alert error';
+            alertBox.innerHTML = '<i class="fas fa-exclamation-circle"></i> Lütfen zorunlu alanları doldurun.';
+            return;
+        }
+
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Gönderiliyor...';
+
+        try {
+            await push(ref(db, 'support_tickets'), {
+                fullName,
+                username: username || null,
+                email,
+                phone: phone || null,
+                category,
+                subject,
+                message,
+                status: 'open',
+                createdAt: Date.now(),
+                source: 'landing'
+            });
+
+            alertBox.className = 'alert success';
+            alertBox.innerHTML = '<i class="fas fa-check-circle"></i> Talebiniz başarıyla iletildi! En kısa sürede size dönüş yapacağız.';
+            document.getElementById('supportForm').reset();
+            document.getElementById('charCount').textContent = '0';
+        } catch (err) {
+            alertBox.className = 'alert error';
+            alertBox.innerHTML = '<i class="fas fa-exclamation-circle"></i> Bir hata oluştu, lütfen tekrar deneyin.';
+            console.error(err);
+        } finally {
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fas fa-paper-plane"></i> Talebi Gönder';
+        }
+    });
+</script>
+
+<script>
+    function updateCharCount(el) {
+        document.getElementById('charCount').textContent = el.value.length;
+    }
+</script>
+</body>
+</html>

@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Çerez Politikası — Nature.co</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" />
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --primary: #10B981;
+            --bg-dark: #0B0E11;
+            --bg-card: #161B22;
+            --border: rgba(255,255,255,0.08);
+            --text: #FFFFFF;
+            --text-secondary: #9CA3AF;
+            --text-muted: #6B7280;
+        }
+        body {
+            font-family: 'Nunito', ui-sans-serif, system-ui, sans-serif;
+            background: var(--bg-dark);
+            color: var(--text);
+            min-height: 100vh;
+            line-height: 1.7;
+        }
+        .bg-gradient {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: radial-gradient(circle at 20% 20%, rgba(16,185,129,0.05) 0%, transparent 50%),
+                        radial-gradient(circle at 80% 80%, rgba(99,102,241,0.04) 0%, transparent 50%);
+            z-index: -1;
+        }
+        nav {
+            position: sticky; top: 0; z-index: 100;
+            background: rgba(11,14,17,0.9);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border);
+            padding: 1rem 2rem;
+            display: flex; align-items: center; gap: 1rem;
+        }
+        nav a { color: var(--text-secondary); text-decoration: none; font-size: 0.875rem; transition: color 0.2s; }
+        nav a:hover { color: var(--primary); }
+        nav .sep { color: var(--text-muted); }
+        nav .logo { font-weight: 800; color: var(--text); font-size: 1rem; }
+        .container { max-width: 820px; margin: 0 auto; padding: 3rem 2rem 6rem; }
+        .page-badge {
+            display: inline-flex; align-items: center; gap: 0.5rem;
+            background: rgba(16,185,129,0.1); border: 1px solid rgba(16,185,129,0.2);
+            padding: 0.4rem 1rem; border-radius: 2rem;
+            font-size: 0.8rem; font-weight: 700; color: var(--primary);
+            text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 1rem;
+        }
+        .page-title { font-size: 2.25rem; font-weight: 900; margin-bottom: 0.5rem; }
+        .page-meta { font-size: 0.85rem; color: var(--text-muted); margin-bottom: 2.5rem; }
+        .toc {
+            background: var(--bg-card); border: 1px solid var(--border);
+            border-radius: 0.75rem; padding: 1.25rem 1.5rem; margin-bottom: 2.5rem;
+        }
+        .toc-title { font-size: 0.75rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-muted); margin-bottom: 0.75rem; }
+        .toc ol { padding-left: 1.25rem; }
+        .toc li { margin-bottom: 0.35rem; }
+        .toc a { color: var(--text-secondary); text-decoration: none; font-size: 0.9rem; transition: color 0.2s; }
+        .toc a:hover { color: var(--primary); }
+        .section { margin-bottom: 2.5rem; }
+        .section-title {
+            font-size: 1.1rem; font-weight: 800; color: var(--text);
+            margin-bottom: 1rem; padding-bottom: 0.5rem;
+            border-bottom: 1px solid var(--border);
+            display: flex; align-items: center; gap: 0.6rem;
+        }
+        .section-title i { color: var(--primary); font-size: 0.95rem; }
+        p { color: var(--text-secondary); margin-bottom: 0.85rem; font-size: 0.95rem; }
+        .cookie-table {
+            width: 100%; border-collapse: collapse; margin: 1rem 0;
+            font-size: 0.875rem;
+        }
+        .cookie-table th {
+            background: rgba(16,185,129,0.08); color: var(--primary);
+            font-weight: 700; font-size: 0.75rem; text-transform: uppercase;
+            letter-spacing: 0.08em; padding: 0.75rem 1rem; text-align: left;
+            border-bottom: 1px solid rgba(16,185,129,0.2);
+        }
+        .cookie-table td {
+            padding: 0.75rem 1rem; border-bottom: 1px solid var(--border);
+            color: var(--text-secondary); vertical-align: top;
+        }
+        .cookie-table tr:last-child td { border-bottom: none; }
+        .cookie-table tr:hover td { background: rgba(255,255,255,0.02); }
+        .badge {
+            display: inline-block; padding: 0.2rem 0.55rem;
+            border-radius: 0.35rem; font-size: 0.7rem; font-weight: 800;
+            text-transform: uppercase; letter-spacing: 0.06em;
+        }
+        .badge-required { background: rgba(16,185,129,0.15); color: #10B981; }
+        .badge-analytics { background: rgba(99,102,241,0.15); color: #818CF8; }
+        .badge-pref { background: rgba(245,158,11,0.15); color: #F59E0B; }
+        .info-box {
+            background: rgba(16,185,129,0.06); border: 1px solid rgba(16,185,129,0.15);
+            border-radius: 0.75rem; padding: 1.1rem 1.25rem; margin: 1rem 0;
+            font-size: 0.9rem; color: var(--text-secondary);
+        }
+        .info-box strong { color: var(--text); }
+        .warn-box {
+            background: rgba(245,158,11,0.06); border: 1px solid rgba(245,158,11,0.2);
+            border-radius: 0.75rem; padding: 1.1rem 1.25rem; margin: 1rem 0;
+            font-size: 0.9rem; color: var(--text-secondary);
+        }
+        .warn-box strong { color: #F59E0B; }
+        ul { padding-left: 1.5rem; color: var(--text-secondary); font-size: 0.95rem; margin-bottom: 0.85rem; }
+        ul li { margin-bottom: 0.4rem; }
+        .contact-card {
+            background: var(--bg-card); border: 1px solid var(--border);
+            border-radius: 0.75rem; padding: 1.25rem 1.5rem; margin-top: 1rem;
+        }
+        .contact-card a { color: var(--primary); text-decoration: none; }
+        footer {
+            border-top: 1px solid var(--border); padding: 2rem;
+            text-align: center; color: var(--text-muted); font-size: 0.85rem;
+        }
+        footer a { color: var(--primary); text-decoration: none; }
+        @media (max-width: 640px) {
+            .page-title { font-size: 1.6rem; }
+            .cookie-table { font-size: 0.8rem; }
+            .cookie-table th, .cookie-table td { padding: 0.6rem 0.75rem; }
+        }
+    </style>
+</head>
+<body>
+<div class="bg-gradient"></div>
+
+<nav>
+    <a href="/landing" class="logo"><svg width="22" height="22" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" style="display:inline-block;vertical-align:middle;margin-right:6px"><path d="M50 5C35 20 15 40 15 60C15 78 30 95 50 95C70 95 85 78 85 60C85 40 65 20 50 5Z" fill="#4ADE80"/><text x="50" y="70" font-size="55" font-weight="900" fill="white" text-anchor="middle" font-family="Arial, sans-serif">N</text></svg>Nature.co</a>
+    <span class="sep">/</span>
+    <a href="#">Çerez Politikası</a>
+</nav>
+
+<div class="container">
+    <div class="page-badge"><i class="fas fa-cookie-bite"></i> Çerez Politikası</div>
+    <h1 class="page-title">Çerez ve Yerel Depolama Politikası</h1>
+    <p class="page-meta">Son güncelleme: Mart 2026 &nbsp;·&nbsp; Yürürlük tarihi: Mart 2026</p>
+
+    <div class="toc">
+        <div class="toc-title"><i class="fas fa-list" style="margin-right:5px"></i>İçindekiler</div>
+        <ol>
+            <li><a href="#nedir">Çerez ve Yerel Depolama Nedir?</a></li>
+            <li><a href="#kullanim">Hangi Verileri Saklıyoruz?</a></li>
+            <li><a href="#tablo">Depolama Öğeleri Tablosu</a></li>
+            <li><a href="#ucuncu-taraf">Üçüncü Taraf Servisleri</a></li>
+            <li><a href="#kontrol">Verilerinizi Kontrol Etme</a></li>
+            <li><a href="#haklariniz">KVKK Kapsamında Haklarınız</a></li>
+            <li><a href="#iletisim">İletişim</a></li>
+        </ol>
+    </div>
+
+    <!-- 1 -->
+    <div class="section" id="nedir">
+        <div class="section-title"><i class="fas fa-info-circle"></i> 1. Çerez ve Yerel Depolama Nedir?</div>
+        <p>Çerezler, ziyaret ettiğiniz web sitelerinin tarayıcınıza yerleştirdiği küçük metin dosyalarıdır. Nature.co olarak çerezlerin yanı sıra tarayıcının <strong>localStorage</strong> ve <strong>sessionStorage</strong> alanlarını da kullanmaktayız.</p>
+        <p>Bu teknolojiler; oturum bilgilerinizi hatırlamak, tercihlerinizi kaydetmek ve platformun düzgün çalışmasını sağlamak amacıyla kullanılmaktadır.</p>
+        <div class="info-box">
+            <strong>Önemli:</strong> Nature.co, üçüncü taraf reklam çerezleri veya izleme pikselleri kullanmamaktadır. Saklanan tüm veriler yalnızca platformun işlevselliği için kullanılır.
+        </div>
+    </div>
+
+    <!-- 2 -->
+    <div class="section" id="kullanim">
+        <div class="section-title"><i class="fas fa-database"></i> 2. Hangi Verileri Saklıyoruz?</div>
+        <p>Platformumuzda üç kategoride veri depolaması gerçekleşmektedir:</p>
+        <ul>
+            <li><strong>Zorunlu:</strong> Oturum açma, kimlik doğrulama ve güvenlik için gerekli veriler. Bu veriler olmadan platform çalışmaz.</li>
+            <li><strong>Tercih:</strong> Emoji geçmişi, arama geçmişi, AI hafıza profili gibi kullanıcı deneyimini kişiselleştiren veriler.</li>
+            <li><strong>Analitik:</strong> Platform kullanımını iyileştirmek amacıyla yerel olarak tutulan anonim etkinlik verileri.</li>
+        </ul>
+    </div>
+
+    <!-- 3 -->
+    <div class="section" id="tablo">
+        <div class="section-title"><i class="fas fa-table"></i> 3. Depolama Öğeleri Tablosu</div>
+        <table class="cookie-table">
+            <thead>
+                <tr>
+                    <th>Anahtar / Çerez</th>
+                    <th>Tür</th>
+                    <th>Kategori</th>
+                    <th>Amaç</th>
+                    <th>Süre</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><code>firebase:authUser</code></td>
+                    <td>IndexedDB / localStorage</td>
+                    <td><span class="badge badge-required">Zorunlu</span></td>
+                    <td>Firebase oturum token'ı — giriş durumunu korur</td>
+                    <td>Oturum kapatılana kadar</td>
+                </tr>
+                <tr>
+                    <td><code>firebase:host:*</code></td>
+                    <td>localStorage</td>
+                    <td><span class="badge badge-required">Zorunlu</span></td>
+                    <td>Firebase Realtime Database bağlantı önbelleği</td>
+                    <td>Oturum süresi</td>
+                </tr>
+                <tr>
+                    <td><code>naturebot_memory_*</code></td>
+                    <td>localStorage</td>
+                    <td><span class="badge badge-pref">Tercih</span></td>
+                    <td>NatureBot AI asistan hafıza profili — ilgi alanları, tercihler</td>
+                    <td>Manuel silinene kadar</td>
+                </tr>
+                <tr>
+                    <td><code>search_recent</code></td>
+                    <td>localStorage</td>
+                    <td><span class="badge badge-pref">Tercih</span></td>
+                    <td>Son arama geçmişi (en fazla 5 kayıt)</td>
+                    <td>Manuel silinene kadar</td>
+                </tr>
+                <tr>
+                    <td><code>recent_emojis</code></td>
+                    <td>localStorage</td>
+                    <td><span class="badge badge-pref">Tercih</span></td>
+                    <td>Son kullanılan emojiler (en fazla 24 kayıt)</td>
+                    <td>Manuel silinene kadar</td>
+                </tr>
+                <tr>
+                    <td><code>natureco_local_analytics</code></td>
+                    <td>localStorage</td>
+                    <td><span class="badge badge-analytics">Analitik</span></td>
+                    <td>Anonim platform kullanım etkinlikleri (en fazla 200 kayıt, yalnızca yerel)</td>
+                    <td>Manuel silinene kadar</td>
+                </tr>
+                <tr>
+                    <td>FCM Token</td>
+                    <td>Service Worker / IndexedDB</td>
+                    <td><span class="badge badge-required">Zorunlu</span></td>
+                    <td>Push bildirim abonelik token'ı (yalnızca izin verilirse)</td>
+                    <td>Bildirim izni iptal edilene kadar</td>
+                </tr>
+            </tbody>
+        </table>
+        <div class="warn-box">
+            <strong>Not:</strong> <code>natureco_local_analytics</code> verileri yalnızca kendi cihazınızda saklanır, hiçbir sunucuya gönderilmez.
+        </div>
+    </div>
+
+    <!-- 4 -->
+    <div class="section" id="ucuncu-taraf">
+        <div class="section-title"><i class="fas fa-puzzle-piece"></i> 4. Üçüncü Taraf Servisleri</div>
+        <p>Nature.co aşağıdaki üçüncü taraf servisleri kullanmaktadır. Bu servisler kendi gizlilik politikaları kapsamında veri işleyebilir:</p>
+        <table class="cookie-table">
+            <thead>
+                <tr>
+                    <th>Servis</th>
+                    <th>Sağlayıcı</th>
+                    <th>Amaç</th>
+                    <th>Gizlilik Politikası</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Firebase Authentication</td>
+                    <td>Google LLC</td>
+                    <td>Kullanıcı kimlik doğrulama</td>
+                    <td>policies.google.com/privacy</td>
+                </tr>
+                <tr>
+                    <td>Firebase Realtime Database</td>
+                    <td>Google LLC</td>
+                    <td>Gerçek zamanlı veri senkronizasyonu</td>
+                    <td>policies.google.com/privacy</td>
+                </tr>
+                <tr>
+                    <td>Firebase Cloud Storage</td>
+                    <td>Google LLC</td>
+                    <td>Dosya ve medya depolama</td>
+                    <td>policies.google.com/privacy</td>
+                </tr>
+                <tr>
+                    <td>Firebase Cloud Messaging</td>
+                    <td>Google LLC</td>
+                    <td>Push bildirimleri (yalnızca izin verilirse)</td>
+                    <td>policies.google.com/privacy</td>
+                </tr>
+                <tr>
+                    <td>Google Fonts</td>
+                    <td>Google LLC</td>
+                    <td>Yazı tipi yükleme</td>
+                    <td>policies.google.com/privacy</td>
+                </tr>
+                <tr>
+                    <td>Groq API / OpenAI API</td>
+                    <td>Groq Inc. / OpenAI</td>
+                    <td>NatureBot AI yanıtları</td>
+                    <td>groq.com/privacy · openai.com/privacy</td>
+                </tr>
+            </tbody>
+        </table>
+        <div class="info-box">
+            <strong>Google Analytics:</strong> Firebase yapılandırmamızda bir Analytics ölçüm kimliği (measurementId) bulunmakla birlikte, Google Analytics şu an aktif olarak kullanılmamaktadır. Gelecekte etkinleştirilmesi durumunda bu politika güncellenecektir.
+        </div>
+    </div>
+
+    <!-- 5 -->
+    <div class="section" id="kontrol">
+        <div class="section-title"><i class="fas fa-sliders-h"></i> 5. Verilerinizi Kontrol Etme</div>
+        <p>Tarayıcınızda saklanan tüm verileri dilediğiniz zaman silebilirsiniz:</p>
+        <ul>
+            <li><strong>Chrome:</strong> Ayarlar → Gizlilik ve Güvenlik → Site Verileri → natureco.me</li>
+            <li><strong>Firefox:</strong> Ayarlar → Gizlilik ve Güvenlik → Çerezler ve Site Verileri → Veri Yönet</li>
+            <li><strong>Safari:</strong> Tercihler → Gizlilik → Web Sitesi Verilerini Yönet</li>
+            <li><strong>Edge:</strong> Ayarlar → Çerezler ve Site İzinleri → Tüm Çerezleri ve Site Verilerini Gör</li>
+        </ul>
+        <p>Uygulama içinden AI hafıza profilinizi ve analitik verilerinizi silmek için: <strong>Ayarlar → Gizlilik → Verileri Temizle</strong> seçeneğini kullanabilirsiniz.</p>
+        <div class="warn-box">
+            <strong>Dikkat:</strong> Zorunlu kategorideki verileri silmeniz durumunda oturumunuz kapanır ve bazı özellikler çalışmayabilir.
+        </div>
+    </div>
+
+    <!-- 6 -->
+    <div class="section" id="haklariniz">
+        <div class="section-title"><i class="fas fa-shield-alt"></i> 6. KVKK Kapsamında Haklarınız</div>
+        <p>6698 sayılı Kişisel Verilerin Korunması Kanunu (KVKK) kapsamında aşağıdaki haklara sahipsiniz:</p>
+        <ul>
+            <li>Kişisel verilerinizin işlenip işlenmediğini öğrenme</li>
+            <li>İşlenmişse buna ilişkin bilgi talep etme</li>
+            <li>Verilerin silinmesini veya yok edilmesini isteme</li>
+            <li>İşlenen verilerin aktarıldığı üçüncü kişileri öğrenme</li>
+            <li>Eksik veya yanlış işlenmiş verilerin düzeltilmesini isteme</li>
+            <li>Otomatik sistemler aracılığıyla aleyhinize bir sonucun ortaya çıkmasına itiraz etme</li>
+        </ul>
+        <p>Bu haklarınızı kullanmak için aşağıdaki iletişim kanallarından bize ulaşabilirsiniz.</p>
+    </div>
+
+    <!-- 7 -->
+    <div class="section" id="iletisim">
+        <div class="section-title"><i class="fas fa-envelope"></i> 7. İletişim</div>
+        <p>Çerez politikamız veya kişisel verilerinizle ilgili sorularınız için:</p>
+        <div class="contact-card">
+            <p style="margin-bottom:0.5rem"><i class="fas fa-envelope" style="color:#10B981;margin-right:8px"></i><a href="mailto:info@natureco.me">info@natureco.me</a></p>
+            <p style="margin-bottom:0.5rem"><i class="fas fa-globe" style="color:#10B981;margin-right:8px"></i>natureco.me</p>
+            <p style="margin-bottom:0"><i class="fas fa-clock" style="color:#10B981;margin-right:8px"></i>Yanıt süresi: en geç 30 gün (KVKK md. 13)</p>
+        </div>
+    </div>
+
+</div>
+
+<footer>
+    <p>© 2026 Nature.co — <a href="/landing">Ana Sayfa</a> · <a href="/gizlilik">Gizlilik</a> · <a href="/sartlar">Şartlar</a> · <a href="/licenses">Lisanslar</a></p>
+</footer>
+</body>
+</html>

@@ -1,0 +1,647 @@
+{
+  "rules": {
+    ".read": false,
+    ".write": false,
+    "users": {
+      ".read": "auth != null",
+      "$uid": {
+        ".write": "auth != null && (auth.uid === $uid || root.child('users').child(auth.uid).child('is_admin').val() === true || root.child('users').child(auth.uid).child('backoffice_role').val() === 'super_admin' || root.child('users').child(auth.uid).child('backoffice_role').val() === 'admin')",
+        "is_admin": {
+          ".write": "auth != null && root.child('users').child(auth.uid).child('is_admin').val() === true && auth.uid !== $uid"
+        },
+        "is_banned": {
+          ".write": "auth != null && (root.child('users').child(auth.uid).child('is_admin').val() === true || root.child('users').child(auth.uid).child('backoffice_role').val() === 'super_admin' || root.child('users').child(auth.uid).child('backoffice_role').val() === 'admin' || root.child('users').child(auth.uid).child('backoffice_role').val() === 'moderator')"
+        },
+        "is_muted": {
+          ".write": "auth != null && (root.child('users').child(auth.uid).child('is_admin').val() === true || root.child('users').child(auth.uid).child('backoffice_role').val() === 'super_admin' || root.child('users').child(auth.uid).child('backoffice_role').val() === 'admin' || root.child('users').child(auth.uid).child('backoffice_role').val() === 'moderator')"
+        },
+        "mute_until": {
+          ".write": "auth != null && (root.child('users').child(auth.uid).child('is_admin').val() === true || root.child('users').child(auth.uid).child('backoffice_role').val() === 'super_admin' || root.child('users').child(auth.uid).child('backoffice_role').val() === 'admin' || root.child('users').child(auth.uid).child('backoffice_role').val() === 'moderator')"
+        },
+        "is_verified": {
+          ".write": "auth != null && (root.child('users').child(auth.uid).child('is_admin').val() === true || root.child('users').child(auth.uid).child('backoffice_role').val() === 'super_admin' || root.child('users').child(auth.uid).child('backoffice_role').val() === 'admin')"
+        },
+        "backoffice_role": {
+          ".read": "auth != null && auth.uid === $uid",
+          ".write": "auth != null && root.child('users').child(auth.uid).child('backoffice_role').val() === 'super_admin'"
+        },
+        "username": {
+          ".read": true
+        },
+        "friends": {
+          "$friendId": {
+            ".read": "auth != null && (auth.uid === $uid || auth.uid === $friendId)",
+            ".write": "auth != null && (auth.uid === $uid || auth.uid === $friendId)"
+          }
+        },
+        "outgoing_requests": {
+          "$targetId": {
+            ".read": "auth != null && auth.uid === $uid",
+            ".write": "auth != null && (auth.uid === $uid || auth.uid === $targetId)"
+          }
+        }
+      }
+    },
+    "usernames": {
+      ".read": true,
+      "$username": {
+        ".write": "auth != null",
+        ".validate": "newData.isString() && newData.val().length >= 2 && newData.val().length <= 32 && newData.val().matches(/^[a-zA-Z0-9_]+$/)"
+      }
+    },
+    "userEmails": {
+      ".read": true,
+      "$uid": {
+        ".write": "auth != null && (auth.uid === $uid || root.child('users').child(auth.uid).child('is_admin').val() === true || root.child('users').child(auth.uid).child('backoffice_role').val() === 'super_admin' || root.child('users').child(auth.uid).child('backoffice_role').val() === 'admin')",
+        ".validate": "newData.isString() && newData.val().matches(/^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$/) && newData.val().length <= 254"
+      }
+    },
+    "online": {
+      ".read": "auth != null",
+      "$uid": {
+        ".write": "auth != null && auth.uid === $uid",
+        ".validate": "newData.isBoolean() || newData.isNumber()"
+      }
+    },
+    "rooms": {
+      ".read": "auth != null",
+      ".write": "auth != null && (root.child('users').child(auth.uid).child('is_admin').val() === true || root.child('users').child(auth.uid).child('backoffice_role').val() === 'super_admin' || root.child('users').child(auth.uid).child('backoffice_role').val() === 'admin')",
+      "$roomId": {
+        ".read": "auth != null",
+        ".write": "auth != null && (root.child('users').child(auth.uid).child('is_admin').val() === true || root.child('users').child(auth.uid).child('backoffice_role').val() === 'super_admin' || root.child('users').child(auth.uid).child('backoffice_role').val() === 'admin')",
+        "locked": {
+          ".write": "auth != null && (root.child('users').child(auth.uid).child('is_admin').val() === true || root.child('users').child(auth.uid).child('backoffice_role').val() === 'super_admin' || root.child('users').child(auth.uid).child('backoffice_role').val() === 'admin' || data.child('owner_id').val() === auth.uid)"
+        },
+        "owner_id": {
+          ".write": "auth != null && (root.child('users').child(auth.uid).child('is_admin').val() === true || root.child('users').child(auth.uid).child('backoffice_role').val() === 'super_admin')"
+        }
+      }
+    },
+    "channels": {
+      ".read": "auth != null",
+      ".write": "auth != null && (root.child('users').child(auth.uid).child('is_admin').val() === true || root.child('users').child(auth.uid).child('backoffice_role').val() === 'super_admin' || root.child('users').child(auth.uid).child('backoffice_role').val() === 'admin')",
+      "$channelId": {
+        ".read": "auth != null",
+        ".write": "auth != null && (root.child('users').child(auth.uid).child('is_admin').val() === true || root.child('users').child(auth.uid).child('backoffice_role').val() === 'super_admin' || root.child('users').child(auth.uid).child('backoffice_role').val() === 'admin' || (root.child('channels').child($channelId).child('server_id').val() !== null && root.child('guilds').child(root.child('channels').child($channelId).child('server_id').val()).child('owner_id').val() === auth.uid) || (newData.child('server_id').val() !== null && root.child('guilds').child(newData.child('server_id').val()).child('owner_id').val() === auth.uid))"
+      }
+    },
+    "messages": {
+      ".read": "auth != null && (root.child('users').child(auth.uid).child('is_admin').val() === true || root.child('users').child(auth.uid).child('backoffice_role').val() === 'super_admin' || root.child('users').child(auth.uid).child('backoffice_role').val() === 'admin')",
+      "$channelId": {
+        ".read": "auth != null",
+        ".indexOn": ["timestamp"],
+        "$messageId": {
+          ".read": "auth != null",
+          ".write": "auth != null && root.child('users').child(auth.uid).child('is_banned').val() !== true && (!data.exists() || data.child('sender_id').val() === auth.uid || root.child('users').child(auth.uid).child('is_admin').val() === true || root.child('users').child(auth.uid).child('backoffice_role').val() === 'super_admin' || root.child('users').child(auth.uid).child('backoffice_role').val() === 'admin' || root.child('users').child(auth.uid).child('backoffice_role').val() === 'moderator') && (root.child('channels').child($channelId).child('is_locked').val() !== true || root.child('users').child(auth.uid).child('is_admin').val() === true || root.child('users').child(auth.uid).child('backoffice_role').val() === 'super_admin' || root.child('users').child(auth.uid).child('backoffice_role').val() === 'admin')",
+          ".validate": "!newData.exists() || (newData.hasChildren(['sender_id', 'content', 'timestamp']) && (newData.child('sender_id').val() === auth.uid || root.child('users').child(auth.uid).child('is_admin').val() === true || root.child('users').child(auth.uid).child('backoffice_role').val() === 'super_admin' || root.child('users').child(auth.uid).child('backoffice_role').val() === 'admin') && newData.child('content').isString() && newData.child('content').val().length >= 1 && newData.child('content').val().length <= 4000 && newData.child('timestamp').isString())",
+          "reactions": {
+            ".read": "auth != null",
+            ".write": "auth != null && root.child('users').child(auth.uid).child('is_banned').val() !== true"
+          },
+          "pinned": {
+            ".write": "auth != null && (root.child('users').child(auth.uid).child('is_admin').val() === true || root.child('users').child(auth.uid).child('backoffice_role').val() === 'super_admin' || root.child('users').child(auth.uid).child('backoffice_role').val() === 'admin')"
+          },
+          "is_pinned": {
+            ".write": "auth != null && (root.child('users').child(auth.uid).child('is_admin').val() === true || root.child('users').child(auth.uid).child('backoffice_role').val() === 'super_admin' || root.child('users').child(auth.uid).child('backoffice_role').val() === 'admin')"
+          },
+          "edited": {
+            ".write": "auth != null && (data.child('userId').val() === auth.uid || root.child('users').child(auth.uid).child('is_admin').val() === true || root.child('users').child(auth.uid).child('backoffice_role').val() === 'super_admin' || root.child('users').child(auth.uid).child('backoffice_role').val() === 'admin')"
+          },
+          "is_edited": {
+            ".write": "auth != null && (data.child('userId').val() === auth.uid || root.child('users').child(auth.uid).child('is_admin').val() === true || root.child('users').child(auth.uid).child('backoffice_role').val() === 'super_admin' || root.child('users').child(auth.uid).child('backoffice_role').val() === 'admin')"
+          }
+        }
+      }
+    },
+    "dm": {
+      "$dmKey": {
+        ".read": "auth != null && $dmKey.contains(auth.uid)",
+        ".write": "auth != null && $dmKey.contains(auth.uid) && root.child('users').child(auth.uid).child('is_banned').val() !== true",
+        ".indexOn": ["timestamp"]
+      }
+    },
+    "forum": {
+      ".read": "auth != null",
+      ".indexOn": ["created_at"],
+      "$postId": {
+        ".write": "auth != null && root.child('users').child(auth.uid).child('is_banned').val() !== true && (!data.exists() || data.child('userId').val() === auth.uid || root.child('users').child(auth.uid).child('is_admin').val() === true || root.child('users').child(auth.uid).child('backoffice_role').val() === 'super_admin' || root.child('users').child(auth.uid).child('backoffice_role').val() === 'admin' || root.child('users').child(auth.uid).child('backoffice_role').val() === 'moderator')",
+        ".validate": "!newData.exists() || (newData.hasChildren(['title', 'author_id', 'created_at']) && newData.child('title').isString() && newData.child('title').val().length >= 3 && newData.child('title').val().length <= 300 && (newData.child('author_id').val() === auth.uid || newData.child('userId').val() === auth.uid) && newData.child('created_at').isNumber())"
+      }
+    },
+    "forum_comments": {
+      "$postId": {
+        ".read": "auth != null",
+        ".indexOn": ["created_at"],
+        "$commentId": {
+          ".write": "auth != null && root.child('users').child(auth.uid).child('is_banned').val() !== true && (!data.exists() || data.child('author_id').val() === auth.uid || root.child('users').child(auth.uid).child('is_admin').val() === true || root.child('users').child(auth.uid).child('backoffice_role').val() === 'super_admin' || root.child('users').child(auth.uid).child('backoffice_role').val() === 'admin' || root.child('users').child(auth.uid).child('backoffice_role').val() === 'moderator')",
+          ".validate": "!newData.exists() || (newData.hasChildren(['author_id', 'content', 'created_at']) && newData.child('author_id').val() === auth.uid && newData.child('content').isString() && newData.child('content').val().length >= 1 && newData.child('content').val().length <= 2000 && newData.child('created_at').isNumber())"
+        }
+      }
+    },
+    "reports": {
+      ".read": "auth != null && (root.child('users').child(auth.uid).child('is_admin').val() === true || root.child('users').child(auth.uid).child('backoffice_role').val() === 'super_admin' || root.child('users').child(auth.uid).child('backoffice_role').val() === 'admin')",
+      ".write": "auth != null",
+      "$reportId": {
+        ".validate": "newData.hasChildren(['type', 'reporter_id', 'created_at']) && newData.child('reporter_id').val() === auth.uid && newData.child('created_at').isNumber()"
+      }
+    },
+    "tasks": {
+      ".read": "auth != null",
+      ".indexOn": ["created_at", "status"],
+      "$taskId": {
+        ".write": "auth != null && (!data.exists() || data.child('userId').val() === auth.uid || root.child('users').child(auth.uid).child('is_admin').val() === true)",
+        ".validate": "!newData.exists() || (newData.hasChildren(['title', 'userId', 'created_at']) && newData.child('title').isString() && newData.child('title').val().length <= 200 && newData.child('userId').val() === auth.uid)"
+      }
+    },
+    "praises": {
+      ".read": "auth != null",
+      ".write": "auth != null && root.child('users').child(auth.uid).child('is_banned').val() !== true",
+      ".indexOn": ["timestamp"],
+      "$praiseId": {
+        ".validate": "newData.hasChildren(['fromUid', 'toUid', 'timestamp']) && newData.child('fromUid').val() === auth.uid && newData.child('timestamp').isNumber()"
+      }
+    },
+    "polls": {
+      "$channelId": {
+        ".read": "auth != null",
+        ".write": "auth != null && root.child('users').child(auth.uid).child('is_banned').val() !== true",
+        ".indexOn": ["created_at"]
+      }
+    },
+    "settings": {
+      ".read": "auth != null",
+      ".write": "auth != null && (root.child('users').child(auth.uid).child('is_admin').val() === true || root.child('users').child(auth.uid).child('backoffice_role').val() === 'super_admin' || root.child('users').child(auth.uid).child('backoffice_role').val() === 'admin')",
+      "design": {
+        ".read": "auth != null",
+        ".write": "auth != null && root.child('users').child(auth.uid).child('backoffice_role').val() === 'super_admin'"
+      }
+    },
+    "logs": {
+      ".read": "auth != null && (root.child('users').child(auth.uid).child('is_admin').val() === true || root.child('users').child(auth.uid).child('backoffice_role').val() === 'super_admin' || root.child('users').child(auth.uid).child('backoffice_role').val() === 'admin' || root.child('users').child(auth.uid).child('backoffice_role').val() === 'moderator')",
+      ".write": "auth != null",
+      ".indexOn": ["timestamp"],
+      "$logId": {
+        ".validate": "newData.hasChildren(['type', 'timestamp', 'userId']) && newData.child('userId').val() === auth.uid && newData.child('timestamp').isNumber()"
+      }
+    },
+    "ip_bans": {
+      ".read": "auth != null && (root.child('users').child(auth.uid).child('is_admin').val() === true || root.child('users').child(auth.uid).child('backoffice_role').val() === 'super_admin' || root.child('users').child(auth.uid).child('backoffice_role').val() === 'admin')",
+      ".write": "auth != null && (root.child('users').child(auth.uid).child('is_admin').val() === true || root.child('users').child(auth.uid).child('backoffice_role').val() === 'super_admin' || root.child('users').child(auth.uid).child('backoffice_role').val() === 'admin')"
+    },
+    "announcements": {
+      ".read": "auth != null",
+      ".write": "auth != null && (root.child('users').child(auth.uid).child('is_admin').val() === true || root.child('users').child(auth.uid).child('backoffice_role').val() === 'super_admin' || root.child('users').child(auth.uid).child('backoffice_role').val() === 'admin')"
+    },
+    "notifications": {
+      "$uid": {
+        ".read": "auth != null && (auth.uid === $uid || root.child('users').child(auth.uid).child('is_admin').val() === true || root.child('users').child(auth.uid).child('backoffice_role').val() === 'super_admin' || root.child('users').child(auth.uid).child('backoffice_role').val() === 'admin')",
+        ".write": "auth != null",
+        "$notifId": {
+          ".read": "auth != null && auth.uid === $uid",
+          ".write": "auth != null && (auth.uid === $uid || newData.child('from_id').val() === auth.uid || !newData.exists())",
+          ".validate": "!newData.exists() || (newData.hasChildren(['type']) && newData.child('type').isString())"
+        }
+      }
+    },
+    "friend_requests": {
+      "$uid": {
+        ".read": "auth != null && auth.uid === $uid",
+        ".write": "auth != null",
+        "$requestId": {
+          ".validate": "!newData.exists() || (newData.hasChildren(['from', 'timestamp']) && newData.child('from').isString() && newData.child('from').val() === auth.uid)"
+        }
+      }
+    },
+    "friends": {
+      "$uid": {
+        ".read": "auth != null && auth.uid === $uid",
+        ".write": "auth != null && auth.uid === $uid"
+      }
+    },
+    "outgoing_requests": {
+      "$uid": {
+        ".read": "auth != null && auth.uid === $uid",
+        ".write": "auth != null && auth.uid === $uid"
+      }
+    },
+    "guilds": {
+      ".read": "auth != null",
+      "$guildId": {
+        ".read": "auth != null && (root.child('guilds').child($guildId).child('members').child(auth.uid).exists() || root.child('users').child(auth.uid).child('is_admin').val() === true)",
+        ".write": "auth != null && (!data.exists() || data.child('owner_id').val() === auth.uid || root.child('users').child(auth.uid).child('is_admin').val() === true || root.child('users').child(auth.uid).child('backoffice_role').val() === 'super_admin' || root.child('users').child(auth.uid).child('backoffice_role').val() === 'admin')",
+        ".validate": "!newData.exists() || (newData.hasChildren(['name', 'owner_id']) && newData.child('name').isString() && newData.child('name').val().length >= 2 && newData.child('name').val().length <= 100 && newData.child('owner_id').val() === auth.uid)",
+        "members": {
+          "$uid": {
+            ".read": "auth != null && (auth.uid === $uid || root.child('guilds').child($guildId).child('members').child(auth.uid).exists())",
+            ".write": "auth != null && (auth.uid === $uid || root.child('guilds').child($guildId).child('owner_id').val() === auth.uid || root.child('users').child(auth.uid).child('is_admin').val() === true || root.child('users').child(auth.uid).child('backoffice_role').val() === 'super_admin' || root.child('users').child(auth.uid).child('backoffice_role').val() === 'admin')",
+            ".validate": "!newData.exists() || newData.val() === 'owner' || newData.val() === 'admin' || newData.val() === 'member'"
+          }
+        },
+        "owner_id": {
+          ".write": "auth != null && (data.val() === auth.uid || root.child('users').child(auth.uid).child('backoffice_role').val() === 'super_admin')"
+        },
+        "name": {
+          ".write": "auth != null && (data.parent().child('owner_id').val() === auth.uid || root.child('users').child(auth.uid).child('backoffice_role').val() === 'super_admin' || root.child('users').child(auth.uid).child('backoffice_role').val() === 'admin')",
+          ".validate": "newData.isString() && newData.val().length >= 2 && newData.val().length <= 100"
+        },
+        "description": {
+          ".write": "auth != null && (data.parent().child('owner_id').val() === auth.uid || root.child('users').child(auth.uid).child('backoffice_role').val() === 'super_admin' || root.child('users').child(auth.uid).child('backoffice_role').val() === 'admin')",
+          ".validate": "newData.isString() && newData.val().length <= 500"
+        },
+        "icon": {
+          ".write": "auth != null && (data.parent().child('owner_id').val() === auth.uid || root.child('users').child(auth.uid).child('backoffice_role').val() === 'super_admin' || root.child('users').child(auth.uid).child('backoffice_role').val() === 'admin')"
+        },
+        "slowmode_seconds": {
+          ".write": "auth != null && (data.parent().child('owner_id').val() === auth.uid || root.child('guilds').child($guildId).child('members').child(auth.uid).val() === 'admin' || root.child('users').child(auth.uid).child('is_admin').val() === true)",
+          ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 21600"
+        },
+        "banned_members": {
+          "$uid": {
+            ".read": "auth != null && root.child('guilds').child($guildId).child('members').child(auth.uid).exists()",
+            ".write": "auth != null && (root.child('guilds').child($guildId).child('owner_id').val() === auth.uid || root.child('guilds').child($guildId).child('members').child(auth.uid).val() === 'admin' || root.child('users').child(auth.uid).child('is_admin').val() === true)"
+          }
+        },
+        "audit_log": {
+          ".read": "auth != null && (root.child('guilds').child($guildId).child('owner_id').val() === auth.uid || root.child('guilds').child($guildId).child('members').child(auth.uid).val() === 'admin' || root.child('users').child(auth.uid).child('is_admin').val() === true)",
+          "$logId": {
+            ".write": "auth != null && root.child('guilds').child($guildId).child('members').child(auth.uid).exists()",
+            ".validate": "newData.hasChildren(['action', 'by', 'timestamp']) && newData.child('by').val() === auth.uid && newData.child('timestamp').isNumber()"
+          }
+        }
+      }
+    },
+    "userGuilds": {
+      "$uid": {
+        ".read": "auth != null && (auth.uid === $uid || root.child('users').child(auth.uid).child('is_admin').val() === true || root.child('users').child(auth.uid).child('backoffice_role').val() === 'super_admin' || root.child('users').child(auth.uid).child('backoffice_role').val() === 'admin')",
+        ".write": "auth != null && auth.uid === $uid"
+      }
+    },
+    "typing": {
+      "$channelId": {
+        "$uid": {
+          ".read": "auth != null",
+          ".write": "auth != null && auth.uid === $uid"
+        }
+      }
+    },
+    "status": {
+      "$uid": {
+        ".read": "auth != null",
+        ".write": "auth != null && auth.uid === $uid"
+      }
+    },
+    "threads": {
+      "$channelId": {
+        "$messageId": {
+          ".read": "auth != null",
+          ".write": "auth != null && root.child('users').child(auth.uid).child('is_banned').val() !== true"
+        }
+      }
+    },
+    "calls": {
+      ".read": "auth != null",
+      ".write": "auth != null"
+    },
+    "callInvites": {
+      ".read": "auth != null",
+      ".write": "auth != null",
+      "$inviteId": {
+        ".validate": "newData.hasChildren(['fromUid', 'toUid', 'timestamp']) && newData.child('fromUid').val() === auth.uid && newData.child('timestamp').isNumber()"
+      }
+    },
+    "aktarimlar": {
+      ".read": "auth != null",
+      ".write": "auth != null",
+      ".indexOn": ["created_at", "status"],
+      "$id": {
+        ".validate": "newData.hasChildren(['title', 'userId', 'created_at']) && newData.child('userId').val() === auth.uid && newData.child('title').isString() && newData.child('title').val().length >= 1 && newData.child('title').val().length <= 200"
+      }
+    },
+    "aktarim_sohbet": {
+      "$aktarimId": {
+        ".read": "auth != null",
+        ".write": "auth != null",
+        ".indexOn": ["timestamp"],
+        "$messageId": {
+          ".validate": "newData.hasChildren(['text', 'userId', 'timestamp']) && newData.child('text').isString() && newData.child('text').val().length >= 1 && newData.child('text').val().length <= 2000 && newData.child('userId').val() === auth.uid && newData.child('timestamp').isNumber()"
+        }
+      }
+    },
+    "aktarim_kat": {
+      ".read": "auth != null",
+      ".write": "auth != null && (root.child('users').child(auth.uid).child('is_admin').val() === true || root.child('users').child(auth.uid).child('backoffice_role').val() === 'super_admin' || root.child('users').child(auth.uid).child('backoffice_role').val() === 'admin')"
+    },
+    "verification_requests": {
+      ".read": "auth != null && (root.child('users').child(auth.uid).child('is_admin').val() === true || root.child('users').child(auth.uid).child('backoffice_role').val() === 'super_admin' || root.child('users').child(auth.uid).child('backoffice_role').val() === 'admin')",
+      "$uid": {
+        ".read": "auth != null && (auth.uid === $uid || root.child('users').child(auth.uid).child('backoffice_role').val() === 'super_admin' || root.child('users').child(auth.uid).child('backoffice_role').val() === 'admin')",
+        ".write": "auth != null && (auth.uid === $uid || root.child('users').child(auth.uid).child('is_admin').val() === true || root.child('users').child(auth.uid).child('backoffice_role').val() === 'super_admin' || root.child('users').child(auth.uid).child('backoffice_role').val() === 'admin')"
+      }
+    },
+    "live_chat": {
+      ".read": "auth != null",
+      ".write": "auth != null && root.child('users').child(auth.uid).child('is_banned').val() !== true",
+      ".indexOn": ["ts"],
+      "$messageId": {
+        ".validate": "newData.hasChildren(['text', 'userId', 'ts']) && newData.child('text').isString() && newData.child('text').val().length >= 1 && newData.child('text').val().length <= 500 && newData.child('userId').val() === auth.uid && newData.child('ts').isNumber()"
+      }
+    },
+    "live_chat_online": {
+      ".read": "auth != null",
+      "$uid": {
+        ".write": "auth != null && auth.uid === $uid"
+      }
+    },
+    "live_streams": {
+      ".read": "auth != null",
+      ".write": "auth != null",
+      "$streamId": {
+        ".validate": "newData.hasChildren(['uid']) && newData.child('uid').val() === auth.uid"
+      }
+    },
+    "stream_chat": {
+      "$streamId": {
+        ".read": "auth != null",
+        ".write": "auth != null && root.child('users').child(auth.uid).child('is_banned').val() !== true",
+        "$messageId": {
+          ".validate": "newData.hasChildren(['user', 'uid', 'text', 'ts']) && newData.child('text').isString() && newData.child('text').val().length >= 1 && newData.child('text').val().length <= 500 && newData.child('uid').val() === auth.uid && newData.child('ts').isNumber()"
+        }
+      }
+    },
+    "stream_viewers": {
+      "$streamId": {
+        ".read": "auth != null",
+        ".write": "auth != null",
+        "$uid": {
+          ".write": "auth != null && auth.uid === $uid"
+        }
+      }
+    },
+    "tv_chat": {
+      "$channelId": {
+        ".read": "auth != null",
+        ".write": "auth != null && root.child('users').child(auth.uid).child('is_banned').val() !== true",
+        "$messageId": {
+          ".validate": "newData.hasChildren(['text', 'userId', 'timestamp']) && newData.child('text').isString() && newData.child('text').val().length >= 1 && newData.child('text').val().length <= 500 && newData.child('userId').val() === auth.uid && newData.child('timestamp').isNumber()"
+        }
+      }
+    },
+    "tv_viewers": {
+      "$channelId": {
+        ".read": "auth != null",
+        ".write": "auth != null",
+        "$uid": {
+          ".write": "auth != null && auth.uid === $uid"
+        }
+      }
+    },
+    "tv_channels": {
+      ".read": true,
+      ".write": "auth != null && (root.child('users').child(auth.uid).child('is_admin').val() === true || root.child('users').child(auth.uid).child('backoffice_role').val() === 'super_admin' || root.child('users').child(auth.uid).child('backoffice_role').val() === 'admin')"
+    },
+    "webrtc": {
+      "$broadcasterId": {
+        ".read": "auth != null",
+        ".write": "auth != null && auth.uid === $broadcasterId",
+        "join_requests": {
+          "$viewerId": {
+            ".read": "auth != null && (auth.uid === $broadcasterId || auth.uid === $viewerId)",
+            ".write": "auth != null && auth.uid === $viewerId",
+            ".validate": "newData.hasChildren(['ts', 'username']) && newData.child('ts').isNumber() && newData.child('username').isString()"
+          }
+        },
+        "viewers": {
+          "$viewerId": {
+            ".read": "auth != null",
+            ".write": "auth != null && (auth.uid === $broadcasterId || auth.uid === $viewerId)",
+            "offer": {
+              ".read": "auth != null && auth.uid === $viewerId",
+              ".write": "auth != null && auth.uid === $broadcasterId"
+            },
+            "answer": {
+              ".read": "auth != null && auth.uid === $broadcasterId",
+              ".write": "auth != null && auth.uid === $viewerId"
+            },
+            "b_ice": {
+              ".read": "auth != null && auth.uid === $viewerId",
+              ".write": "auth != null && auth.uid === $broadcasterId"
+            },
+            "v_ice": {
+              ".read": "auth != null && auth.uid === $broadcasterId",
+              ".write": "auth != null && auth.uid === $viewerId"
+            }
+          }
+        }
+      }
+    },
+    "voice_rooms": {
+      ".read": "auth != null",
+      "$roomId": {
+        ".write": "auth != null && (!data.exists() || data.child('owner_id').val() === auth.uid || root.child('users').child(auth.uid).child('is_admin').val() === true || root.child('users').child(auth.uid).child('backoffice_role').val() === 'super_admin' || root.child('users').child(auth.uid).child('backoffice_role').val() === 'admin')",
+        ".validate": "!newData.exists() || newData.hasChildren(['name', 'owner_id']) && newData.child('owner_id').val() === auth.uid",
+        "participants": {
+          "$uid": {
+            ".write": "auth != null && auth.uid === $uid"
+          }
+        }
+      }
+    },
+    "voice_signals": {
+      ".read": "auth != null",
+      "$roomId": {
+        "$uid": {
+          ".write": "auth != null && auth.uid === $uid"
+        }
+      }
+    },
+    "user_index": {
+      ".read": true,
+      "$uid": {
+        ".write": "auth != null && (auth.uid === $uid || root.child('users').child(auth.uid).child('is_admin').val() === true || root.child('users').child(auth.uid).child('backoffice_role').val() === 'super_admin' || root.child('users').child(auth.uid).child('backoffice_role').val() === 'admin')",
+        ".validate": "newData.hasChildren(['username']) && newData.child('username').isString()"
+      }
+    },
+    "ai_studio_sessions": {
+      "$uid": {
+        ".read": "auth != null && auth.uid === $uid",
+        ".write": "auth != null && auth.uid === $uid"
+      }
+    },
+    "nature_posts": {
+      ".read": "auth != null",
+      ".indexOn": ["userId", "timestamp", "type"],
+      "$postId": {
+        ".read": "auth != null",
+        ".write": "auth != null && root.child('users').child(auth.uid).child('is_banned').val() !== true && (!data.exists() || data.child('userId').val() === auth.uid || root.child('users').child(auth.uid).child('is_admin').val() === true || root.child('users').child(auth.uid).child('backoffice_role').val() === 'super_admin' || root.child('users').child(auth.uid).child('backoffice_role').val() === 'admin' || root.child('users').child(auth.uid).child('backoffice_role').val() === 'moderator')",
+        ".validate": "!newData.exists() || (newData.hasChildren(['userId', 'content', 'timestamp']) && newData.child('userId').val() === auth.uid && newData.child('content').isString() && newData.child('content').val().length >= 1 && newData.child('content').val().length <= 500 && newData.child('timestamp').isNumber())",
+        "likes": {
+          "$likerId": {
+            ".write": "auth != null && auth.uid === $likerId"
+          }
+        },
+        "comments": {
+          "$commentId": {
+            ".write": "auth != null && root.child('users').child(auth.uid).child('is_banned').val() !== true",
+            ".validate": "newData.hasChildren(['userId', 'content', 'timestamp']) && newData.child('userId').val() === auth.uid && newData.child('content').isString() && newData.child('content').val().length >= 1 && newData.child('content').val().length <= 500"
+          }
+        }
+      }
+    },
+    "followers": {
+      "$userId": {
+        ".read": "auth != null",
+        ".indexOn": ["at"],
+        "$followerId": {
+          ".write": "auth != null && (auth.uid === $followerId || auth.uid === $userId)"
+        }
+      }
+    },
+    "following": {
+      "$userId": {
+        ".read": "auth != null",
+        ".indexOn": ["at"],
+        "$followingId": {
+          ".write": "auth != null && auth.uid === $userId"
+        }
+      }
+    },
+    "stories": {
+      "$userId": {
+        ".read": "auth != null",
+        ".indexOn": ["createdAt", "expiresAt"],
+        "$storyId": {
+          ".write": "auth != null && auth.uid === $userId",
+          ".validate": "newData.hasChildren(['media', 'createdAt', 'expiresAt']) && newData.child('createdAt').isNumber() && newData.child('expiresAt').isNumber()",
+          "views": {
+            "$viewerId": {
+              ".write": "auth != null && auth.uid === $viewerId"
+            }
+          },
+          "reactions": {
+            "$reactorId": {
+              ".write": "auth != null && auth.uid === $reactorId"
+            }
+          }
+        }
+      }
+    },
+    "user_posts_index": {
+      "$userId": {
+        ".read": "auth != null",
+        ".write": "auth != null && auth.uid === $userId"
+      }
+    },
+    "ai_conversations": {
+      "$uid": {
+        ".read": "auth != null && auth.uid === $uid",
+        ".write": "auth != null && auth.uid === $uid"
+      }
+    },
+    "email_verifications": {
+      ".read": "auth != null && (root.child('users').child(auth.uid).child('is_admin').val() === true || root.child('users').child(auth.uid).child('backoffice_role').val() === 'super_admin' || root.child('users').child(auth.uid).child('backoffice_role').val() === 'admin')",
+      "$uid": {
+        ".read": "auth != null && auth.uid === $uid",
+        ".write": true
+      }
+    },
+    "eco_limits": {
+      "$uid": {
+        ".read": "auth != null && auth.uid === $uid",
+        ".write": "auth != null && auth.uid === $uid"
+      }
+    },
+    "fcm_tokens": {
+      "$uid": {
+        ".read": "auth != null && auth.uid === $uid",
+        ".write": "auth != null && auth.uid === $uid"
+      }
+    },
+    "blocked_users": {
+      "$uid": {
+        ".read": "auth != null && auth.uid === $uid",
+        ".write": "auth != null && auth.uid === $uid",
+        "$targetUid": {
+          ".read": "auth != null && (auth.uid === $uid || auth.uid === $targetUid)"
+        }
+      }
+    },
+    "video_rooms": {
+      ".read": "auth != null",
+      "$roomId": {
+        ".read": "auth != null",
+        ".write": "auth != null",
+        "name": {
+          ".write": "auth != null && (data.parent().child('hostId').val() === auth.uid || root.child('users').child(auth.uid).child('is_admin').val() === true || root.child('users').child(auth.uid).child('backoffice_role').val() === 'super_admin' || root.child('users').child(auth.uid).child('backoffice_role').val() === 'admin')"
+        },
+        "hostId": {
+          ".write": "auth != null && (data.parent().child('hostId').val() === auth.uid || !data.parent().exists())"
+        },
+        "participants": {
+          ".write": "auth != null",
+          "$uid": {
+            ".read": "auth != null",
+            ".write": "auth != null && auth.uid === $uid"
+          }
+        },
+        "signals": {
+          "$uid": {
+            ".read": "auth != null",
+            ".write": "auth != null && auth.uid === $uid"
+          }
+        },
+        "lastActivity": {
+          ".write": "auth != null"
+        },
+        "activeScreenShare": {
+          ".write": "auth != null"
+        }
+      }
+    },
+    "video_signaling": {
+      "$roomId": {
+        ".read": "auth != null",
+        "$uid": {
+          ".read": "auth != null && auth.uid === $uid",
+          ".write": "auth != null",
+          "$messageId": {
+            ".write": "auth != null"
+          }
+        }
+      }
+    },
+    "game_servers": {
+      ".read": "auth != null",
+      "$serverId": {
+        ".write": "auth != null && (root.child('users').child(auth.uid).child('is_banned').val() !== true || root.child('users').child(auth.uid).child('backoffice_role').val() === 'super_admin' || root.child('users').child(auth.uid).child('backoffice_role').val() === 'admin')",
+        "approved": {
+          ".write": "auth != null && (root.child('users').child(auth.uid).child('is_admin').val() === true || root.child('users').child(auth.uid).child('backoffice_role').val() === 'super_admin' || root.child('users').child(auth.uid).child('backoffice_role').val() === 'admin')"
+        }
+      }
+    },
+    "tournaments": {
+      ".read": "auth != null",
+      "$tournamentId": {
+        ".write": "auth != null && root.child('users').child(auth.uid).child('is_banned').val() !== true"
+      }
+    },
+    "support_tickets": {
+      ".read": "auth != null && (root.child('users').child(auth.uid).child('is_admin').val() === true || root.child('users').child(auth.uid).child('backoffice_role').val() === 'super_admin' || root.child('users').child(auth.uid).child('backoffice_role').val() === 'admin' || root.child('users').child(auth.uid).child('backoffice_role').val() === 'moderator')",
+      ".write": true,
+      "$ticketId": {
+        ".validate": "newData.hasChildren(['fullName', 'email', 'category', 'subject', 'message', 'createdAt'])"
+      }
+    },
+    "hashtags": {
+      ".read": "auth != null",
+      ".write": "auth != null"
+    },
+    "moderation_reports_v2": {
+      ".read": "auth != null && (root.child('users').child(auth.uid).child('is_admin').val() === true || root.child('users').child(auth.uid).child('backoffice_role').val() === 'super_admin' || root.child('users').child(auth.uid).child('backoffice_role').val() === 'admin' || root.child('users').child(auth.uid).child('backoffice_role').val() === 'moderator')",
+      ".write": "auth != null",
+      ".indexOn": ["created_at"],
+      "$reportId": {
+        ".validate": "newData.hasChildren(['targetType', 'targetId', 'reason', 'reportedBy', 'created_at']) && newData.child('reportedBy').val() === auth.uid && newData.child('created_at').isNumber()"
+      }
+    }
+  }
+}

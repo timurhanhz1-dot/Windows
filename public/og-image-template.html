@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Nature.co OG Image Template</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      width: 1200px;
+      height: 630px;
+      background: linear-gradient(135deg, #0B0E11 0%, #1a1f26 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    /* Background pattern */
+    body::before {
+      content: '';
+      position: absolute;
+      width: 200%;
+      height: 200%;
+      background-image: 
+        radial-gradient(circle at 20% 50%, rgba(16, 185, 129, 0.1) 0%, transparent 50%),
+        radial-gradient(circle at 80% 80%, rgba(16, 185, 129, 0.15) 0%, transparent 50%);
+      animation: float 20s ease-in-out infinite;
+    }
+    
+    @keyframes float {
+      0%, 100% { transform: translate(0, 0) rotate(0deg); }
+      50% { transform: translate(-50px, -50px) rotate(5deg); }
+    }
+    
+    .container {
+      text-align: center;
+      z-index: 1;
+      padding: 60px;
+    }
+    
+    .logo {
+      width: 120px;
+      height: 120px;
+      background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+      border-radius: 30px;
+      margin: 0 auto 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 60px;
+      box-shadow: 0 20px 60px rgba(16, 185, 129, 0.3);
+    }
+    
+    h1 {
+      font-size: 72px;
+      font-weight: 900;
+      color: white;
+      margin-bottom: 20px;
+      letter-spacing: -2px;
+    }
+    
+    .subtitle {
+      font-size: 32px;
+      color: #10b981;
+      font-weight: 600;
+      margin-bottom: 30px;
+    }
+    
+    .features {
+      display: flex;
+      gap: 30px;
+      justify-content: center;
+      margin-top: 40px;
+    }
+    
+    .feature {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(16, 185, 129, 0.2);
+      border-radius: 16px;
+      padding: 20px 30px;
+      color: rgba(255, 255, 255, 0.8);
+      font-size: 20px;
+      font-weight: 500;
+    }
+    
+    .badge {
+      position: absolute;
+      top: 40px;
+      right: 40px;
+      background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+      color: white;
+      padding: 12px 24px;
+      border-radius: 12px;
+      font-size: 18px;
+      font-weight: 700;
+      box-shadow: 0 10px 30px rgba(16, 185, 129, 0.3);
+    }
+  </style>
+</head>
+<body>
+  <div class="badge">🇹🇷 Türk Yapımı</div>
+  
+  <div class="container">
+    <div class="logo">🌿</div>
+    <h1>Nature.co</h1>
+    <div class="subtitle">AI Destekli Topluluk Platformu</div>
+    
+    <div class="features">
+      <div class="feature">💬 Gerçek Zamanlı Chat</div>
+      <div class="feature">🎙️ Sesli Odalar</div>
+      <div class="feature">🤖 15+ AI Servisi</div>
+    </div>
+  </div>
+</body>
+</html>
+
+<!-- 
+  Bu HTML'i tarayıcıda aç ve screenshot al:
+  1. Chrome'da aç
+  2. F12 > Console > Ekran boyutunu 1200x630 yap
+  3. Screenshot al
+  4. og-image.png olarak kaydet
+  5. public/ klasörüne koy
+-->

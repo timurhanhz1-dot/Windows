@@ -1,0 +1,30 @@
+{
+  "database": {
+    "rules": "database.rules.json"
+  },
+  "storage": {
+    "rules": "storage.rules"
+  },
+  "hosting": {
+    "site": "lisa-518f0",
+    "public": "dist",
+    "ignore": [
+      "firebase.json",
+      "**/.*",
+      "**/node_modules/**"
+    ],
+    "cleanUrls": true,
+    "rewrites": [
+      { "source": "/landing", "destination": "/landing.html" },
+      { "source": "/help", "destination": "/help.html" },
+      { "source": "/licenses", "destination": "/licenses.html" },
+      { "source": "/cerez-politikasi", "destination": "/cerez-politikasi.html" },
+      { "source": "/gizlilik", "destination": "/gizlilik.html" },
+      { "source": "/sartlar", "destination": "/sartlar.html" },
+      { "source": "**", "destination": "/index.html" }
+    ]
+  },
+  "functions": {
+    "source": "functions"
+  }
+}
