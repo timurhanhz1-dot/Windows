@@ -52,3 +52,8 @@ firestore-debug.log
 # Temporary files
 *.log
 *.cache
+
+# Large binary files (served via Firebase Hosting, not needed in git)
+public/NatureCo.dmg
+public/NatureCo_Windows.zip
+public/NatureCo_AndroidTV.apk
