@@ -138,7 +138,7 @@ jobs:
                       android:exported="true"
                       android:configChanges="orientation|screenSize|keyboardHidden|keyboard"
                       android:screenOrientation="landscape"
-                      android:windowSoftInputMode="stateAlwaysHidden|adjustNothing">
+                      android:windowSoftInputMode="stateAlwaysHidden|adjustPan">
                       <intent-filter>
                           <action android:name="android.intent.action.MAIN" />
                           <category android:name="android.intent.category.LAUNCHER" />
@@ -222,9 +222,11 @@ jobs:
                           // Online presence bildir
                           view.evaluateJavascript(
                               "if(window.AndroidTV) { " +
-                              "  document.addEventListener('focusin', function(e) {" +
-                              "    if(e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.isContentEditable) {" +
-                              "      e.target.blur();" +  // Odak gelince hemen blur — klavye açılmasın
+                              "  document.addEventListener('touchstart', function(e) {" +
+                              "    var t = e.target;" +
+                              "    if(t.tagName === 'INPUT' || t.tagName === 'TEXTAREA' || t.isContentEditable) {" +
+                              "      t.setAttribute('readonly','readonly');" +
+                              "      setTimeout(function(){ t.removeAttribute('readonly'); t.focus(); }, 50);" +
                               "    }" +
                               "  }, true);" +
                               "  window.dispatchEvent(new Event('androidtv-ready'));" +
