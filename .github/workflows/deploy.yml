@@ -1,4 +1,4 @@
-name: Deploy Web + Mobile
+name: Deploy Web
 
 on:
   push:
@@ -28,26 +28,3 @@ jobs:
           firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
           channelId: live
           projectId: lisa-518f0
-
-  deploy-mobile:
-    name: EAS OTA Update
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-
-      - uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-
-      - name: Install EAS CLI
-        run: npm install -g eas-cli
-
-      - name: Install mobile deps
-        run: npm install --legacy-peer-deps
-        working-directory: mobile
-
-      - name: EAS Update
-        working-directory: mobile
-        run: eas update --branch preview --message "${{ github.event.head_commit.message }}" --non-interactive
-        env:
-          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
