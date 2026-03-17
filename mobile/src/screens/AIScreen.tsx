@@ -6,7 +6,7 @@ import { T } from '../theme/index';
 
 interface ChatMsg { id: string; role: 'user' | 'assistant'; content: string; }
 
-const GROQ_API_KEY = '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';
+const GROQ_API_KEY = process.env.EXPO_PUBLIC_GROQ_API_KEY || '';
 
 export const AIScreen = () => {
   const [messages, setMessages] = useState<ChatMsg[]>([
