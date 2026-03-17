@@ -10,7 +10,7 @@ import {
   serverTimestamp,
   where,
 } from "firebase/firestore";
-import { db } from "../config/firebaseSecure";
+import { firestore as db } from "../firebase";
 
 export interface SavedConversation {
   id?: string;
