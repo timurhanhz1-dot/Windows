@@ -28,10 +28,10 @@ export const AppNavigator = ({ userId, username }: Props) => (
       tabBarLabelStyle: { fontSize: 10, fontWeight: '600' },
       tabBarIcon: ({ color, size, focused }) => {
         const icons: Record<string, [string, string]> = {
-          Sohbet: ['chatbubbles', 'chatbubbles-outline'],
+          Sohbet: ['chatbubble-ellipses', 'chatbubble-ellipses-outline'],
           Kanallar: ['grid', 'grid-outline'],
           Forum: ['people', 'people-outline'],
-          AI: ['hardware-chip', 'hardware-chip-outline'],
+          Robot: ['hardware-chip', 'hardware-chip-outline'],
           Profil: ['person', 'person-outline'],
         };
         const [active, inactive] = icons[route.name] || ['ellipse', 'ellipse-outline'];
@@ -42,7 +42,7 @@ export const AppNavigator = ({ userId, username }: Props) => (
     <Tab.Screen name="Sohbet">{() => <DMScreen userId={userId} currentUserName={username} />}</Tab.Screen>
     <Tab.Screen name="Kanallar">{() => <ChannelsScreen userId={userId} username={username} />}</Tab.Screen>
     <Tab.Screen name="Forum">{() => <ForumScreen userId={userId} displayName={username} />}</Tab.Screen>
-    <Tab.Screen name="AI">{() => <AIScreen />}</Tab.Screen>
+    <Tab.Screen name="Robot">{() => <AIScreen userId={userId} />}</Tab.Screen>
     <Tab.Screen name="Profil">{() => <ProfileScreen userId={userId} />}</Tab.Screen>
   </Tab.Navigator>
 );
