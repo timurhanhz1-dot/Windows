@@ -14,6 +14,8 @@ import {
 } from '../services/guildService';
 import { listenMessages, sendMessage, editMessage, deleteMessage, addReaction } from '../services/firebaseService';
 import { EmojiPicker } from './EmojiPicker';
+import { ref as dbRef, onValue, off } from 'firebase/database';
+import { db } from '../firebase';
 
 const GUILD_EMOJIS = ['🌿','🔥','⚡','🌊','🏔️','🌙','☀️','🎮','🎵','💻','🎨','📚'];
 const GUILD_COLORS = ['#10b981','#3b82f6','#8b5cf6','#ef4444','#f97316','#eab308','#06b6d4','#ec4899'];
@@ -53,6 +55,9 @@ export const GuildSystem = ({ theme, userId, username, onGuildOpen }: { theme: a
   const [showAuditLog, setShowAuditLog] = useState(false);
   const [sendError, setSendError] = useState('');
 
+  // Güncel kullanıcı adları map'i
+  const [usersMap, setUsersMap] = useState<Record<string, { username?: string; displayName?: string; avatar?: string }>>({});
+
   const QUICK_REACTIONS = ['👍','❤️','😂','😮','😢','🔥'];
 
   // Create form
@@ -77,6 +82,7 @@ export const GuildSystem = ({ theme, userId, username, onGuildOpen }: { theme: a
 
   useEffect(() => {
     if (!activeGuild || !activeChannel) return;
+    setMessages([]);
     const unsub = listenMessages(activeChannel, setMessages as any);
     return unsub;
   }, [activeGuild, activeChannel]);
@@ -98,6 +104,20 @@ export const GuildSystem = ({ theme, userId, username, onGuildOpen }: { theme: a
     const unsub = listenAuditLog(activeGuild.id, setAuditLogs);
     return unsub;
   }, [activeGuild, showAuditLog]);
+
+  // Tüm kullanıcıların güncel isimlerini dinle
+  useEffect(() => {
+    const usersRef = dbRef(db, 'users');
+    const unsub = onValue(usersRef, (snap) => {
+      const data = snap.val() || {};
+      const map: Record<string, { username?: string; displayName?: string; avatar?: string }> = {};
+      Object.entries(data).forEach(([uid, val]: [string, any]) => {
+        map[uid] = { username: val?.username, displayName: val?.displayName, avatar: val?.avatar || val?.photoURL };
+      });
+      setUsersMap(map);
+    });
+    return () => off(usersRef);
+  }, []);
 
   const handleCreate = async () => {
     if (!gName.trim()) return;
@@ -585,17 +605,17 @@ export const GuildSystem = ({ theme, userId, username, onGuildOpen }: { theme: a
 
                   {/* Avatar */}
                   <div className="w-8 h-8 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-xs font-bold text-white/40 shrink-0 self-start mt-5">
-                    {(msg.sender_name || msg.sender_id || '?').substring(0, 2).toUpperCase()}
+                    {(usersMap[msg.sender_id]?.username || msg.sender_name || msg.sender_id || '?').substring(0, 2).toUpperCase()}
                   </div>
 
                   <div className={`flex flex-col gap-1 max-w-[65%] ${isMine ? 'items-end' : 'items-start'}`}>
                     {/* Sender name */}
-                    <span className="text-[10px] text-white/30 px-1">{msg.sender_name || msg.sender_id}</span>
+                    <span className="text-[10px] text-white/30 px-1">{usersMap[msg.sender_id]?.displayName || usersMap[msg.sender_id]?.username || msg.sender_name || msg.sender_id}</span>
 
                     {/* Reply preview */}
                     {replyMsg && (
                       <div className="text-[10px] text-white/30 px-3 py-1 bg-white/5 border-l-2 border-white/20 rounded-lg truncate max-w-full">
-                        ↩ {replyMsg.sender_name}: {replyMsg.content}
+                        ↩ {usersMap[replyMsg.sender_id]?.displayName || usersMap[replyMsg.sender_id]?.username || replyMsg.sender_name}: {replyMsg.content}
                       </div>
                     )}
 

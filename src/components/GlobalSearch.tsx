@@ -32,11 +32,10 @@ export const GlobalSearch = ({ theme, onNavigate }: GlobalSearchProps) => {
   const [query, setQuery] = useState('');
   const [results, setResults] = useState<{ channels: any[], users: any[], messages: any[], profiles: UserProfile[] }>({ channels: [], users: [], messages: [], profiles: [] });
   const [loading, setLoading] = useState(false);
-  const [recent, setRecent] = useState<string[]>(() => {
+  const [recent, setRecent] = useState<{id: string, label: string}[]>(() => {
     try {
-      const saved = JSON.parse(localStorage.getItem('search_recent') || '[]');
-      // UID gibi görünen (20+ karakter alfanumerik) girişleri temizle
-      return saved.filter((r: string) => !/^[A-Za-z0-9]{20,}$/.test(r));
+      const saved = JSON.parse(localStorage.getItem('search_recent_v2') || '[]');
+      return Array.isArray(saved) ? saved.filter((r: any) => r && r.id && r.label) : [];
     } catch { return []; }
   });
   const [trending, setTrending] = useState<TrendingItem[]>([]);
@@ -181,9 +180,9 @@ export const GlobalSearch = ({ theme, onNavigate }: GlobalSearchProps) => {
     // UID gibi görünen label'ları Son Aramalar'a kaydetme
     const isUid = /^[A-Za-z0-9]{20,}$/.test(label);
     if (!isUid) {
-      const newRecent = [label, ...recent.filter(r => r !== label)].slice(0, 5);
+      const newRecent = [{id, label}, ...recent.filter(r => r.id !== id)].slice(0, 5);
       setRecent(newRecent);
-      try { localStorage.setItem('search_recent', JSON.stringify(newRecent)); } catch {}
+      try { localStorage.setItem('search_recent_v2', JSON.stringify(newRecent)); } catch {}
     }
     onNavigate(type, id);
   };
@@ -207,7 +206,7 @@ export const GlobalSearch = ({ theme, onNavigate }: GlobalSearchProps) => {
               <div>
                 <p className="text-xs font-bold text-white/30 uppercase tracking-widest mb-3">Son Aramalar</p>
                 <div className="flex flex-wrap gap-2">
-                  {recent.map(r => <button key={r} onClick={() => setQuery(r)} className="px-3 py-1.5 bg-white/5 border border-white/10 rounded-full text-sm text-white/60 hover:text-white hover:bg-white/10 transition-all">{r}</button>)}
+                  {recent.map(r => <button key={r.id} onClick={() => setQuery(r.label)} className="px-3 py-1.5 bg-white/5 border border-white/10 rounded-full text-sm text-white/60 hover:text-white hover:bg-white/10 transition-all">{r.label}</button>)}
                 </div>
               </div>
             )}

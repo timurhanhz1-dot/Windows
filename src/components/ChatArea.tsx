@@ -15,6 +15,7 @@ import { UserProfileCard } from './UserProfileCard';
 import ChannelAiSummaryCard from "./ChannelAiSummaryCard";
 import NatureBotAssistantPanel from "./NatureBotAssistantPanel";
 import { EmojiPicker } from './EmojiPicker';
+import { StickerPicker } from './StickerPicker';
 import { TypingIndicator, setTyping, clearTyping } from './TypingIndicator';
 import { ThreadView } from './ThreadView';
 import { PollCreator } from './PollSystem';
@@ -131,10 +132,12 @@ export const ChatArea = ({
   const [mentionSuggestions, setMentionSuggestions] = useState<any[]>([]);
   const [showMentions, setShowMentions] = useState(false);
   const [showEmojiInput, setShowEmojiInput] = useState(false);
+  const [showStickerPicker, setShowStickerPicker] = useState(false);
   const [threadView, setThreadView] = useState<{ id: string; content: string; userName: string; timestamp: string } | null>(null);
   const typingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const inputRef = useRef<HTMLInputElement>(null);
+  const inputRef = useRef<HTMLTextAreaElement>(null);
+  const formRef = useRef<HTMLFormElement>(null);
 
   // Pinned messages
   const pinnedMessages = filteredMessages.filter(m => m.is_pinned);
@@ -183,6 +186,17 @@ export const ChatArea = ({
     e.target.value = '';
   };
 
+  // Drag & drop
+  const [isDragging, setIsDragging] = useState(false);
+  const handleDragOver = (e: React.DragEvent) => { e.preventDefault(); setIsDragging(true); };
+  const handleDragLeave = (e: React.DragEvent) => { e.preventDefault(); setIsDragging(false); };
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(false);
+    const file = e.dataTransfer.files?.[0];
+    if (file) onFileUpload(file);
+  };
+
   // Group messages by day
   const grouped: { date: string; messages: any[] }[] = [];
   filteredMessages.forEach((msg, i) => {
@@ -194,7 +208,19 @@ export const ChatArea = ({
   });
 
   return (
-    <div className="flex flex-col h-full" style={{ background: '#0B0E11', backgroundImage: 'radial-gradient(circle at 20% 50%, rgba(16, 185, 129, 0.1) 0%, transparent 50%), radial-gradient(circle at 80% 80%, rgba(139, 92, 246, 0.1) 0%, transparent 50%)' }}>
+    <div className="flex flex-col h-full relative" 
+      style={{ background: '#0B0E11', backgroundImage: 'radial-gradient(circle at 20% 50%, rgba(16, 185, 129, 0.1) 0%, transparent 50%), radial-gradient(circle at 80% 80%, rgba(139, 92, 246, 0.1) 0%, transparent 50%)' }}
+      onDragOver={handleDragOver}
+      onDragLeave={handleDragLeave}
+      onDrop={handleDrop}
+    >
+      {/* Drag overlay */}
+      {isDragging && (
+        <div className="absolute inset-0 z-50 flex flex-col items-center justify-center bg-emerald-500/10 border-2 border-dashed border-emerald-500/60 rounded-2xl pointer-events-none">
+          <div className="text-5xl mb-3">📎</div>
+          <p className="text-emerald-400 font-bold text-lg">Dosyayı buraya bırak</p>
+        </div>
+      )}
       {/* Header - Modern */}
       <header className={`relative z-50 h-16 border-b border-white/5 flex items-center px-6 justify-between ${theme.glass ? 'backdrop-blur-xl' : ''}`}
         style={{ backgroundColor: theme.channelSidebar }}>
@@ -419,8 +445,8 @@ export const ChatArea = ({
                     {/* Name + time */}
                     <div className={`flex items-center gap-2 mb-1 ${isOwn ? 'flex-row-reverse' : ''}`}>
                       <span className="text-xs font-bold text-white/60 cursor-pointer hover:text-white transition-all"
-                        onClick={() => { const u = allUsers.find(u => u.username === (msg.sender_name || msg.sender_id)); if (u) navigate(`/profile/${u.id}`); }}>
-                        {msg.sender_name || msg.sender_id}
+                        onClick={() => { const u = allUsers.find(u => u.id === msg.sender_id); if (u) navigate(`/profile/${u.id}`); }}>
+                        {(() => { const u = allUsers.find(u => u.id === msg.sender_id); return u ? (u.displayName || u.username) : (msg.sender_name || msg.sender_id); })()}
                       </span>
                       <span className="text-[10px] text-white/20">{formatTime(msg.timestamp)}</span>
                       {msg.is_edited && <span className="text-[9px] text-white/20 italic">(düzenlendi)</span>}
@@ -607,7 +633,7 @@ export const ChatArea = ({
           )}
         </AnimatePresence>
 
-        <form onSubmit={handleSendMessage}
+        <form ref={formRef} onSubmit={handleSendMessage}
           className={`relative flex items-center gap-2 p-2 rounded-2xl border border-white/10 transition-all focus-within:border-emerald-500/50 focus-within:ring-2 focus-within:ring-emerald-500/20 focus-within:shadow-lg focus-within:shadow-emerald-500/10 ${theme.glass ? 'backdrop-blur-xl bg-white/5' : 'bg-white/5'} ${isChannelLocked && !isAdmin ? 'opacity-60 pointer-events-none' : ''}`}
           style={{ pointerEvents: 'auto', userSelect: 'text' }}>
           {isChannelLocked && !isAdmin && (
@@ -639,20 +665,26 @@ export const ChatArea = ({
               <PollIcon size={18} />
             </motion.button>
           )}
-          <input 
-            ref={inputRef} 
-            type="text" 
+          <textarea
+            ref={inputRef}
+            rows={1}
             value={input} 
-            onChange={e => setInput(e.target.value)}
+            onChange={e => {
+              setInput(e.target.value);
+              // Auto-resize
+              const el = e.target as HTMLTextAreaElement;
+              el.style.height = 'auto';
+              el.style.height = Math.min(el.scrollHeight, 120) + 'px';
+            }}
             onKeyDown={e => {
               if (e.key === 'Enter' && !e.shiftKey) {
                 e.preventDefault();
-                handleSendMessage(e);
+                handleSendMessage(e as any);
               }
             }}
             placeholder={activeChannel === 'NatureBot' ? 'NatureBot ile konuş... Hafıza destekli AI sohbet aktif.' : `#${activeChannel} ${t('chat.sendMessage')}`}
-            className="flex-1 bg-transparent border-none py-2.5 px-2 text-sm text-white placeholder:text-white/30 focus:outline-none" 
-            style={{ WebkitUserSelect: 'text', userSelect: 'text' }}
+            className="flex-1 bg-transparent border-none py-2.5 px-2 text-sm text-white placeholder:text-white/30 focus:outline-none resize-none overflow-hidden"
+            style={{ WebkitUserSelect: 'text', userSelect: 'text', minHeight: '40px', maxHeight: '120px' }}
           />
           {/* Emoji picker butonu */}
           <div className="relative">
@@ -670,10 +702,36 @@ export const ChatArea = ({
                 <EmojiPicker
                   onSelect={(emoji) => {
                     setInput(prev => prev + emoji);
-                    setShowEmojiInput(false);
                     inputRef.current?.focus();
                   }}
                   onClose={() => setShowEmojiInput(false)}
+                />
+              )}
+            </AnimatePresence>
+          </div>
+          {/* Sticker picker butonu */}
+          <div className="relative">
+            <motion.button
+              whileHover={{ scale: 1.1 }}
+              whileTap={{ scale: 0.95 }}
+              type="button"
+              onClick={() => { setShowStickerPicker(v => !v); setShowEmojiInput(false); }}
+              className={`p-2.5 rounded-xl transition-all ${showStickerPicker ? 'text-yellow-400 bg-yellow-500/10' : 'text-white/30 hover:text-yellow-400 hover:bg-white/5'}`}
+              title="Sticker"
+            >
+              <span className="text-base leading-none">🎭</span>
+            </motion.button>
+            <AnimatePresence>
+              {showStickerPicker && (
+                <StickerPicker
+                  onSelect={(sticker) => {
+                    setInput(sticker);
+                    setShowStickerPicker(false);
+                    // Submit form with sticker as content
+                    setTimeout(() => formRef.current?.requestSubmit(), 0);
+                  }}
+                  onClose={() => setShowStickerPicker(false)}
+                  userId={userId}
                 />
               )}
             </AnimatePresence>

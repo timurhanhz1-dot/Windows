@@ -5,7 +5,7 @@ import { motion } from 'motion/react';
 import { auth } from '../firebase';
 import { updateProfile as updateFirebaseAuthProfile, signOut } from 'firebase/auth';
 import { getUser, checkDailyReward } from '../services/firebaseService';
-import { updateProfile, uploadProfilePhoto, uploadCoverPhoto } from '../services/profileService';
+import { updateProfile, uploadProfilePhoto, uploadCoverPhoto, updateUsername, recordProfileVisit } from '../services/profileService';
 import { followUser, unfollowUser, isFollowing as checkIsFollowing, listenFollowerCount, listenFollowingCount } from '../services/followService';
 import { FollowerListModal } from './FollowerListModal';
 import { blockUser, unblockUser, isBlocked } from '../services/blockService';
@@ -22,6 +22,8 @@ import { CreatePostModal } from './CreatePostModal';
 import { StoryRing } from './StoryRing';
 import { CreateStoryModal } from './CreateStoryModal';
 import { StoryViewer } from './StoryViewer';
+import { getBookmarkedPosts, toggleBookmark } from '../services/postService';
+import { Post } from '../types/profile';
 
 const BADGE_CONFIG: Record<string, { label: string, color: string, icon: any }> = {
   founder: { label: 'Kurucu', color: 'text-yellow-400', icon: '👑' },
@@ -44,6 +46,8 @@ export const ProfilePage = ({ theme, userId, viewUserId }: { theme: any, userId:
 
   const [user, setUser] = useState<any>(null);
   const [editing, setEditing] = useState(false);
+  const [editDisplayName, setEditDisplayName] = useState('');
+  const [editUsername, setEditUsername] = useState('');
   const [editBio, setEditBio] = useState('');
   const [editStatus, setEditStatus] = useState('');
   const [editSocial, setEditSocial] = useState({ twitter: '', github: '', instagram: '' });
@@ -61,10 +65,18 @@ export const ProfilePage = ({ theme, userId, viewUserId }: { theme: any, userId:
   const fileRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
+    if (!isOwnProfile && userId) {
+      recordProfileVisit(userId, targetId);
+    }
+  }, [targetId, userId, isOwnProfile]);
+
+  useEffect(() => {
     const load = async () => {
       const data = await getUser(targetId);
       if (data) {
         setUser(data);
+        setEditDisplayName(data.displayName || data.username || '');
+        setEditUsername(data.username || '');
         setEditBio(data.bio || '');
         setEditStatus(data.status_message || '');
         setEditSocial(data.social_links || {});
@@ -151,8 +163,14 @@ export const ProfilePage = ({ theme, userId, viewUserId }: { theme: any, userId:
     setSaveSuccess(false);
     
     try {
+      // Kullanıcı adı değiştiyse önce onu güncelle
+      if (editUsername.trim().toLowerCase() !== (user.username || '').toLowerCase()) {
+        await updateUsername(userId, editUsername.trim(), user.username || '');
+      }
+
       // Use profileService.updateProfile which handles validation
       await updateProfile(userId, {
+        displayName: editDisplayName.trim() || undefined,
         bio: editBio,
         status_message: editStatus,
         social_links: editSocial,
@@ -161,7 +179,9 @@ export const ProfilePage = ({ theme, userId, viewUserId }: { theme: any, userId:
       
       // Update local state
       setUser((prev: any) => ({ 
-        ...prev, 
+        ...prev,
+        username: editUsername.trim().toLowerCase() || prev.username,
+        displayName: editDisplayName.trim() || prev.displayName,
         bio: editBio, 
         status_message: editStatus, 
         social_links: editSocial,
@@ -216,7 +236,9 @@ export const ProfilePage = ({ theme, userId, viewUserId }: { theme: any, userId:
     window.location.href = '/landing';
   };
 
-  const [profileTab, setProfileTab] = useState<'posts' | 'badges' | 'about'>('posts');
+  const [profileTab, setProfileTab] = useState<'posts' | 'badges' | 'about' | 'bookmarks'>('posts');
+  const [bookmarkedPosts, setBookmarkedPosts] = useState<Post[]>([]);
+  const [bookmarksLoading, setBookmarksLoading] = useState(false);
   const [coverUploading, setCoverUploading] = useState(false);
   const coverFileRef = useRef<HTMLInputElement>(null);
   const [followerCount, setFollowerCount] = useState(0);
@@ -303,6 +325,16 @@ export const ProfilePage = ({ theme, userId, viewUserId }: { theme: any, userId:
     }
   };
 
+  useEffect(() => {
+    if (profileTab === 'bookmarks' && isOwnProfile) {
+      setBookmarksLoading(true);
+      getBookmarkedPosts(userId).then(posts => {
+        setBookmarkedPosts(posts);
+        setBookmarksLoading(false);
+      }).catch(() => setBookmarksLoading(false));
+    }
+  }, [profileTab, userId, isOwnProfile]);
+
   const handleCoverUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -340,10 +372,10 @@ export const ProfilePage = ({ theme, userId, viewUserId }: { theme: any, userId:
   const friendCount = Object.keys(user.friends || {}).length;
 
   return (
-    <div className="flex-1 overflow-y-auto h-full bg-[#0B0E11]">
+    <div className="flex-1 overflow-y-auto h-full bg-[#0B0E11]" style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}>
 
       {/* ═══ NATURE ECOSYSTEM HEADER ═══ */}
-      <div className="relative h-52 md:h-64 overflow-hidden group">
+      <div className="relative h-36 md:h-52 overflow-hidden group flex-shrink-0">
         {/* Animated nature background with multiple layers */}
         <div className="absolute inset-0 bg-gradient-to-br from-emerald-900/40 via-teal-800/30 to-cyan-900/40">
           {/* Animated orbs */}
@@ -393,18 +425,18 @@ export const ProfilePage = ({ theme, userId, viewUserId }: { theme: any, userId:
       </div>
 
       {/* ═══ PROFILE HEADER ═══ */}
-      <div className="px-4 md:px-6 max-w-2xl mx-auto relative">
+      <div className="px-3 md:px-6 max-w-2xl mx-auto relative pb-20">
         {/* ═══ NATURE AVATAR CRYSTAL ═══ */}
-        <div className="flex items-end gap-4 -mt-20 mb-4 relative z-10">
+        <div className="flex items-end gap-3 -mt-12 md:-mt-16 mb-3 relative z-10">
           <div className="relative flex-shrink-0">
             {/* Crystal frame with nature glow */}
             <div className="relative">
               <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/30 via-teal-500/20 to-cyan-500/30 rounded-full blur-xl animate-pulse" />
-              <div className="relative w-32 h-32 md:w-36 md:h-36 rounded-full border-3 border-emerald-500/30 bg-gradient-to-br from-emerald-900/50 via-teal-900/30 to-cyan-900/50 overflow-hidden shadow-2xl">
+              <div className="relative w-20 h-20 md:w-28 md:h-28 rounded-full border-2 border-emerald-500/30 bg-gradient-to-br from-emerald-900/50 via-teal-900/30 to-cyan-900/50 overflow-hidden shadow-2xl">
                 {user.avatar ? (
                   <img src={user.avatar} alt="avatar" className="w-full h-full object-cover" />
                 ) : (
-                  <div className="w-full h-full bg-gradient-to-br from-emerald-600 via-teal-500 to-cyan-500 flex items-center justify-center text-4xl md:text-5xl font-black text-white">
+                  <div className="w-full h-full bg-gradient-to-br from-emerald-600 via-teal-500 to-cyan-500 flex items-center justify-center text-3xl md:text-4xl font-black text-white">
                     {user.username?.substring(0, 2).toUpperCase()}
                   </div>
                 )}
@@ -454,23 +486,22 @@ export const ProfilePage = ({ theme, userId, viewUserId }: { theme: any, userId:
                   <button
                     onClick={() => editing ? handleSave() : setEditing(true)}
                     disabled={saving}
-                    className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-emerald-500/20 to-teal-500/20 border border-emerald-500/30 text-white rounded-xl text-sm font-bold hover:from-emerald-500/30 hover:to-teal-500/30 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="flex items-center gap-1.5 px-3 py-2 bg-gradient-to-r from-emerald-500/20 to-teal-500/20 border border-emerald-500/30 text-white rounded-xl text-xs font-bold hover:from-emerald-500/30 hover:to-teal-500/30 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     {saving ? (
-                      <>
-                        <div className="w-3.5 h-3.5 rounded-full border-2 border-white border-t-transparent animate-spin" />
-                        Kaydediliyor...
-                      </>
+                      <div className="w-3 h-3 rounded-full border-2 border-white border-t-transparent animate-spin" />
                     ) : editing ? (
-                      <><Save size={14} /> Kaydet</>
+                      <><Save size={13} /> <span className="hidden sm:inline">Kaydet</span></>
                     ) : (
-                      <><Edit3 size={14} /> Profili Güncelle</>
+                      <><Edit3 size={13} /> <span>Güncelle</span></>
                     )}
                   </button>
                   {editing && (
                     <button
                       onClick={() => {
                         setEditing(false);
+                        setEditDisplayName(user.displayName || user.username || '');
+                        setEditUsername(user.username || '');
                         setEditBio(user.bio || '');
                         setEditStatus(user.status_message || '');
                         setEditSocial(user.social_links || {});
@@ -580,6 +611,20 @@ export const ProfilePage = ({ theme, userId, viewUserId }: { theme: any, userId:
           <div className="mt-3">
             {editing ? (
               <div>
+                <input
+                  value={editDisplayName}
+                  onChange={e => setEditDisplayName(e.target.value)}
+                  placeholder="İsim Soyisim"
+                  maxLength={50}
+                  className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2 text-sm text-white focus:outline-none focus:border-emerald-500/50 mb-2"
+                />
+                <input
+                  value={editUsername}
+                  onChange={e => setEditUsername(e.target.value.replace(/[^a-z0-9_]/gi, '').toLowerCase())}
+                  placeholder="kullanici_adi"
+                  maxLength={20}
+                  className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2 text-sm text-white focus:outline-none focus:border-emerald-500/50 mb-2"
+                />
                 <textarea
                   value={editBio}
                   onChange={e => setEditBio(e.target.value)}
@@ -666,39 +711,26 @@ export const ProfilePage = ({ theme, userId, viewUserId }: { theme: any, userId:
         </div>
 
         {/* ═══ NATURE ECOSYSTEM STATS ═══ */}
-        <div className="mb-6 pb-6 border-b border-emerald-500/10">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4 mb-4">
+        <div className="mb-4 pb-4 border-b border-emerald-500/10">
+          <div className="flex items-center gap-2 mb-4 flex-wrap">
             {[
-              { value: user.message_count || 0, label: 'Post', icon: '💬', color: 'from-blue-500/20 to-cyan-500/20', gradient: 'from-blue-500 to-cyan-500' },
-              { value: followerCount, label: 'Takipçi', icon: '🌿', color: 'from-emerald-500/20 to-teal-500/20', gradient: 'from-emerald-500 to-teal-500', onClick: () => { setFollowerModalTab('followers'); setShowFollowerModal(true); } },
-              { value: followingCount, label: 'Takip', icon: '🍃', color: 'from-green-500/20 to-emerald-500/20', gradient: 'from-green-500 to-emerald-500', onClick: () => { setFollowerModalTab('following'); setShowFollowerModal(true); } },
-              { value: friendCount, label: 'Arkadaş', icon: '🌱', color: 'from-lime-500/20 to-green-500/20', gradient: 'from-lime-500 to-green-500' },
+              { value: user.message_count || 0, label: 'Post', icon: '💬' },
+              { value: followerCount, label: 'Takipçi', icon: '🌿', onClick: () => { setFollowerModalTab('followers'); setShowFollowerModal(true); } },
+              { value: followingCount, label: 'Takip', icon: '🍃', onClick: () => { setFollowerModalTab('following'); setShowFollowerModal(true); } },
+              { value: friendCount, label: 'Arkadaş', icon: '🌱' },
             ].map((stat, i) => (
-              <motion.div
+              <motion.button
                 key={stat.label}
                 initial={{ opacity: 0, scale: 0.9 }}
                 animate={{ opacity: 1, scale: 1 }}
-                transition={{ delay: i * 0.1 }}
+                transition={{ delay: i * 0.05 }}
                 onClick={(stat as any).onClick}
-                className={`relative group ${(stat as any).onClick ? 'cursor-pointer' : 'cursor-default'}`}
+                className={`flex items-center gap-1.5 px-2.5 py-1 bg-white/[0.04] border border-white/10 rounded-full hover:border-emerald-500/30 hover:bg-white/[0.07] transition-all ${(stat as any).onClick ? 'cursor-pointer' : 'cursor-default'}`}
               >
-                {/* Glow effect */}
-                <div className={`absolute inset-0 bg-gradient-to-br ${stat.color} rounded-xl blur-lg group-hover:blur-xl transition-all opacity-50`} />
-                
-                {/* Card */}
-                <div className="relative bg-white/[0.03] border border-white/10 rounded-xl p-3 md:p-4 hover:border-emerald-500/20 transition-all">
-                  {/* Icon with gradient background */}
-                  <div className={`w-10 h-10 md:w-12 md:h-12 bg-gradient-to-br ${stat.color} rounded-lg flex items-center justify-center mb-2 mx-auto`}>
-                    <span className="text-xl md:text-2xl">{stat.icon}</span>
-                  </div>
-                  
-                  {/* Value */}
-                  <div className="text-xl md:text-2xl font-black text-white text-center mb-1">{stat.value}</div>
-                  
-                  {/* Label */}
-                  <div className="text-[10px] md:text-xs text-white/40 text-center uppercase tracking-widest font-bold">{stat.label}</div>
-                </div>
-              </motion.div>
+                <span className="text-xs">{stat.icon}</span>
+                <span className="text-sm font-black text-white">{stat.value}</span>
+                <span className="text-[10px] text-white/40 font-medium">{stat.label}</span>
+              </motion.button>
             ))}
           </div>
 
@@ -709,8 +741,8 @@ export const ProfilePage = ({ theme, userId, viewUserId }: { theme: any, userId:
                 {/* Level Badge */}
                 <div className="relative">
                   <div className="absolute inset-0 bg-gradient-to-br from-yellow-500/30 to-orange-500/30 rounded-xl blur-md" />
-                  <div className="relative w-10 h-10 md:w-12 md:h-12 bg-gradient-to-br from-yellow-500/20 to-orange-500/20 border border-yellow-500/30 rounded-xl flex items-center justify-center">
-                    <Zap size={18} className="text-yellow-400" />
+                  <div className="relative w-9 h-9 md:w-10 md:h-10 bg-gradient-to-br from-yellow-500/20 to-orange-500/20 border border-yellow-500/30 rounded-xl flex items-center justify-center">
+                    <Zap size={16} className="text-yellow-400" />
                   </div>
                 </div>
                 
@@ -762,50 +794,32 @@ export const ProfilePage = ({ theme, userId, viewUserId }: { theme: any, userId:
           onCreateStory={() => {
             setShowCreateStoryModal(true);
           }}
+          isOwnProfile={isOwnProfile}
         />
 
         {/* ═══ NATURE ECOSYSTEM TABS ═══ */}
-        <div className="relative mb-6">
-          <div className="flex gap-1 md:gap-2 p-1 bg-white/5 rounded-xl border border-white/10 backdrop-blur-sm">
+        <div className="relative mb-4">
+          <div className="flex gap-1 p-1 bg-white/5 rounded-xl border border-white/10">
             {[
-              { id: 'posts' as const, label: 'Ekosistem', icon: '🌿', desc: 'Paylaşımlar' },
-              { id: 'badges' as const, label: 'Rozetler', icon: '🏆', desc: 'Başarılar' },
-              { id: 'about' as const, label: 'Hakkında', icon: '🍃', desc: 'Bilgiler' },
+              { id: 'posts' as const, label: 'Paylaşımlar', shortLabel: 'Ekosistem', icon: '🌿' },
+              { id: 'badges' as const, label: 'Rozetler', shortLabel: 'Rozetler', icon: '🏆' },
+              { id: 'about' as const, label: 'Hakkında', shortLabel: 'Hakkında', icon: '🍃' },
+              ...(isOwnProfile ? [{ id: 'bookmarks' as const, label: 'Kaydedilenler', shortLabel: 'Kayıtlar', icon: '🔖' }] : []),
             ].map(tab => (
               <button
                 key={tab.id}
                 onClick={() => setProfileTab(tab.id)}
-                className={`flex-1 flex flex-col md:flex-row items-center justify-center gap-1 md:gap-2 py-2.5 md:py-3 px-2 md:px-4 rounded-lg text-xs md:text-sm font-bold transition-all relative overflow-hidden ${
+                className={`flex-1 flex flex-col items-center justify-center gap-0.5 py-2 px-1 rounded-lg text-[10px] md:text-xs font-bold transition-all relative overflow-hidden ${
                   profileTab === tab.id 
-                    ? 'bg-gradient-to-r from-emerald-500/20 to-teal-500/20 text-emerald-400 border border-emerald-500/30 shadow-lg shadow-emerald-500/10' 
+                    ? 'bg-gradient-to-r from-emerald-500/20 to-teal-500/20 text-emerald-400 border border-emerald-500/30' 
                     : 'text-white/40 hover:text-white/60 hover:bg-white/5'
                 }`}
               >
-                {/* Active tab glow effect */}
-                {profileTab === tab.id && (
-                  <motion.div
-                    layoutId="profile-tab-glow"
-                    className="absolute inset-0 bg-gradient-to-r from-emerald-500/10 to-teal-500/10 rounded-lg -z-10"
-                    transition={{ type: 'spring', bounce: 0.2, duration: 0.6 }}
-                  />
-                )}
-                
-                {/* Icon */}
-                <span className="text-base md:text-lg">{tab.icon}</span>
-                
-                {/* Label */}
-                <div className="flex flex-col items-center md:items-start">
-                  <span className="font-bold">{tab.label}</span>
-                  <span className={`text-[9px] md:text-[10px] ${profileTab === tab.id ? 'text-emerald-400/60' : 'text-white/30'}`}>
-                    {tab.desc}
-                  </span>
-                </div>
+                <span className="text-sm">{tab.icon}</span>
+                <span className="truncate w-full text-center">{tab.shortLabel}</span>
               </button>
             ))}
           </div>
-          
-          {/* Tab indicator line */}
-          <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-transparent via-emerald-500/20 to-transparent" />
         </div>
 
         {/* ═══ TAB CONTENT ═══ */}
@@ -1096,6 +1110,53 @@ export const ProfilePage = ({ theme, userId, viewUserId }: { theme: any, userId:
                 </div>
               )}
             </div>
+          </div>
+        )}
+
+        {/* KAYDEDILENLER TAB */}
+        {profileTab === 'bookmarks' && isOwnProfile && (
+          <div className="pb-8">
+            {bookmarksLoading ? (
+              <div className="flex items-center justify-center py-12">
+                <div className="w-8 h-8 border-2 border-emerald-500/30 border-t-emerald-500 rounded-full animate-spin" />
+              </div>
+            ) : bookmarkedPosts.length === 0 ? (
+              <div className="flex flex-col items-center gap-3 py-12 text-center">
+                <div className="w-16 h-16 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-2xl">🔖</div>
+                <p className="text-white/60 font-medium">Henüz kaydedilen post yok</p>
+                <p className="text-sm text-white/30">Robot House'da postların altındaki 🔖 ikonuna tıklayarak kaydet</p>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                {bookmarkedPosts.map(post => (
+                  <div key={post.id} className="bg-white/[0.02] border border-white/5 rounded-2xl overflow-hidden hover:border-emerald-500/10 transition-all">
+                    <div className="p-4">
+                      <div className="flex items-start justify-between gap-3">
+                        <div>
+                          <p className="text-white/80 text-sm leading-relaxed">{post.content}</p>
+                          {post.media?.url && (
+                            <img src={post.media.url} alt="post" className="mt-3 rounded-xl w-full object-contain max-h-64 border border-white/10" />
+                          )}
+                          <p className="text-[10px] text-white/30 mt-2">
+                            {new Date(post.timestamp).toLocaleDateString('tr-TR', { day: 'numeric', month: 'short', year: 'numeric' })}
+                          </p>
+                        </div>
+                        <button
+                          onClick={async () => {
+                            await toggleBookmark(post.id, userId);
+                            setBookmarkedPosts(prev => prev.filter(p => p.id !== post.id));
+                          }}
+                          className="text-yellow-400 hover:text-white/40 transition-all shrink-0"
+                          title="Kaydedilenlerden çıkar"
+                        >
+                          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" strokeWidth="2"><path d="m19 21-7-4-7 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16z"/></svg>
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         )}
       </div>

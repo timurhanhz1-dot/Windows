@@ -3,12 +3,13 @@ import { motion, AnimatePresence } from 'motion/react';
 import { useNavigate } from 'react-router-dom';
 import { 
   Bot, Cpu, Heart, MessageCircle, Share2, Bookmark, TrendingUp, Leaf,
-  Sparkles, Eye, Camera, Music, Code, X
+  Sparkles, Eye, Camera, Music, Code, X, MoreVertical, Edit2, Trash2, Flag, Copy, Check
 } from 'lucide-react';
 import { auth } from '../firebase';
 import { db } from '../firebase';
 import { ref, push, onValue, set, remove, serverTimestamp } from 'firebase/database';
-import { createPost, listenUserPosts, toggleLike, addComment, listenComments } from '../services/postService';
+import { createPost, listenUserPosts, toggleLike, addComment, listenComments, toggleBookmark, listenBookmarks, sharePost, editPost, deletePost, reportPost } from '../services/postService';
+import { listenBlockedUsers } from '../services/blockService';
 import { Post, PostType, Comment } from '../types/profile';
 import { LikeButton } from './LikeButton';
 import { PostDetailModal } from './PostDetailModal';
@@ -34,7 +35,15 @@ export const RobotHouse = ({ theme }: { theme: any }) => {
   const commentInputRef = useRef<HTMLTextAreaElement>(null);
 
   const currentUser = auth.currentUser;
+  const [usersMap, setUsersMap] = useState<Record<string, { username?: string; displayName?: string; avatar?: string }>>({});
+  const [bookmarkedIds, setBookmarkedIds] = useState<string[]>([]);
   const moodEmojis = ['🌿', '🌱', '🍃', '🌲', '🌳', '🌺', '🌸', '🌼', '🌻', '🌙', '⭐', '✨', '💫', '🌊', '💧', '🔥', '⚡', '🌈'];
+  const [blockedIds, setBlockedIds] = useState<string[]>([]);
+  const [openMenuPostId, setOpenMenuPostId] = useState<string | null>(null);
+  const [editingPostId, setEditingPostId] = useState<string | null>(null);
+  const [editContent, setEditContent] = useState('');
+  const [sharePostId, setSharePostId] = useState<string | null>(null);
+  const [shareCopied, setShareCopied] = useState(false);
 
   if (hasError) {
     return (
@@ -101,10 +110,28 @@ export const RobotHouse = ({ theme }: { theme: any }) => {
         }
       });
 
+      const allUsersRef = ref(db, 'users');
+      const unsubscribeAllUsers = onValue(allUsersRef, (snapshot) => {
+        try {
+          const data = snapshot.val() || {};
+          const map: Record<string, { username?: string; displayName?: string; avatar?: string }> = {};
+          Object.entries(data).forEach(([uid, val]: [string, any]) => {
+            map[uid] = { username: val?.username, displayName: val?.displayName, avatar: val?.avatar };
+          });
+          setUsersMap(map);
+        } catch {}
+      });
+
+      const unsubscribeBookmarks = listenBookmarks(currentUser.uid, setBookmarkedIds);
+      const unsubscribeBlocked = listenBlockedUsers(currentUser.uid, setBlockedIds);
+
       return () => {
         unsubscribePosts();
         unsubscribeFriends();
         unsubscribeUser();
+        unsubscribeAllUsers();
+        unsubscribeBookmarks();
+        unsubscribeBlocked();
       };
     } catch (error) {
       console.error('useEffect setup error:', error);
@@ -186,6 +213,84 @@ export const RobotHouse = ({ theme }: { theme: any }) => {
     }
   };
 
+  const handleBookmark = async (postId: string) => {
+    if (!currentUser) return;
+    try {
+      await toggleBookmark(postId, currentUser.uid);
+    } catch (error) {
+      console.error('Failed to toggle bookmark:', error);
+    }
+  };
+
+  const handleShare = async (postId: string) => {
+    setSharePostId(postId);
+  };
+
+  const handleShareCopy = async (postId: string) => {
+    const url = `${window.location.origin}/post/${postId}`;
+    try {
+      await navigator.clipboard.writeText(url);
+      setShareCopied(true);
+      setTimeout(() => setShareCopied(false), 2000);
+    } catch {
+      // fallback
+    }
+    if (!currentUser) return;
+    await sharePost(postId, currentUser.uid).catch(() => {});
+  };
+
+  const handleEditPost = (post: Post) => {
+    setEditingPostId(post.id);
+    setEditContent(post.content);
+    setOpenMenuPostId(null);
+  };
+
+  const handleEditSave = async (postId: string) => {
+    if (!currentUser) return;
+    try {
+      await editPost(postId, currentUser.uid, editContent);
+      setEditingPostId(null);
+    } catch (err: any) {
+      alert(err.message || 'Düzenlenemedi');
+    }
+  };
+
+  const handleDeletePost = async (postId: string) => {
+    if (!currentUser || !window.confirm('Bu postu silmek istediğine emin misin?')) return;
+    try {
+      await deletePost(postId, currentUser.uid);
+      setOpenMenuPostId(null);
+    } catch (err: any) {
+      alert(err.message || 'Silinemedi');
+    }
+  };
+
+  const handleReportPost = async (postId: string) => {
+    if (!currentUser) return;
+    const reason = window.prompt('Raporlama sebebini yaz:');
+    if (!reason) return;
+    await reportPost(postId, currentUser.uid, reason).catch(() => {});
+    setOpenMenuPostId(null);
+    alert('Rapor gönderildi.');
+  };
+
+  const renderHashtagContent = (content: string) => {
+    const parts = content.split(/(#\w+)/g);
+    return parts.map((part, i) =>
+      part.startsWith('#') ? (
+        <span
+          key={i}
+          className="text-emerald-400 cursor-pointer hover:underline"
+          onClick={() => navigate(`/explore?tag=${part.slice(1)}`)}
+        >
+          {part}
+        </span>
+      ) : (
+        <span key={i}>{part}</span>
+      )
+    );
+  };
+
   const handleComment = async (postId: string) => {
     if (!newComment.trim() || !currentUser) return;
 
@@ -233,6 +338,7 @@ export const RobotHouse = ({ theme }: { theme: any }) => {
   const filteredPosts = posts.filter(post => {
     try {
       if (!post || !post.userId) return false;
+      if (blockedIds.includes(post.userId)) return false;
       
       const isCurrentUser = post.userId === currentUser?.uid;
       const isFriend = friends && friends[post.userId] === true;
@@ -258,32 +364,33 @@ export const RobotHouse = ({ theme }: { theme: any }) => {
 
   return (
     <div className="flex-1 flex flex-col overflow-hidden" style={{ background: '#0B0E11', backgroundImage: 'radial-gradient(circle at 20% 50%, rgba(16, 185, 129, 0.1) 0%, transparent 50%), radial-gradient(circle at 80% 80%, rgba(139, 92, 246, 0.1) 0%, transparent 50%)' }}>
-      <header className="h-16 border-b border-emerald-500/10 flex items-center px-6 justify-between bg-black/30 backdrop-blur-xl">
-        <div className="flex items-center gap-4">
-          <div className="relative">
-            <div className="p-2.5 bg-gradient-to-br from-emerald-500/20 to-teal-500/20 rounded-xl border border-emerald-500/20">
-              <Bot size={20} className="text-emerald-400" />
+      <header className="border-b border-emerald-500/10 flex items-center px-3 md:px-6 justify-between bg-black/30 backdrop-blur-xl flex-shrink-0" style={{ paddingTop: 'calc(env(safe-area-inset-top) + 10px)', paddingBottom: 10, minHeight: 56 }}>
+        <div className="flex items-center gap-2 md:gap-4 min-w-0">
+          <div className="relative flex-shrink-0">
+            <div className="p-2 bg-gradient-to-br from-emerald-500/20 to-teal-500/20 rounded-xl border border-emerald-500/20">
+              <Bot size={18} className="text-emerald-400" />
             </div>
-            <div className="absolute -top-1 -right-1 w-3 h-3 bg-emerald-500 rounded-full animate-pulse" />
+            <div className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-emerald-500 rounded-full animate-pulse" />
           </div>
-          <div>
-            <h3 className="font-black text-white text-sm tracking-[0.1em]">Nature Hub</h3>
-            <p className="text-[10px] text-emerald-400/70">Doğa ve Teknoloji Topluluğu</p>
+          <div className="min-w-0">
+            <h3 className="font-black text-white text-sm tracking-[0.05em] truncate">Nature Hub</h3>
+            <p className="text-[10px] text-emerald-400/70 hidden md:block">Doğa ve Teknoloji Topluluğu</p>
           </div>
         </div>
         
-        <div className="flex items-center gap-4">
-          <div className="flex items-center gap-2 px-3 py-1.5 bg-emerald-500/10 border border-emerald-500/20 rounded-full">
-            <Leaf size={14} className="text-emerald-400" />
+        <div className="flex items-center gap-2 flex-shrink-0">
+          <div className="flex items-center gap-1.5 px-2.5 py-1.5 bg-emerald-500/10 border border-emerald-500/20 rounded-full">
+            <Leaf size={12} className="text-emerald-400" />
             <span className="text-xs font-bold text-emerald-400">{ecoPoints}</span>
           </div>
           
-          <div className="flex items-center gap-1.5 px-3 py-1.5 bg-white/5 border border-white/10 rounded-full">
+          <div className="flex items-center gap-1 px-2 py-1.5 bg-white/5 border border-white/10 rounded-full">
             <span className="text-sm">{userMood}</span>
             <select 
               value={userMood} 
               onChange={(e) => setUserMood(e.target.value)}
-              className="bg-transparent text-xs text-white/70 outline-none cursor-pointer"
+              className="bg-transparent text-xs text-white/70 outline-none cursor-pointer w-5"
+              style={{ fontSize: 12 }}
             >
               {moodEmojis.map(emoji => (
                 <option key={emoji} value={emoji}>{emoji}</option>
@@ -293,37 +400,35 @@ export const RobotHouse = ({ theme }: { theme: any }) => {
 
           <button
             onClick={() => setShowPostModal(true)}
-            className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-emerald-500 to-teal-500 text-white rounded-full text-xs font-bold shadow-lg shadow-emerald-500/25 hover:shadow-xl hover:shadow-emerald-500/30 transition-all"
+            className="flex items-center gap-1.5 px-3 py-2 bg-gradient-to-r from-emerald-500 to-teal-500 text-white rounded-full text-xs font-bold shadow-lg shadow-emerald-500/25 hover:shadow-xl transition-all"
           >
-            <Sparkles size={14} />
-            İçerik Paylaş
+            <Sparkles size={13} />
+            <span className="hidden sm:inline">İçerik Paylaş</span>
+            <span className="sm:hidden">Paylaş</span>
           </button>
         </div>
       </header>
 
-      <div className="px-6 py-3 border-b border-white/5 bg-black/20">
+      <div className="px-3 md:px-6 py-2 border-b border-white/5 bg-black/20 flex-shrink-0">
         <div className="flex gap-1">
           {[
-            { id: 'feed' as const, label: 'Akış', icon: MessageCircle, desc: 'Sadece arkadaşların' },
-            { id: 'trending' as const, label: 'Trendler', icon: TrendingUp, desc: 'Popüler içerikler' },
-            { id: 'nature' as const, label: 'Keşfet', icon: Leaf, desc: 'Tüm doğa içerikleri' },
-            { id: 'tech' as const, label: 'Teknoloji', icon: Cpu, desc: 'Teknoloji içerikleri' },
+            { id: 'feed' as const, label: 'Akış', icon: MessageCircle },
+            { id: 'trending' as const, label: 'Trendler', icon: TrendingUp },
+            { id: 'nature' as const, label: 'Keşfet', icon: Leaf },
+            { id: 'tech' as const, label: 'Teknoloji', icon: Cpu },
           ].map(tab => (
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
-              className={`flex flex-col items-center gap-1 px-3 py-2 rounded-xl text-xs font-bold transition-all relative group ${
+              className={`flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold transition-all relative flex-1 justify-center ${
                 activeTab === tab.id 
                   ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' 
                   : 'text-white/40 hover:text-white/60 hover:bg-white/5'
               }`}
-              title={tab.desc}
             >
               <tab.icon size={14} />
-              <span className="text-[10px]">{tab.label}</span>
-              {activeTab === tab.id && (
-                <div className="absolute -bottom-1 left-1/2 transform -translate-x-1/2 w-1 h-1 bg-emerald-400 rounded-full" />
-              )}
+              <span className="hidden sm:inline">{tab.label}</span>
+              <span className="sm:hidden text-[10px]">{tab.label}</span>
             </button>
           ))}
         </div>
@@ -349,10 +454,10 @@ export const RobotHouse = ({ theme }: { theme: any }) => {
                       className="w-10 h-10 rounded-full bg-gradient-to-br from-emerald-500 to-teal-500 flex items-center justify-center text-white font-black text-sm cursor-pointer hover:ring-2 hover:ring-emerald-400 transition-all"
                       onClick={() => navigate(`/profile/${post.userId}`)}
                     >
-                      {post.avatar ? (
-                        <img src={post.avatar} alt="avatar" className="w-full h-full rounded-full object-cover" />
+                      {(usersMap[post.userId]?.avatar || post.avatar) ? (
+                        <img src={usersMap[post.userId]?.avatar || post.avatar} alt="avatar" className="w-full h-full rounded-full object-cover" />
                       ) : (
-                        post.username.substring(0, 2).toUpperCase()
+                        (usersMap[post.userId]?.username || post.username || '?').substring(0, 2).toUpperCase()
                       )}
                     </div>
                     <div className="flex-1">
@@ -360,7 +465,7 @@ export const RobotHouse = ({ theme }: { theme: any }) => {
                         <h4 
                           className="font-bold text-white text-sm cursor-pointer hover:text-emerald-400 transition-colors"
                           onClick={() => navigate(`/profile/${post.userId}`)}
-                        >{post.username}</h4>
+                        >{usersMap[post.userId]?.displayName || usersMap[post.userId]?.username || post.username}</h4>
                         <span className="text-lg">{post.mood}</span>
                         <div className={`flex items-center gap-1 px-2 py-0.5 rounded-full ${getTypeColor(post.type)} bg-white/5`}>
                           <TypeIcon size={10} />
@@ -382,22 +487,80 @@ export const RobotHouse = ({ theme }: { theme: any }) => {
                         </span>
                       </div>
                     </div>
+                    {/* Post menu */}
+                    <div className="relative">
+                      <button
+                        onClick={() => setOpenMenuPostId(openMenuPostId === post.id ? null : post.id)}
+                        className="p-1.5 rounded-lg text-white/30 hover:text-white/60 hover:bg-white/5 transition-all"
+                      >
+                        <MoreVertical size={14} />
+                      </button>
+                      <AnimatePresence>
+                        {openMenuPostId === post.id && (
+                          <motion.div
+                            initial={{ opacity: 0, scale: 0.9, y: -4 }}
+                            animate={{ opacity: 1, scale: 1, y: 0 }}
+                            exit={{ opacity: 0, scale: 0.9, y: -4 }}
+                            className="absolute right-0 top-8 z-20 bg-[#1a1d21] border border-white/10 rounded-xl shadow-xl min-w-[140px] overflow-hidden"
+                          >
+                            {post.userId === currentUser?.uid && (
+                              <>
+                                <button onClick={() => handleEditPost(post)} className="w-full flex items-center gap-2 px-3 py-2 text-xs text-white/70 hover:bg-white/5 hover:text-white transition-all">
+                                  <Edit2 size={12} /> Düzenle
+                                </button>
+                                <button onClick={() => handleDeletePost(post.id)} className="w-full flex items-center gap-2 px-3 py-2 text-xs text-red-400 hover:bg-red-500/10 transition-all">
+                                  <Trash2 size={12} /> Sil
+                                </button>
+                              </>
+                            )}
+                            {post.userId !== currentUser?.uid && (
+                              <button onClick={() => handleReportPost(post.id)} className="w-full flex items-center gap-2 px-3 py-2 text-xs text-orange-400 hover:bg-orange-500/10 transition-all">
+                                <Flag size={12} /> Raporla
+                              </button>
+                            )}
+                          </motion.div>
+                        )}
+                      </AnimatePresence>
+                    </div>
                   </div>
                 </div>
 
                 <div className="p-4">
-                  <p className="text-white/80 text-sm leading-relaxed mb-3">{post.content}</p>
+                  {editingPostId === post.id ? (
+                    <div>
+                      <textarea
+                        value={editContent}
+                        onChange={e => setEditContent(e.target.value)}
+                        className="w-full bg-white/5 border border-emerald-500/30 rounded-xl px-3 py-2 text-sm text-white resize-none focus:outline-none"
+                        rows={3}
+                        maxLength={500}
+                      />
+                      <div className="flex gap-2 mt-2">
+                        <button onClick={() => handleEditSave(post.id)} className="px-3 py-1.5 bg-emerald-500 text-white rounded-lg text-xs font-bold hover:bg-emerald-600 transition-all">Kaydet</button>
+                        <button onClick={() => setEditingPostId(null)} className="px-3 py-1.5 bg-white/5 border border-white/10 text-white/60 rounded-lg text-xs hover:bg-white/10 transition-all">İptal</button>
+                      </div>
+                    </div>
+                  ) : (
+                    <p className="text-white/80 text-sm leading-relaxed mb-3">
+                      {renderHashtagContent(post.content)}
+                      {(post as any).edited && <span className="text-[10px] text-white/30 ml-1">(düzenlendi)</span>}
+                    </p>
+                  )}
                   
                   {post.media?.url && (
                     <div className="rounded-xl overflow-hidden bg-white/5 border border-white/10">
-                      <img src={post.media.url} alt="post media" className="w-full h-48 object-cover" />
+                      <img src={post.media.url} alt="post media" className="w-full object-contain" />
                     </div>
                   )}
 
                   {post.tags && post.tags.length > 0 && (
                     <div className="flex flex-wrap gap-2 mt-3">
                       {post.tags.map(tag => (
-                        <span key={tag} className="px-2 py-1 bg-emerald-500/10 border border-emerald-500/20 rounded-full text-[10px] text-emerald-400 font-bold">
+                        <span
+                          key={tag}
+                          className="px-2 py-1 bg-emerald-500/10 border border-emerald-500/20 rounded-full text-[10px] text-emerald-400 font-bold cursor-pointer hover:bg-emerald-500/20 transition-all"
+                          onClick={() => navigate(`/explore?tag=${tag}`)}
+                        >
                           #{tag}
                         </span>
                       ))}
@@ -428,13 +591,16 @@ export const RobotHouse = ({ theme }: { theme: any }) => {
                         {commentCount}
                       </button>
                       
-                      <button className="flex items-center gap-1.5 text-xs font-bold text-white/40 hover:text-green-400 transition-all">
+                      <button
+                        onClick={() => handleShare(post.id)}
+                        className="flex items-center gap-1.5 text-xs font-bold text-white/40 hover:text-green-400 transition-all"
+                      >
                         <Share2 size={14} />
                         {post.shares || 0}
                       </button>
                       
-                      <button className="flex items-center gap-1.5 text-xs font-bold text-white/40 hover:text-yellow-400 transition-all">
-                        <Bookmark size={14} />
+                      <button onClick={() => handleBookmark(post.id)} className={`flex items-center gap-1.5 text-xs font-bold transition-all ${bookmarkedIds.includes(post.id) ? 'text-yellow-400' : 'text-white/40 hover:text-yellow-400'}`} title={bookmarkedIds.includes(post.id) ? 'Kaydedilenlerden çıkar' : 'Kaydet'}>
+                        <Bookmark size={14} fill={bookmarkedIds.includes(post.id) ? 'currentColor' : 'none'} />
                       </button>
                     </div>
                   </div>
@@ -572,6 +738,39 @@ export const RobotHouse = ({ theme }: { theme: any }) => {
                   </button>
                 </div>
               </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Share Modal */}
+      <AnimatePresence>
+        {sharePostId && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/70 backdrop-blur-xl z-50 flex items-center justify-center p-4"
+            onClick={() => setSharePostId(null)}
+          >
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              className="bg-[#0B0E11] border border-white/10 rounded-2xl p-6 w-full max-w-sm"
+              onClick={e => e.stopPropagation()}
+            >
+              <h3 className="text-base font-black text-white mb-4">Postu Paylaş</h3>
+              <div className="flex items-center gap-2 bg-white/5 border border-white/10 rounded-xl px-3 py-2 mb-4">
+                <span className="text-xs text-white/50 flex-1 truncate">{`${window.location.origin}/post/${sharePostId}`}</span>
+                <button
+                  onClick={() => handleShareCopy(sharePostId)}
+                  className="flex items-center gap-1 px-2 py-1 bg-emerald-500/20 border border-emerald-500/30 rounded-lg text-xs text-emerald-400 font-bold hover:bg-emerald-500/30 transition-all"
+                >
+                  {shareCopied ? <><Check size={12} /> Kopyalandı</> : <><Copy size={12} /> Kopyala</>}
+                </button>
+              </div>
+              <button onClick={() => setSharePostId(null)} className="w-full py-2 bg-white/5 border border-white/10 text-white/60 rounded-xl text-sm hover:bg-white/10 transition-all">Kapat</button>
             </motion.div>
           </motion.div>
         )}

@@ -64,18 +64,7 @@ input, textarea, select {
 }
 
 
-/* iPhone home bar beyazlığını kapat */
-body::after {
-  content: '';
-  display: block;
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  height: env(safe-area-inset-bottom);
-  background: #111418;
-  z-index: 9999;
-}
+/* iPhone home bar — bottom nav zaten safe-area-inset-bottom kullanıyor */
 
 /* Tab bar yüksekliği için CSS variable */
 :root {

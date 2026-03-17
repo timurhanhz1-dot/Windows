@@ -1,13 +1,14 @@
-import { useState } from 'react';
-import { motion, AnimatePresence, PanInfo } from 'framer-motion';
-import { MessageCircle, Users, Bot, User, Plus, Search, Bell } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { MessageCircle, Users, Bot, User, Hash } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { MobileDM } from './MobileDM';
 import { Forum } from './Forum';
 import { ProfilePage } from './ProfilePage';
 import { RobotHouse } from './RobotHouse';
+import { GuildSystem } from './GuildSystem';
 
-type TabType = 'dm' | 'forum' | 'robot' | 'profile';
+type TabType = 'dm' | 'channels' | 'forum' | 'robot' | 'profile';
 
 interface ModernMobileAppProps {
   theme: any;
@@ -19,93 +20,61 @@ interface ModernMobileAppProps {
 export const ModernMobileApp = ({ theme, userId, currentUserName, onStartCall }: ModernMobileAppProps) => {
   const { t } = useTranslation();
   const [activeTab, setActiveTab] = useState<TabType>('dm');
-  const [showSearch, setShowSearch] = useState(false);
-  const [showNotifications, setShowNotifications] = useState(false);
 
-  const handleDragEnd = (_event: any, info: PanInfo) => {
-    const threshold = 50;
-    const tabs: TabType[] = ['dm', 'forum', 'robot', 'profile'];
-    const currentIndex = tabs.indexOf(activeTab);
+  // iOS keyboard fix — viewport height
+  useEffect(() => {
+    const setVh = () => {
+      document.documentElement.style.setProperty('--mobile-vh', `${window.innerHeight * 0.01}px`);
+    };
+    setVh();
+    window.addEventListener('resize', setVh);
+    return () => window.removeEventListener('resize', setVh);
+  }, []);
 
-    if (info.offset.x > threshold && currentIndex > 0) {
-      setActiveTab(tabs[currentIndex - 1]);
-    } else if (info.offset.x < -threshold && currentIndex < tabs.length - 1) {
-      setActiveTab(tabs[currentIndex + 1]);
-    }
-  };
-
-  const getHeaderTitle = () => {
-    switch(activeTab) {
-      case 'dm': return t('mobile.messages');
-      case 'forum': return t('mobile.forum');
-      case 'robot': return t('mobile.robotHouse');
-      case 'profile': return t('mobile.profile');
-      default: return 'Nature.co';
-    }
-  };
+  const tabs = [
+    { id: 'dm' as TabType, icon: MessageCircle, label: 'Sohbet', color: '#10B981' },
+    { id: 'channels' as TabType, icon: Hash, label: 'Kanallar', color: '#8B5CF6' },
+    { id: 'forum' as TabType, icon: Users, label: 'Forum', color: '#F59E0B' },
+    { id: 'robot' as TabType, icon: Bot, label: 'Robot', color: '#EF4444' },
+    { id: 'profile' as TabType, icon: User, label: 'Profil', color: '#3B82F6' },
+  ];
 
   return (
-    <div className="h-screen w-screen flex flex-col bg-gradient-to-br from-[#0B0E11] via-[#0D1117] to-[#0B0E11] overflow-hidden relative">
-      {/* Top Header */}
-      <motion.header 
-        initial={{ y: -100 }}
-        animate={{ y: 0 }}
-        className="flex items-center justify-between px-4 py-3 bg-black/20 backdrop-blur-xl border-b border-white/5"
-        style={{ paddingTop: 'max(0.5rem, env(safe-area-inset-top))' }}
-      >
-        <div className="flex items-center gap-3 min-w-0 flex-1">
-          <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-emerald-500 to-teal-500 flex items-center justify-center text-white font-black text-lg shadow-lg shadow-emerald-500/30 flex-shrink-0">
-            N
-          </div>
-          <div className="min-w-0">
-            <h1 className="text-white font-black text-base leading-tight truncate">Nature.co</h1>
-            <p className="text-white/40 text-xs truncate">{getHeaderTitle()}</p>
-          </div>
-        </div>
-
-        <div className="flex items-center gap-2 flex-shrink-0">
-          <motion.button
-            whileTap={{ scale: 0.9 }}
-            onClick={() => setShowSearch(!showSearch)}
-            className="w-9 h-9 rounded-lg bg-white/5 flex items-center justify-center text-white/60 hover:text-white hover:bg-white/10 transition-all"
-          >
-            <Search size={18} />
-          </motion.button>
-          <motion.button
-            whileTap={{ scale: 0.9 }}
-            onClick={() => setShowNotifications(!showNotifications)}
-            className="w-9 h-9 rounded-lg bg-white/5 flex items-center justify-center text-white/60 hover:text-white hover:bg-white/10 transition-all relative"
-          >
-            <Bell size={18} />
-            <span className="absolute top-0.5 right-0.5 w-2 h-2 bg-red-500 rounded-full"></span>
-          </motion.button>
-        </div>
-      </motion.header>
-
-      {/* Content Area with Swipe */}
-      <motion.div 
-        className="flex-1 overflow-hidden relative"
-        drag="x"
-        dragConstraints={{ left: 0, right: 0 }}
-        dragElastic={0.2}
-        onDragEnd={handleDragEnd}
-        style={{ paddingBottom: '70px' }}
-      >
-        <AnimatePresence mode="wait">
+    <div
+      style={{
+        display: 'flex',
+        flexDirection: 'column',
+        height: 'calc(var(--mobile-vh, 1vh) * 100)',
+        width: '100%',
+        background: '#0B0E11',
+        overflow: 'hidden',
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+      }}
+    >
+      {/* Content — fills all space above bottom nav */}
+      <div style={{ flex: 1, overflow: 'hidden', position: 'relative' }}>
+        <AnimatePresence mode="wait" initial={false}>
           <motion.div
             key={activeTab}
-            initial={{ opacity: 0, x: 100 }}
+            initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: -100 }}
-            transition={{ duration: 0.3 }}
-            className="absolute inset-0 overflow-y-auto"
+            exit={{ opacity: 0, x: -20 }}
+            transition={{ duration: 0.18, ease: 'easeOut' }}
+            style={{ position: 'absolute', inset: 0, overflow: 'hidden' }}
           >
             {activeTab === 'dm' && (
-              <MobileDM 
-                userId={userId} 
+              <MobileDM
+                userId={userId}
                 currentUserName={currentUserName}
                 onStartCall={onStartCall}
               />
+            )}
+            {activeTab === 'channels' && (
+              <GuildSystem theme={theme} userId={userId} username={currentUserName || ''} />
             )}
             {activeTab === 'forum' && (
               <Forum theme={theme} userId={userId} displayName={currentUserName} />
@@ -118,77 +87,78 @@ export const ModernMobileApp = ({ theme, userId, currentUserName, onStartCall }:
             )}
           </motion.div>
         </AnimatePresence>
-      </motion.div>
+      </div>
 
-      {/* Floating Action Button */}
-      <AnimatePresence>
-        {activeTab === 'dm' && (
-          <motion.button
-            initial={{ scale: 0, rotate: -180 }}
-            animate={{ scale: 1, rotate: 0 }}
-            exit={{ scale: 0, rotate: 180 }}
-            whileTap={{ scale: 0.9 }}
-            className="absolute bottom-20 right-4 w-14 h-14 rounded-full bg-gradient-to-br from-emerald-500 to-teal-500 flex items-center justify-center text-white shadow-2xl shadow-emerald-500/50 z-40"
-          >
-            <Plus size={24} />
-          </motion.button>
-        )}
-      </AnimatePresence>
-
-      {/* Bottom Tab Bar - Minimal thin line style */}
-      <div 
-        className="absolute bottom-0 left-0 right-0 flex items-center justify-around px-1 bg-transparent border-t border-white/10"
-        style={{ 
-          height: '56px',
-          paddingBottom: 'max(0.5rem, env(safe-area-inset-bottom))',
+      {/* Bottom Tab Bar */}
+      <div
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-around',
+          background: 'rgba(11, 14, 17, 0.97)',
+          borderTop: '1px solid rgba(255,255,255,0.08)',
+          paddingBottom: 'env(safe-area-inset-bottom)',
           paddingLeft: 'env(safe-area-inset-left)',
-          paddingRight: 'env(safe-area-inset-right)'
+          paddingRight: 'env(safe-area-inset-right)',
+          flexShrink: 0,
+          zIndex: 50,
         }}
       >
-        {[
-          { id: 'dm' as TabType, icon: MessageCircle, label: t('mobile.messages'), gradient: 'from-blue-500 to-cyan-500' },
-          { id: 'forum' as TabType, icon: Users, label: t('mobile.forum'), gradient: 'from-purple-500 to-pink-500' },
-          { id: 'robot' as TabType, icon: Bot, label: t('mobile.robot'), gradient: 'from-orange-500 to-red-500' },
-          { id: 'profile' as TabType, icon: User, label: t('mobile.profile'), gradient: 'from-emerald-500 to-teal-500' },
-        ].map((tab) => {
+        {tabs.map((tab) => {
           const Icon = tab.icon;
           const isActive = activeTab === tab.id;
-
           return (
-            <motion.button
+            <button
               key={tab.id}
-              whileTap={{ scale: 0.9 }}
               onClick={() => setActiveTab(tab.id)}
-              className="relative flex flex-col items-center gap-0.5 px-2 py-1 rounded-lg transition-all"
+              style={{
+                flex: 1,
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: 3,
+                padding: '10px 4px',
+                background: 'none',
+                border: 'none',
+                cursor: 'pointer',
+                position: 'relative',
+                minHeight: 56,
+                WebkitTapHighlightColor: 'transparent',
+              }}
             >
+              {/* Active indicator dot */}
               {isActive && (
                 <motion.div
-                  layoutId="activeTab"
-                  className={`absolute inset-0 bg-gradient-to-br ${tab.gradient} opacity-15 rounded-lg`}
-                  transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
+                  layoutId="tab-indicator"
+                  style={{
+                    position: 'absolute',
+                    top: 6,
+                    width: 4,
+                    height: 4,
+                    borderRadius: '50%',
+                    background: tab.color,
+                    boxShadow: `0 0 8px ${tab.color}`,
+                  }}
+                  transition={{ type: 'spring', stiffness: 400, damping: 30 }}
                 />
               )}
-              
-              <div className={`relative ${isActive ? `bg-gradient-to-br ${tab.gradient}` : 'bg-white/5'} p-1.5 rounded-lg transition-all`}>
-                <Icon 
-                  size={18} 
-                  className={isActive ? 'text-white' : 'text-white/40'}
-                  strokeWidth={isActive ? 2.5 : 2}
-                />
-              </div>
-              
-              <span className={`text-[8px] font-bold ${isActive ? 'text-white' : 'text-white/40'} transition-colors`}>
+              <Icon
+                size={22}
+                color={isActive ? tab.color : 'rgba(255,255,255,0.35)'}
+                strokeWidth={isActive ? 2.5 : 1.8}
+              />
+              <span
+                style={{
+                  fontSize: 10,
+                  fontWeight: isActive ? 700 : 400,
+                  color: isActive ? tab.color : 'rgba(255,255,255,0.35)',
+                  letterSpacing: '0.02em',
+                }}
+              >
                 {tab.label}
               </span>
-
-              {isActive && (
-                <motion.div
-                  layoutId="activeIndicator"
-                  className={`absolute -top-0.5 left-1/2 -translate-x-1/2 w-6 h-0.5 bg-gradient-to-r ${tab.gradient} rounded-full`}
-                  transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
-                />
-              )}
-            </motion.button>
+            </button>
           );
         })}
       </div>

@@ -389,7 +389,7 @@ export const ChannelSidebar = ({
                   <p className="px-3 text-[11px] text-white/30 italic">Henüz kullanıcı yok...</p>
                 ) : (
                   allUsers.filter(u => u.id !== userId).map(user => {
-                    const isOnline = onlineUsers.includes(user.id);
+                    const isOnline = user.status === 'online';
                     const dmUnread = unreadDms[user.id] || 0;
                     return (
                       <motion.div 
@@ -440,7 +440,7 @@ export const ChannelSidebar = ({
               </div>
             </div>
             {allUsers.filter(u => u.id !== userId).map(user => {
-              const isOnline = onlineUsers.includes(user.id);
+              const isOnline = user.status === 'online';
               return (
                 <div
                   key={user.id}

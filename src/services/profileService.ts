@@ -1,5 +1,5 @@
 import { db, storage } from '../firebase';
-import { ref, get, update, query, orderByChild, equalTo, limitToLast } from 'firebase/database';
+import { ref, get, update, set, remove, query, orderByChild, equalTo, push } from 'firebase/database';
 import { ref as storageRef, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { UserProfile, ProfileStats, ProfileError, ProfileErrorCode } from '../types/profile';
 
@@ -48,6 +48,50 @@ export async function getProfile(userId: string): Promise<UserProfile | null> {
       { originalError: err }
     );
   }
+}
+
+/**
+ * Kullanıcı adını değiştir (benzersizlik kontrolü ile)
+ */
+export async function updateUsername(userId: string, newUsername: string, oldUsername: string): Promise<void> {
+  const trimmed = newUsername.trim().toLowerCase();
+
+  if (trimmed.length < 3 || trimmed.length > 20) {
+    throw new ProfileError('Kullanıcı adı 3-20 karakter arasında olmalı', ProfileErrorCode.CONTENT_TOO_LONG, {});
+  }
+  if (!/^[a-z0-9_]+$/.test(trimmed)) {
+    throw new ProfileError('Sadece harf, rakam ve alt çizgi kullanılabilir', ProfileErrorCode.CONTENT_TOO_LONG, {});
+  }
+
+  // 6 aylık değişim kilidi kontrolü
+  const userSnap = await get(ref(db, `users/${userId}/username_changed_at`));
+  if (userSnap.exists()) {
+    const lastChanged = userSnap.val();
+    const sixMonthsMs = 6 * 30 * 24 * 60 * 60 * 1000;
+    const diff = Date.now() - lastChanged;
+    if (diff < sixMonthsMs) {
+      const remaining = Math.ceil((sixMonthsMs - diff) / (30 * 24 * 60 * 60 * 1000));
+      throw new ProfileError(
+        `Kullanıcı adını değiştirmek için ${remaining} ay daha beklemelisin`,
+        ProfileErrorCode.CONTENT_TOO_LONG, {}
+      );
+    }
+  }
+
+  // Benzersizlik kontrolü
+  const snap = await get(ref(db, `usernames/${trimmed}`));
+  if (snap.exists() && snap.val() !== userId) {
+    throw new ProfileError('Bu kullanıcı adı zaten alınmış', ProfileErrorCode.CONTENT_TOO_LONG, {});
+  }
+
+  // Eski username'i sil, yenisini yaz
+  await remove(ref(db, `usernames/${oldUsername.toLowerCase()}`));
+  await set(ref(db, `usernames/${trimmed}`), userId);
+  await update(ref(db, `users/${userId}`), {
+    username: trimmed,
+    username_changed_at: Date.now(),
+  });
+  await update(ref(db, `user_index/${userId}`), { username: trimmed });
 }
 
 /**
@@ -369,5 +413,33 @@ export async function getPopularUsers(limit: number = 10): Promise<UserProfile[]
       ProfileErrorCode.DATABASE_ERROR,
       { originalError: err }
     );
+  }
+}
+
+/**
+ * Profil ziyaretini kaydet ve bildirim gönder
+ * Günde bir kez aynı ziyaretçiden bildirim gönderilir
+ */
+export async function recordProfileVisit(visitorId: string, profileOwnerId: string): Promise<void> {
+  if (visitorId === profileOwnerId) return;
+  try {
+    const today = new Date().toISOString().slice(0, 10);
+    const visitKey = `profile_visits/${profileOwnerId}/${today}/${visitorId}`;
+    const visitRef = ref(db, visitKey);
+    const snap = await get(visitRef);
+    if (snap.exists()) return; // bugün zaten ziyaret edildi
+
+    await set(visitRef, Date.now());
+
+    // Bildirim ekle
+    const notifRef = push(ref(db, `notifications/${profileOwnerId}`));
+    await set(notifRef, {
+      type: 'profile_visit',
+      fromUserId: visitorId,
+      timestamp: Date.now(),
+      read: false,
+    });
+  } catch (err) {
+    console.error('recordProfileVisit error:', err);
   }
 }

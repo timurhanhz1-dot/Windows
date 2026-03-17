@@ -177,7 +177,7 @@ export const FriendSystem = ({ theme, userId, allUsers = [], discoverUsers = [],
   ).slice(0, 6);
 
   const tabs = [
-    { id: 'friends' as const, label: t('friends.allFriends'), count: friends.length },
+    { id: 'friends' as const, label: t('friends.allFriends'), count: friendUsers.length },
     { id: 'requests' as const, label: t('friends.pendingRequests'), count: incoming.length },
     { id: 'find' as const, label: t('friends.suggestions'), count: 0 },
     { id: 'blocked' as const, label: t('friends.blocked'), count: blocked.length },
@@ -195,7 +195,7 @@ export const FriendSystem = ({ theme, userId, allUsers = [], discoverUsers = [],
           <div>
             <h2 style={{ fontSize: 18, fontWeight: 800, color: '#fff', lineHeight: 1.2 }}>Arkadaşlar</h2>
             <p style={{ fontSize: 11, color: 'rgba(255,255,255,0.35)', fontWeight: 500 }}>
-              {onlineFriends.length} çevrimiçi · {friends.length} toplam
+              {onlineFriends.length} çevrimiçi · {friendUsers.length} toplam
             </p>
           </div>
         </div>

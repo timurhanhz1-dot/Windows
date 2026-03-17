@@ -29,6 +29,15 @@ export async function createStory(
   duration: number = 5
 ): Promise<string> {
   try {
+    // Ownership check: only the authenticated user can create stories for themselves
+    const { auth } = await import('../firebase');
+    if (!auth.currentUser || auth.currentUser.uid !== userId) {
+      throw new ProfileError(
+        'Sadece kendi profilinize hikaye ekleyebilirsiniz',
+        ProfileErrorCode.UNAUTHORIZED
+      );
+    }
+
     // Check user status
     const userRef = ref(db, `users/${userId}`);
     const userSnap = await get(userRef);

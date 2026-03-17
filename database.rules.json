@@ -635,6 +635,12 @@
       ".read": "auth != null",
       ".write": "auth != null"
     },
+    "bookmarks": {
+      "$uid": {
+        ".read": "auth != null && auth.uid === $uid",
+        ".write": "auth != null && auth.uid === $uid"
+      }
+    },
     "moderation_reports_v2": {
       ".read": "auth != null && (root.child('users').child(auth.uid).child('is_admin').val() === true || root.child('users').child(auth.uid).child('backoffice_role').val() === 'super_admin' || root.child('users').child(auth.uid).child('backoffice_role').val() === 'admin' || root.child('users').child(auth.uid).child('backoffice_role').val() === 'moderator')",
       ".write": "auth != null",

@@ -9,6 +9,7 @@ import { setTyping, clearTyping, TypingIndicator } from './TypingIndicator';
 import { checkRateLimit } from '../services/securityService';
 import { playDmSound } from '../services/soundService';
 import { EmojiPickerSVG } from './EmojiPickerSVG';
+import { StickerPicker } from './StickerPicker';
 import { MediaEmbed, extractUrls, containsMediaUrl } from './MediaEmbed';
 import { ImageViewer } from './ImageViewer';
 import { isBlocked, isBlockedBy } from '../services/blockService';
@@ -61,6 +62,7 @@ export const DirectMessages = ({ theme, userId, activeDmUserId: initialActiveDmU
   const [replyTo, setReplyTo] = useState<any | null>(null);
   const [showAiPanel, setShowAiPanel] = useState(false);
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
+  const [showStickerPicker, setShowStickerPicker] = useState(false);
   const [viewingImage, setViewingImage] = useState<{url: string, name: string} | null>(null);
   const [blockedStatus, setBlockedStatus] = useState<'none' | 'blocked_by_me' | 'blocked_by_them'>('none');
   const [dmSearchQuery, setDmSearchQuery] = useState('');
@@ -73,6 +75,7 @@ export const DirectMessages = ({ theme, userId, activeDmUserId: initialActiveDmU
   const recordingTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const chatEndRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const dmInputRef = useRef<HTMLTextAreaElement>(null);
   const smartReplySuggestions = ['Tamam, not aldım', 'Bunu biraz daha açabilir misin?', 'İstersen kısa plan çıkarayım'];
 
   useEffect(() => {
@@ -103,9 +106,17 @@ export const DirectMessages = ({ theme, userId, activeDmUserId: initialActiveDmU
       });
       const list: any[] = [];
       byUsername.forEach(({ id, username, val }) => {
-        list.push({ id, username, avatar: val.avatar || val.photoURL || '', status: val.status || (val.statusObj && val.statusObj.status) || 'offline' });
+        const lastSeen = val.last_seen ? new Date(val.last_seen).getTime() : 0;
+        const isRecentlyActive = Date.now() - lastSeen < 5 * 60 * 1000;
+        list.push({
+          id, username,
+          displayName: val.displayName || username,
+          avatar: val.avatar || val.photoURL || '',
+          status: isRecentlyActive ? (val.status || 'offline') : 'offline',
+          last_seen: val.last_seen || null,
+        });
       });
-      setUsers(list); // full list, filtered below
+      setUsers(list);
     });
     const onlineRef = ref(db, 'online');
     onValue(onlineRef, snap => {
@@ -117,6 +128,7 @@ export const DirectMessages = ({ theme, userId, activeDmUserId: initialActiveDmU
 
   useEffect(() => {
     if (!activeDmUserId) return;
+    setMessages([]);
     const dmKey = [userId, activeDmUserId].sort().join('_');
     const dmRef = ref(db, `dm/${dmKey}`);
     let initialized = false;
@@ -143,6 +155,33 @@ export const DirectMessages = ({ theme, userId, activeDmUserId: initialActiveDmU
   }, [messages.length]);
 
   const dmKey = activeDmUserId ? [userId, activeDmUserId].sort().join('_') : null;
+
+  // Drag & drop
+  const [isDragging, setIsDragging] = useState(false);
+  const handleDragOver = (e: React.DragEvent) => { e.preventDefault(); setIsDragging(true); };
+  const handleDragLeave = (e: React.DragEvent) => { e.preventDefault(); setIsDragging(false); };
+  const handleDrop = async (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(false);
+    const file = e.dataTransfer.files?.[0];
+    if (!file || !activeDmUserId || !dmKey) return;
+    if (file.size > 10 * 1024 * 1024) { alert('Dosya boyutu 10MB\'dan küçük olmalıdır'); return; }
+    try {
+      const { ref: storageRef, uploadBytes, getDownloadURL } = await import('firebase/storage');
+      const { storage } = await import('../firebase');
+      const path = `dm_files/${userId}/${Date.now()}_${file.name}`;
+      const sRef = storageRef(storage, path);
+      await uploadBytes(sRef, file);
+      const url = await getDownloadURL(sRef);
+      await push(ref(db, `dm/${dmKey}`), {
+        sender_id: userId, sender_name: currentUserName || userId,
+        receiver_id: activeDmUserId, content: file.name,
+        fileUrl: url, fileName: file.name, fileType: file.type,
+        timestamp: new Date().toISOString(), type: 'file',
+        reactions: {}, is_edited: false, is_pinned: false, reply_to_id: null,
+      });
+    } catch { alert('Dosya yüklenemedi'); }
+  };
 
   // Engelleme durumunu kontrol et
   useEffect(() => {
@@ -292,6 +331,25 @@ export const DirectMessages = ({ theme, userId, activeDmUserId: initialActiveDmU
     setSmartReplies([]);
   };
 
+  const handleSendSticker = async (sticker: string) => {
+    if (!activeDmUserId || !dmKey) return;
+    if (blockedStatus !== 'none') return;
+    await push(ref(db, `dm/${dmKey}`), {
+      sender_id: userId,
+      sender_name: currentUserName || userId,
+      receiver_id: activeDmUserId,
+      content: sticker,
+      timestamp: new Date().toISOString(),
+      type: 'sticker',
+      reactions: {},
+      is_edited: false,
+      is_pinned: false,
+      reply_to_id: replyTo?.id || null,
+      read: false,
+    });
+    setReplyTo(null);
+  };
+
   const startVoiceRecording = async () => {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
@@ -392,7 +450,7 @@ export const DirectMessages = ({ theme, userId, activeDmUserId: initialActiveDmU
 
   const friendUsers = users.filter(u => friendIds.includes(u.id));
   const activeUser = users.find(u => u.id === activeDmUserId);
-  const isOnline = activeDmUserId ? onlineIds.includes(activeDmUserId) : false;
+  const isOnline = activeUser?.status === 'online';
   const pinnedMessages = messages.filter(m => m.is_pinned);
 
   // Group by day — arama filtresi uygula
@@ -408,6 +466,8 @@ export const DirectMessages = ({ theme, userId, activeDmUserId: initialActiveDmU
       grouped[grouped.length - 1].messages.push(msg);
     }
   });
+
+  const [dmTab, setDmTab] = useState<'direct' | 'groups'>('direct');
 
   return (
     <div className="flex-1 flex overflow-hidden" style={{ background: '#0B0E11', backgroundImage: 'radial-gradient(circle at 20% 50%, rgba(16, 185, 129, 0.15) 0%, transparent 50%), radial-gradient(circle at 80% 80%, rgba(139, 92, 246, 0.15) 0%, transparent 50%)' }}>
@@ -447,15 +507,15 @@ export const DirectMessages = ({ theme, userId, activeDmUserId: initialActiveDmU
                   {user.avatar ? <img src={user.avatar} className="w-full h-full object-cover" alt="" /> : user.username.substring(0, 2).toUpperCase()}
                 </div>
                 <motion.div 
-                  animate={{ scale: onlineIds.includes(user.id) ? [1, 1.2, 1] : 1 }}
-                  transition={{ repeat: onlineIds.includes(user.id) ? Infinity : 0, duration: 2 }}
-                  className={`absolute -bottom-0.5 -right-0.5 w-4 h-4 rounded-full border-2 border-[#0D1117] ${onlineIds.includes(user.id) ? 'bg-emerald-500 shadow-lg shadow-emerald-500/50' : 'bg-white/20'}`} 
+                  animate={{ scale: user.status === 'online' ? [1, 1.2, 1] : 1 }}
+                  transition={{ repeat: user.status === 'online' ? Infinity : 0, duration: 2 }}
+                  className={`absolute -bottom-0.5 -right-0.5 w-4 h-4 rounded-full border-2 border-[#0D1117] ${user.status === 'online' ? 'bg-emerald-500 shadow-lg shadow-emerald-500/50' : 'bg-white/20'}`} 
                 />
               </div>
               <div className="flex-1 text-left overflow-hidden">
-                <p className="text-sm font-bold truncate">{user.username}</p>
+                <p className="text-sm font-bold truncate">{user.displayName || user.username}</p>
                 <p className="text-[11px] opacity-50 truncate flex items-center gap-1">
-                  {onlineIds.includes(user.id) ? (
+                  {user.status === 'online' ? (
                     <>
                       <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
                       Çevrimiçi
@@ -469,7 +529,17 @@ export const DirectMessages = ({ theme, userId, activeDmUserId: initialActiveDmU
       </aside>
 
       {/* Chat */}
-      <div className="flex-1 flex flex-col relative">
+      <div className="flex-1 flex flex-col relative"
+        onDragOver={handleDragOver}
+        onDragLeave={handleDragLeave}
+        onDrop={handleDrop}
+      >
+        {isDragging && (
+          <div className="absolute inset-0 z-50 flex flex-col items-center justify-center bg-blue-500/10 border-2 border-dashed border-blue-500/60 rounded-2xl pointer-events-none">
+            <div className="text-5xl mb-3">📎</div>
+            <p className="text-blue-400 font-bold text-lg">Dosyayı buraya bırak</p>
+          </div>
+        )}
         {!activeDmUserId ? (
           <div className="flex-1 flex flex-col items-center justify-center text-center p-12">
             <motion.div 
@@ -510,15 +580,15 @@ export const DirectMessages = ({ theme, userId, activeDmUserId: initialActiveDmU
                     {activeUser?.avatar ? <img src={activeUser.avatar} className="w-full h-full object-cover" alt="" /> : activeUser?.username?.substring(0, 2).toUpperCase() || '??'}
                   </motion.div>
                   <motion.div 
-                    animate={{ scale: onlineIds.includes(activeDmUserId) ? [1, 1.2, 1] : 1 }}
-                    transition={{ repeat: onlineIds.includes(activeDmUserId) ? Infinity : 0, duration: 2 }}
-                    className={`absolute -bottom-0.5 -right-0.5 w-4 h-4 rounded-full border-2 border-[#0D1117] ${onlineIds.includes(activeDmUserId) ? 'bg-emerald-500 shadow-lg shadow-emerald-500/50' : 'bg-white/20'}`} 
+                    animate={{ scale: isOnline ? [1, 1.2, 1] : 1 }}
+                    transition={{ repeat: isOnline ? Infinity : 0, duration: 2 }}
+                    className={`absolute -bottom-0.5 -right-0.5 w-4 h-4 rounded-full border-2 border-[#0D1117] ${isOnline ? 'bg-emerald-500 shadow-lg shadow-emerald-500/50' : 'bg-white/20'}`} 
                   />
                 </div>
                 <div>
-                  <p className="text-base font-bold text-white">{activeUser?.username || 'Kullanıcı'}</p>
+                  <p className="text-base font-bold text-white">{activeUser?.displayName || activeUser?.username || 'Kullanıcı'}</p>
                   <p className="text-xs text-white/50 flex items-center gap-1.5">
-                    {onlineIds.includes(activeDmUserId) ? (
+                    {isOnline ? (
                       <>
                         <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
                         Çevrimiçi
@@ -808,7 +878,7 @@ export const DirectMessages = ({ theme, userId, activeDmUserId: initialActiveDmU
 
                         <div className={`flex flex-col max-w-[70%] ${isOwn ? 'items-end' : ''}`}>
                           <div className={`flex items-center gap-2 mb-1 ${isOwn ? 'flex-row-reverse' : ''}`}>
-                            <span className="text-xs font-bold text-white/60">{msg.sender_name || msg.sender_id}</span>
+                            <span className="text-xs font-bold text-white/60">{isOwn ? (currentUserName || msg.sender_name || msg.sender_id) : (activeUser?.displayName || activeUser?.username || msg.sender_name || msg.sender_id)}</span>
                             <span className="text-[10px] text-white/20">{formatTime(msg.timestamp)}</span>
                             {msg.is_edited && <span className="text-[9px] text-white/20 italic">(düzenlendi)</span>}
                             {msg.is_pinned && <Pin size={10} className="text-yellow-400" />}
@@ -912,6 +982,11 @@ export const DirectMessages = ({ theme, userId, activeDmUserId: initialActiveDmU
                                 </div>
                               ) : (
                                 <div>
+                                  {msg.type === 'sticker' ? (
+                                    <div className="px-3 py-2 text-5xl leading-none select-none">
+                                      {msg.content}
+                                    </div>
+                                  ) : (
                                   <div className="px-5 py-3">
                                     {dmSearchQuery && msg.content?.toLowerCase().includes(dmSearchQuery.toLowerCase()) ? (
                                       (() => {
@@ -924,8 +999,9 @@ export const DirectMessages = ({ theme, userId, activeDmUserId: initialActiveDmU
                                       })()
                                     ) : msg.content}
                                   </div>
+                                  )}
                                   {/* Check for media URLs in content */}
-                                  {(() => {
+                                  {msg.type !== 'sticker' && (() => {
                                     const urls = extractUrls(msg.content || '');
                                     const mediaUrl = urls.find(url => containsMediaUrl(url));
                                     return mediaUrl ? (
@@ -1091,18 +1167,53 @@ export const DirectMessages = ({ theme, userId, activeDmUserId: initialActiveDmU
                   <Paperclip size={22} />
                 </motion.button>
                 <div className="flex-1 relative">
-                  <input 
+                  <textarea
+                    ref={dmInputRef}
+                    rows={1}
                     value={input} 
-                    onChange={e => handleInputChange(e.target.value)}
+                    onChange={e => {
+                      handleInputChange(e.target.value);
+                      const el = e.target as HTMLTextAreaElement;
+                      el.style.height = 'auto';
+                      el.style.height = Math.min(el.scrollHeight, 120) + 'px';
+                    }}
+                    onKeyDown={e => {
+                      if (e.key === 'Enter' && !e.shiftKey) {
+                        e.preventDefault();
+                        handleSend(e as any);
+                      }
+                    }}
                     placeholder={`${activeUser?.username || 'Arkadaşına'} mesaj gönder...`}
-                    className="w-full bg-white/5 border border-white/10 rounded-3xl px-6 py-4 pr-14 text-sm text-white placeholder:text-white/30 focus:outline-none focus:border-blue-500/50 focus:bg-white/10 transition-all backdrop-blur-sm shadow-lg" 
+                    className="w-full bg-white/5 border border-white/10 rounded-3xl px-6 py-4 pr-14 text-sm text-white placeholder:text-white/30 focus:outline-none focus:border-blue-500/50 focus:bg-white/10 transition-all backdrop-blur-sm shadow-lg resize-none overflow-hidden"
+                    style={{ minHeight: '56px', maxHeight: '120px' }}
                   />
-                  <div className="absolute right-3 top-1/2 -translate-y-1/2">
+                  <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center gap-1">
+                    <div className="relative">
+                      <motion.button
+                        whileHover={{ scale: 1.1 }}
+                        whileTap={{ scale: 0.95 }}
+                        type="button"
+                        onClick={() => { setShowStickerPicker(p => !p); setShowEmojiPicker(false); }}
+                        className="p-2 text-white/40 hover:text-yellow-400 hover:bg-white/10 rounded-lg transition-all"
+                        title="Sticker"
+                      >
+                        <span className="text-base leading-none">🎭</span>
+                      </motion.button>
+                      <AnimatePresence>
+                        {showStickerPicker && (
+                          <StickerPicker
+                            onSelect={handleSendSticker}
+                            onClose={() => setShowStickerPicker(false)}
+                            userId={userId}
+                          />
+                        )}
+                      </AnimatePresence>
+                    </div>
                     <motion.button
                       whileHover={{ scale: 1.1 }}
                       whileTap={{ scale: 0.95 }}
                       type="button"
-                      onClick={() => setShowEmojiPicker(!showEmojiPicker)}
+                      onClick={() => { setShowEmojiPicker(!showEmojiPicker); setShowStickerPicker(false); }}
                       className="p-2 text-white/40 hover:text-white hover:bg-white/10 rounded-lg transition-all"
                     >
                       <Smile size={20} />
@@ -1110,7 +1221,10 @@ export const DirectMessages = ({ theme, userId, activeDmUserId: initialActiveDmU
                     <AnimatePresence>
                       {showEmojiPicker && (
                         <EmojiPickerSVG
-                          onSelect={(emoji) => setInput(prev => prev + emoji)}
+                          onSelect={(emoji) => {
+                            setInput(prev => prev + emoji);
+                            dmInputRef.current?.focus();
+                          }}
                           onClose={() => setShowEmojiPicker(false)}
                         />
                       )}

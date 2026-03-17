@@ -2,10 +2,11 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'motion/react';
 import { useTranslation } from 'react-i18next';
-import { X, Heart, MessageCircle, Send, Trash2, Camera, Music, Code, Leaf, Cpu, MessageSquare, Eye } from 'lucide-react';
+import { X, Heart, MessageCircle, Send, Trash2, Camera, Music, Code, Leaf, Cpu, MessageSquare, Eye, Edit2, Check } from 'lucide-react';
 import { Post, Comment } from '../types/profile';
-import { listenComments, addComment, deletePost, toggleLike } from '../services/postService';
-import { auth } from '../firebase';
+import { listenComments, addComment, deletePost, toggleLike, toggleCommentLike, deleteComment, editComment } from '../services/postService';
+import { auth, db } from '../firebase';
+import { ref, onValue, off } from 'firebase/database';
 
 interface PostDetailModalProps {
   post: Post;
@@ -29,6 +30,10 @@ export const PostDetailModal: React.FC<PostDetailModalProps> = ({
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [isLiked, setIsLiked] = useState(false);
   const [likeCount, setLikeCount] = useState(0);
+  const [commentLikes, setCommentLikes] = useState<Record<string, Record<string, boolean>>>({});
+  const [usersMap, setUsersMap] = useState<Record<string, { username?: string; displayName?: string; avatar?: string }>>({});
+  const [editingCommentId, setEditingCommentId] = useState<string | null>(null);
+  const [editCommentValue, setEditCommentValue] = useState('');
   const commentInputRef = useRef<HTMLTextAreaElement>(null);
 
   const currentUser = auth.currentUser;
@@ -42,12 +47,29 @@ export const PostDetailModal: React.FC<PostDetailModalProps> = ({
 
     const unsubscribe = listenComments(post.id, (fetchedComments) => {
       setComments(fetchedComments);
+      // Sync comment likes from fetched data
+      const likes: Record<string, Record<string, boolean>> = {};
+      fetchedComments.forEach(c => { likes[c.id] = c.likes || {}; });
+      setCommentLikes(likes);
     });
 
-    return () => {
-      unsubscribe();
-    };
+    return () => { unsubscribe(); };
   }, [post.id, isOpen]);
+
+  // Real-time usersMap
+  useEffect(() => {
+    if (!isOpen) return;
+    const usersRef = ref(db, 'users');
+    const handler = onValue(usersRef, (snap) => {
+      const data = snap.val() || {};
+      const map: Record<string, { username?: string; displayName?: string; avatar?: string }> = {};
+      Object.entries(data).forEach(([uid, val]: [string, any]) => {
+        map[uid] = { username: val?.username, displayName: val?.displayName, avatar: val?.avatar };
+      });
+      setUsersMap(map);
+    });
+    return () => off(usersRef);
+  }, [isOpen]);
 
   // Update like state
   useEffect(() => {
@@ -83,6 +105,45 @@ export const PostDetailModal: React.FC<PostDetailModalProps> = ({
       await toggleLike(post.id, currentUserId);
     } catch (error) {
       console.error('Failed to toggle like:', error);
+    }
+  };
+
+  // Handle comment like toggle
+  const handleCommentLike = async (commentId: string) => {
+    if (!currentUser) return;
+    try {
+      await toggleCommentLike(post.id, commentId, currentUserId);
+      setCommentLikes(prev => {
+        const current = prev[commentId] || {};
+        const isLiked = !!current[currentUserId];
+        return {
+          ...prev,
+          [commentId]: { ...current, [currentUserId]: !isLiked }
+        };
+      });
+    } catch (error) {
+      console.error('Failed to toggle comment like:', error);
+    }
+  };
+
+  // Handle comment delete
+  const handleDeleteComment = async (commentId: string) => {
+    if (!currentUser || !window.confirm('Bu yorumu silmek istediğine emin misin?')) return;
+    try {
+      await deleteComment(post.id, commentId, currentUserId);
+    } catch (err: any) {
+      alert(err.message || 'Yorum silinemedi');
+    }
+  };
+
+  // Handle comment edit save
+  const handleEditCommentSave = async (commentId: string) => {
+    if (!currentUser) return;
+    try {
+      await editComment(post.id, commentId, currentUserId, editCommentValue);
+      setEditingCommentId(null);
+    } catch (err: any) {
+      alert(err.message || 'Yorum düzenlenemedi');
     }
   };
 
@@ -283,15 +344,17 @@ export const PostDetailModal: React.FC<PostDetailModalProps> = ({
                     className="flex gap-3"
                   >
                     <div className="w-8 h-8 rounded-full bg-gradient-to-br from-emerald-500 to-teal-500 flex items-center justify-center text-white font-black text-xs flex-shrink-0">
-                      {comment.avatar ? (
-                        <img src={comment.avatar} alt="avatar" className="w-full h-full rounded-full object-cover" />
+                      {(usersMap[comment.userId]?.avatar || comment.avatar) ? (
+                        <img src={usersMap[comment.userId]?.avatar || comment.avatar} alt="avatar" className="w-full h-full rounded-full object-cover" />
                       ) : (
-                        comment.username.substring(0, 2).toUpperCase()
+                        (usersMap[comment.userId]?.username || comment.username || '?').substring(0, 2).toUpperCase()
                       )}
                     </div>
                     <div className="flex-1">
                       <div className="flex items-center gap-2 mb-1">
-                        <span className="text-xs font-bold text-white">{comment.username}</span>
+                        <span className="text-xs font-bold text-white">
+                          {usersMap[comment.userId]?.displayName || usersMap[comment.userId]?.username || comment.username}
+                        </span>
                         <span className="text-[10px] text-white/40">
                           {new Date(comment.timestamp).toLocaleDateString('tr-TR', {
                             hour: '2-digit',
@@ -300,8 +363,61 @@ export const PostDetailModal: React.FC<PostDetailModalProps> = ({
                             month: 'short'
                           })}
                         </span>
+                        {(comment as any).edited && <span className="text-[9px] text-white/30 italic">(düzenlendi)</span>}
                       </div>
-                      <p className="text-sm text-white/70 leading-relaxed">{comment.content}</p>
+
+                      {editingCommentId === comment.id ? (
+                        <div className="flex gap-2 items-center">
+                          <input
+                            value={editCommentValue}
+                            onChange={e => setEditCommentValue(e.target.value)}
+                            onKeyDown={e => {
+                              if (e.key === 'Enter') handleEditCommentSave(comment.id);
+                              if (e.key === 'Escape') setEditingCommentId(null);
+                            }}
+                            className="flex-1 bg-white/10 border border-white/20 rounded-lg px-3 py-1.5 text-xs text-white focus:outline-none focus:border-emerald-500/50"
+                            maxLength={500}
+                            autoFocus
+                          />
+                          <button onClick={() => handleEditCommentSave(comment.id)} className="p-1.5 bg-emerald-500 rounded-lg text-white hover:bg-emerald-600 transition-all">
+                            <Check size={12} />
+                          </button>
+                          <button onClick={() => setEditingCommentId(null)} className="p-1.5 bg-white/10 rounded-lg text-white/60 hover:bg-white/20 transition-all">
+                            <X size={12} />
+                          </button>
+                        </div>
+                      ) : (
+                        <p className="text-sm text-white/70 leading-relaxed">{comment.content}</p>
+                      )}
+
+                      <div className="flex items-center gap-3 mt-1">
+                        <button
+                          onClick={() => handleCommentLike(comment.id)}
+                          className={`flex items-center gap-1 text-[11px] font-bold transition-colors ${
+                            commentLikes[comment.id]?.[currentUserId] ? 'text-red-400' : 'text-white/30 hover:text-red-400'
+                          }`}
+                        >
+                          <Heart size={11} fill={commentLikes[comment.id]?.[currentUserId] ? 'currentColor' : 'none'} />
+                          {Object.keys(commentLikes[comment.id] || {}).length || ''}
+                        </button>
+
+                        {comment.userId === currentUserId && editingCommentId !== comment.id && (
+                          <>
+                            <button
+                              onClick={() => { setEditingCommentId(comment.id); setEditCommentValue(comment.content); }}
+                              className="flex items-center gap-1 text-[11px] text-white/30 hover:text-emerald-400 transition-colors"
+                            >
+                              <Edit2 size={11} /> Düzenle
+                            </button>
+                            <button
+                              onClick={() => handleDeleteComment(comment.id)}
+                              className="flex items-center gap-1 text-[11px] text-white/30 hover:text-red-400 transition-colors"
+                            >
+                              <Trash2 size={11} /> Sil
+                            </button>
+                          </>
+                        )}
+                      </div>
                     </div>
                   </motion.div>
                 ))

@@ -21,6 +21,7 @@
       { "source": "/cerez-politikasi", "destination": "/cerez-politikasi.html" },
       { "source": "/gizlilik", "destination": "/gizlilik.html" },
       { "source": "/sartlar", "destination": "/sartlar.html" },
+      { "source": "/google7c1e4c817b261b16.html", "destination": "/google7c1e4c817b261b16.html" },
       { "source": "**", "destination": "/index.html" }
     ]
   },

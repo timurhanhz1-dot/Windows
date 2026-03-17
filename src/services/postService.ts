@@ -545,3 +545,157 @@ export async function awardEcoPoints(
     console.error('Eco points award failed:', err);
   }
 }
+
+/**
+ * Yorum sil (sadece yorum sahibi veya admin)
+ */
+export async function deleteComment(
+  postId: string,
+  commentId: string,
+  userId: string
+): Promise<void> {
+  const commentRef = ref(db, `nature_posts/${postId}/comments/${commentId}`);
+  const snap = await get(commentRef);
+  if (!snap.exists()) throw new ProfileError('Yorum bulunamadı', ProfileErrorCode.POST_NOT_FOUND);
+  const comment = snap.val();
+
+  const userSnap = await get(ref(db, `users/${userId}`));
+  const isAdmin = userSnap.val()?.is_admin || userSnap.val()?.isAdmin || false;
+
+  if (comment.userId !== userId && !isAdmin) {
+    throw new ProfileError('Bu yorumu silme yetkiniz yok', ProfileErrorCode.FORBIDDEN);
+  }
+  await remove(commentRef);
+}
+
+/**
+ * Yorum düzenle (sadece yorum sahibi)
+ */
+export async function editComment(
+  postId: string,
+  commentId: string,
+  userId: string,
+  newContent: string
+): Promise<void> {
+  if (!newContent.trim()) throw new ProfileError('Yorum boş olamaz', ProfileErrorCode.INVALID_INPUT);
+  if (newContent.length > 500) throw new ProfileError('Maksimum 500 karakter', ProfileErrorCode.CONTENT_TOO_LONG);
+
+  const commentRef = ref(db, `nature_posts/${postId}/comments/${commentId}`);
+  const snap = await get(commentRef);
+  if (!snap.exists()) throw new ProfileError('Yorum bulunamadı', ProfileErrorCode.POST_NOT_FOUND);
+  if (snap.val().userId !== userId) throw new ProfileError('Bu yorumu düzenleme yetkiniz yok', ProfileErrorCode.FORBIDDEN);
+
+  await update(commentRef, {
+    content: newContent.trim(),
+    edited: true,
+    editedAt: Date.now(),
+  });
+}
+
+/**
+ * Yorum beğen / beğeniyi kaldır
+ */
+export async function toggleCommentLike(
+  postId: string,
+  commentId: string,
+  userId: string
+): Promise<boolean> {
+  const likeRef = ref(db, `nature_posts/${postId}/comments/${commentId}/likes/${userId}`);
+  const snap = await get(likeRef);
+  if (snap.exists()) {
+    await remove(likeRef);
+    return false;
+  } else {
+    await set(likeRef, true);
+    return true;
+  }
+}
+
+/**
+ * Post raporla
+ */
+export async function reportPost(
+  postId: string,
+  reporterId: string,
+  reason: string
+): Promise<void> {
+  const reportRef = ref(db, `post_reports/${postId}/${reporterId}`);
+  await set(reportRef, { reason, timestamp: Date.now(), reporterId });
+}
+
+/**
+ * Post paylaş (shares sayacını artır + kullanıcı paylaşım kaydı)
+ */
+export async function sharePost(postId: string, userId: string): Promise<void> {
+  const sharesRef = ref(db, `nature_posts/${postId}/shares`);
+  const snap = await get(sharesRef);
+  const current = snap.val() || 0;
+  await set(sharesRef, current + 1);
+  await set(ref(db, `post_shares/${userId}/${postId}`), Date.now());
+}
+
+/**
+ * Post düzenle (sadece sahip)
+ */
+export async function editPost(
+  postId: string,
+  userId: string,
+  newContent: string
+): Promise<void> {
+  const post = await getPost(postId);
+  if (!post) throw new ProfileError('Post bulunamadı', ProfileErrorCode.POST_NOT_FOUND);
+  if (post.userId !== userId) throw new ProfileError('Yetkiniz yok', ProfileErrorCode.FORBIDDEN);
+  if (!newContent.trim()) throw new ProfileError('İçerik boş olamaz', ProfileErrorCode.INVALID_INPUT);
+  if (newContent.length > 500) throw new ProfileError('Maksimum 500 karakter', ProfileErrorCode.CONTENT_TOO_LONG);
+
+  await update(ref(db, `nature_posts/${postId}`), {
+    content: newContent.trim(),
+    edited: true,
+    editedAt: Date.now(),
+  });
+}
+
+/**
+ * Post'u kaydet / kayıttan çıkar (toggle)
+ */
+export async function toggleBookmark(postId: string, userId: string): Promise<boolean> {
+  const bookmarkRef = ref(db, `bookmarks/${userId}/${postId}`);
+  const snap = await get(bookmarkRef);
+  if (snap.exists()) {
+    await remove(bookmarkRef);
+    return false; // kaldırıldı
+  } else {
+    await set(bookmarkRef, Date.now());
+    return true; // eklendi
+  }
+}
+
+/**
+ * Kullanıcının kaydedilen postlarını dinle
+ */
+export function listenBookmarks(
+  userId: string,
+  callback: (postIds: string[]) => void
+): () => void {
+  const bookmarksRef = ref(db, `bookmarks/${userId}`);
+  const unsub = onValue(bookmarksRef, (snap) => {
+    callback(Object.keys(snap.val() || {}));
+  });
+  return () => off(bookmarksRef);
+}
+
+/**
+ * Kaydedilen postların detaylarını getir
+ */
+export async function getBookmarkedPosts(userId: string): Promise<Post[]> {
+  const snap = await get(ref(db, `bookmarks/${userId}`));
+  const postIds = Object.keys(snap.val() || {});
+  const posts: Post[] = [];
+  for (const postId of postIds) {
+    const postSnap = await get(ref(db, `nature_posts/${postId}`));
+    if (postSnap.exists()) {
+      posts.push({ id: postId, ...postSnap.val() } as Post);
+    }
+  }
+  return posts.sort((a, b) => b.timestamp - a.timestamp);
+}

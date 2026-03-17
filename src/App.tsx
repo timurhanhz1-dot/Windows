@@ -238,6 +238,8 @@ function AppContent() {
   }, [userId]);
   
   const isAdmin = currentUserData?.is_admin === true;
+  // currentUserData'dan güncel username al (kullanıcı adı değişimini yansıtır)
+  const currentUsername = currentUserData?.username || displayName;
   // isAdmin false olarak kesinleşirse admin view'dan çık
   useEffect(() => {
     if (currentUserData !== undefined && !isAdmin && view === 'admin') {
@@ -313,6 +315,7 @@ function AppContent() {
       setMessages([]);
       return;
     }
+    setMessages([]);
     return listenMessages(currentChannelId, setMessages as any);
   }, [currentChannelId, currentUser, activeChannel]);
 
@@ -353,10 +356,13 @@ function AppContent() {
       const unsub = onValue(friendRef, snap => {
         const data = snap.val();
         if (data) {
+          // last_seen'e göre online/offline belirle (5 dakika eşiği)
+          const lastSeen = data.last_seen ? new Date(data.last_seen).getTime() : 0;
+          const isRecentlyActive = Date.now() - lastSeen < 5 * 60 * 1000;
           friendDataMap.set(friendId, {
             id: friendId,
             username: data.username || 'Unknown',
-            status: data.status || 'offline',
+            status: isRecentlyActive ? (data.status || 'offline') : 'offline',
             avatar: data.avatar || data.photoURL || '',
             is_admin: data.is_admin || data.isAdmin || false,
             is_verified: data.is_verified === true,
@@ -397,20 +403,45 @@ function AppContent() {
           if (v.is_banned || v.banned) return false;
           return true;
         })
-        .map(([id, v]: any) => ({
-          id,
-          username: v.username || 'Kullanıcı',
-          displayName: v.displayName || v.username || 'Kullanıcı',
-          avatar: v.avatar || v.photoURL || '',
-          photoURL: v.photoURL || v.avatar || null,
-          status: v.status || 'offline',
-          is_admin: v.is_admin || v.isAdmin || false,
-          is_verified: v.is_verified === true,
-        }));
+        .map(([id, v]: any) => {
+          // last_seen'e göre online/offline belirle (5 dakika eşiği)
+          const lastSeen = v.last_seen ? new Date(v.last_seen).getTime() : 0;
+          const isRecentlyActive = Date.now() - lastSeen < 5 * 60 * 1000;
+          return {
+            id,
+            username: v.username || 'Kullanıcı',
+            displayName: v.displayName || v.username || 'Kullanıcı',
+            avatar: v.avatar || v.photoURL || '',
+            photoURL: v.photoURL || v.avatar || null,
+            status: isRecentlyActive ? (v.status || 'offline') : 'offline',
+            is_admin: v.is_admin || v.isAdmin || false,
+            is_verified: v.is_verified === true,
+          };
+        });
       setDiscoverUsers(list);
     });
     return () => off(usersRef);
   }, [userId]);
+
+  // Tüm kullanıcıları birleştir (arkadaşlar + keşfet + kendisi) — ChatArea'da güncel isim göstermek için
+  const allUsersForChat = useMemo(() => {
+    const map = new Map<string, any>();
+    discoverUsers.forEach(u => map.set(u.id, u));
+    allUsers.forEach(u => map.set(u.id, u)); // arkadaşlar öncelikli
+    // Kendi verimizi de ekle — kendi mesajlarında güncel isim göstermek için
+    if (userId && currentUserData) {
+      map.set(userId, {
+        id: userId,
+        username: currentUserData.username || displayName,
+        displayName: currentUserData.displayName || currentUserData.username || displayName,
+        avatar: currentUserData.avatar || currentUserData.photoURL || '',
+        status: 'online',
+        is_admin: currentUserData.is_admin || currentUserData.isAdmin || false,
+        is_verified: currentUserData.is_verified === true,
+      });
+    }
+    return Array.from(map.values());
+  }, [allUsers, discoverUsers, userId, currentUserData, displayName]);
 
   // ── user_index backfill (mevcut kullanicilari index'e yaz) ──────────────────
   const backfillDoneRef = useRef(false);
@@ -733,7 +764,7 @@ function AppContent() {
 
       <main className="flex-1 flex flex-col relative z-0 min-w-0 overflow-hidden" style={{ paddingBottom: 0 }}>
         <div className="flex-1 flex flex-col min-h-0 overflow-hidden">
-          {view === 'chat' && <ChatArea theme={theme} activeChannel={activeChannel} searchQuery={searchQuery} setSearchQuery={setSearchQuery} isMuted={isMuted} setIsMuted={setIsMuted} polls={polls} votePoll={(pollId, idx) => fbVotePoll(currentChannelId, pollId, userId, idx)} filteredMessages={filteredMessages} userId={userId} currentUser={currentUser} input={input} setInput={setInput} handleSendMessage={handleSendMessage} isLoading={isLoading} chatEndRef={chatEndRef} onFileUpload={handleFileUpload} onImageUpload={() => {}} onVoiceRecord={() => {}} onStartDM={(id) => { setActiveDmUserId(id); setView('dm'); }} allUsers={allUsers.filter(u => friendIds.includes(u.id))} onReact={(msgId, emoji) => addReaction(currentChannelId, msgId, emoji, userId)} onPin={(msgId, pinned) => pinMessage(currentChannelId, msgId, pinned)} onEdit={(msgId, content) => editMessage(currentChannelId, msgId, content)} onDelete={(msgId) => deleteMessage(currentChannelId, msgId)} onCreatePoll={(q, opts) => fbCreatePoll(currentChannelId, userId, q, opts)} onClosePoll={(pollId) => fbClosePoll(currentChannelId, pollId)} onDeletePoll={(pollId) => fbDeletePoll(currentChannelId, pollId)} aiHistory={[]} onQuickPrompt={(prompt) => setInput(prompt)} onClearAiHistory={() => {
+          {view === 'chat' && <ChatArea theme={theme} activeChannel={activeChannel} searchQuery={searchQuery} setSearchQuery={setSearchQuery} isMuted={isMuted} setIsMuted={setIsMuted} polls={polls} votePoll={(pollId, idx) => fbVotePoll(currentChannelId, pollId, userId, idx)} filteredMessages={filteredMessages} userId={userId} currentUser={currentUser} input={input} setInput={setInput} handleSendMessage={handleSendMessage} isLoading={isLoading} chatEndRef={chatEndRef} onFileUpload={handleFileUpload} onImageUpload={() => {}} onVoiceRecord={() => {}} onStartDM={(id) => { setActiveDmUserId(id); setView('dm'); }} allUsers={allUsersForChat} onReact={(msgId, emoji) => addReaction(currentChannelId, msgId, emoji, userId)} onPin={(msgId, pinned) => pinMessage(currentChannelId, msgId, pinned)} onEdit={(msgId, content) => editMessage(currentChannelId, msgId, content)} onDelete={(msgId) => deleteMessage(currentChannelId, msgId)} onCreatePoll={(q, opts) => fbCreatePoll(currentChannelId, userId, q, opts)} onClosePoll={(pollId) => fbClosePoll(currentChannelId, pollId)} onDeletePoll={(pollId) => fbDeletePoll(currentChannelId, pollId)} aiHistory={[]} onQuickPrompt={(prompt) => setInput(prompt)} onClearAiHistory={() => {
   if (!userId) return;
   // UI'ı hemen güncelle, Firebase işlemini arka planda yap
   try { setAiHistory([]); } catch {}
@@ -755,7 +786,7 @@ function AppContent() {
 }} quickPrompts={[]} isCompact={isCompact} fontSize={fontSize} isChannelLocked={!!(channels.find(c => c.id === currentChannelId)?.is_locked)} isAdmin={isAdmin} />}
         {view === 'admin' && isAdmin && <AdminPanel theme={theme} siteSettings={siteSettings} updateSiteSettings={() => {}} />}
         {view === 'forum' && <Forum theme={theme} userId={userId} displayName={displayName} />}
-        {view === 'dm' && <DirectMessages theme={theme} userId={userId} activeDmUserId={activeDmUserId} currentUserName={displayName} onStartCall={(targetId, targetName, mode) => startCall(targetId, targetName, mode)} />}
+        {view === 'dm' && <DirectMessages theme={theme} userId={userId} activeDmUserId={activeDmUserId} currentUserName={currentUsername} onStartCall={(targetId, targetName, mode) => startCall(targetId, targetName, mode)} />}
         {view === 'games' && <Games theme={theme} />}
         {view === 'live-tv' && <LiveSection theme={theme} type="tv" tvChannel={tvChannel} />}
         {view === 'live-chat' && <LiveSection theme={theme} type="chat" userId={userId} username={displayName} />}

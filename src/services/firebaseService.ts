@@ -1,6 +1,6 @@
 import { db, storage } from '../firebase';
 import {
-  ref, onValue, push, set, get, update, remove, off, query, orderByChild, limitToLast, increment
+  ref, onValue, push, set, get, update, remove, off, query, orderByChild, limitToLast, increment, onDisconnect
 } from 'firebase/database';
 import { ref as storageRef, uploadBytes, getDownloadURL } from 'firebase/storage';
 
@@ -192,6 +192,14 @@ export function listenOnlineUsers(callback: (userIds: string[]) => void) {
 export async function setUserOnline(userId: string, username: string) {
   await update(ref(db, `online`), { [userId]: true });
   await update(ref(db, `users/${userId}`), { status: 'online', last_seen: new Date().toISOString() });
+
+  // Bağlantı kopunca otomatik offline yap
+  const onlineRef = ref(db, `online/${userId}`);
+  const statusRef = ref(db, `users/${userId}/status`);
+  const lastSeenRef = ref(db, `users/${userId}/last_seen`);
+  await onDisconnect(onlineRef).set(false);
+  await onDisconnect(statusRef).set('offline');
+  await onDisconnect(lastSeenRef).set(new Date().toISOString());
 }
 
 export async function setUserOffline(userId: string) {

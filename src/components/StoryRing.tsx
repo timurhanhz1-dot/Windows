@@ -10,6 +10,7 @@ interface StoryRingProps {
   currentUserId: string;
   onStoryClick: (userId: string, stories: Story[]) => void;
   onCreateStory: () => void;
+  isOwnProfile?: boolean;
 }
 
 interface UserWithStories {
@@ -20,7 +21,7 @@ interface UserWithStories {
   hasUnviewed: boolean;
 }
 
-export const StoryRing = ({ currentUserId, onStoryClick, onCreateStory }: StoryRingProps) => {
+export const StoryRing = ({ currentUserId, onStoryClick, onCreateStory, isOwnProfile = false }: StoryRingProps) => {
   const [usersWithStories, setUsersWithStories] = useState<UserWithStories[]>([]);
   const [currentUserStories, setCurrentUserStories] = useState<Story[]>([]);
   const [loading, setLoading] = useState(true);
@@ -55,22 +56,22 @@ export const StoryRing = ({ currentUserId, onStoryClick, onCreateStory }: StoryR
       setLoading(false);
     });
 
-    // Listen to following list and fetch their stories
+    // Listen to both following and followers lists and fetch their stories
     const followingRef = ref(db, `following/${currentUserId}`);
-    const unsubFollowing = onValue(followingRef, async (snap) => {
-      const followingData = snap.val() || {};
-      const followingIds = Object.keys(followingData);
+    const followersRef = ref(db, `followers/${currentUserId}`);
 
+    const loadStoriesForUsers = async (userIds: string[]) => {
+      const nowTs = Date.now();
       const usersData: UserWithStories[] = [];
 
-      for (const uid of followingIds) {
+      for (const uid of userIds) {
         if (uid === currentUserId) continue;
         try {
           const storiesSnap = await get(ref(db, `stories/${uid}`));
           const storiesData = storiesSnap.val() || {};
 
           const userStories: Story[] = Object.entries(storiesData)
-            .filter(([, val]: any) => val.expiresAt > now)
+            .filter(([, val]: any) => val.expiresAt > nowTs)
             .map(([id, val]: any) => ({
               id,
               userId: val.userId,
@@ -104,11 +105,28 @@ export const StoryRing = ({ currentUserId, onStoryClick, onCreateStory }: StoryR
 
       usersData.sort((a, b) => (b.hasUnviewed ? 1 : 0) - (a.hasUnviewed ? 1 : 0));
       setUsersWithStories(usersData);
+    };
+
+    // Merge following + followers into a unique set
+    let followingIds: string[] = [];
+    let followerIds: string[] = [];
+
+    const unsubFollowing = onValue(followingRef, (snap) => {
+      followingIds = Object.keys(snap.val() || {});
+      const merged = [...new Set([...followingIds, ...followerIds])];
+      loadStoriesForUsers(merged);
+    });
+
+    const unsubFollowers = onValue(followersRef, (snap) => {
+      followerIds = Object.keys(snap.val() || {});
+      const merged = [...new Set([...followingIds, ...followerIds])];
+      loadStoriesForUsers(merged);
     });
 
     return () => {
       unsubMyStories();
       unsubFollowing();
+      unsubFollowers();
     };
   }, [currentUserId]);
 
@@ -116,7 +134,8 @@ export const StoryRing = ({ currentUserId, onStoryClick, onCreateStory }: StoryR
     <div className="mb-6">
       <div className="flex gap-3 overflow-x-auto pb-4 scrollbar-hide">
 
-        {/* Create Story Button - Always visible */}
+        {/* Create Story Button - Only visible on own profile */}
+        {isOwnProfile && (
         <motion.button
           onClick={onCreateStory}
           className="flex-shrink-0 flex flex-col items-center gap-2 group"
@@ -135,6 +154,7 @@ export const StoryRing = ({ currentUserId, onStoryClick, onCreateStory }: StoryR
             Hikaye Ekle
           </span>
         </motion.button>
+        )}
 
         {/* Current User's Stories */}
         {currentUserStories.length > 0 && (

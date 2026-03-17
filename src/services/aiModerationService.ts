@@ -11,7 +11,8 @@ import {
 } from '../types/moderation';
 
 const GROQ_API_KEY = import.meta.env.VITE_GROQ_API_KEY || '';
-const GROQ_API_URL = 'https://api.groq.com/openai/v1/chat/completions';
+// Firebase Functions proxy üzerinden çağır (CORS sorunu olmaz)
+const GROQ_API_URL = 'https://us-central1-lisa-518f0.cloudfunctions.net/groqProxy';
 
 class AIModerationService {
   private rules: Map<string, ModerationRule> = new Map();
