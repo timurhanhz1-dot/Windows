@@ -1,0 +1,74 @@
+{
+  "name": "natureco",
+  "version": "1.0.5",
+  "description": "Nature.co Desktop App",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "dist:mac": "electron-builder --mac dmg",
+    "dist:mas": "electron-builder --mac mas",
+    "dist:win": "electron-builder --win"
+  },
+  "build": {
+    "appId": "me.natureco.app",
+    "productName": "Nature.co",
+    "icon": "icon.icns",
+    "mac": {
+      "category": "public.app-category.social-networking",
+      "hardenedRuntime": true,
+      "gatekeeperAssess": false,
+      "entitlements": "entitlements.mac.plist",
+      "entitlementsInherit": "entitlements.mac.plist",
+      "extendInfo": {
+        "NSCameraUsageDescription": "Nature.co görüntülü görüşme için kameranıza erişim istiyor.",
+        "NSMicrophoneUsageDescription": "Nature.co sesli/görüntülü görüşme için mikrofonunuza erişim istiyor."
+      },
+      "target": [
+        { "target": "dmg", "arch": ["x64", "arm64"] }
+      ]
+    },
+    "mas": {
+      "category": "public.app-category.social-networking",
+      "entitlements": "entitlements.mas.plist",
+      "entitlementsInherit": "entitlements.mas.inherit.plist",
+      "provisioningProfile": "embedded.provisionprofile",
+      "identity": "Apple Distribution: gençay olgun (9JC7VYJH2Y)",
+      "type": "distribution",
+      "minimumSystemVersion": "12.0",
+      "extendInfo": {
+        "ITSAppUsesNonExemptEncryption": false,
+        "NSCameraUsageDescription": "Nature.co görüntülü görüşme için kameranıza erişim istiyor.",
+        "NSMicrophoneUsageDescription": "Nature.co sesli/görüntülü görüşme için mikrofonunuza erişim istiyor."
+      },
+      "target": [
+        { "target": "mas", "arch": ["x64", "arm64"] }
+      ]
+    },
+    "win": {
+      "target": [
+        { "target": "nsis", "arch": ["x64"] },
+        { "target": "appx", "arch": ["x64"] }
+      ],
+      "icon": "icon.png"
+    },
+    "appx": {
+      "publisher": "CN=CE3ED745-3A5F-4084-854F-60C21C661711",
+      "publisherDisplayName": "Gencayolgun",
+      "identityName": "Gencayolgun.NatureCo",
+      "applicationId": "NatureCo"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true
+    }
+  },
+  "dependencies": {
+    "electron-squirrel-startup": "^1.0.1"
+  },
+  "devDependencies": {
+    "electron": "^28.0.0",
+    "electron-builder": "^24.0.0"
+  }
+}
